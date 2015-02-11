@@ -29,8 +29,6 @@ import com.nispok.snackbar.enums.SnackbarType;
 public class SubjectDashboard extends ActionBarActivity {
 
     private String subject;
-    private int ObjectiveCount = 1;
-    private int ObjectivesFilled;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,11 +100,12 @@ public class SubjectDashboard extends ActionBarActivity {
                 .show();
     }
 
-    public void newLesson2(LessonManager manager) {
+    public void newLesson2(final LessonManager manager) {
 
         EditText editText1 = new EditText(this);
 
-        LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout,null);
+        final LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout, null);
+
         dialogLayout.addView(editText1);
 
         new MaterialDialog.Builder(this)
@@ -122,61 +121,34 @@ public class SubjectDashboard extends ActionBarActivity {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onNeutral(MaterialDialog dialog) {
-                        ObjectiveCount++;
-                        LinearLayout layout = (LinearLayout) dialog.getCustomView();
-
-                        if (ObjectivesFilled == 3) {
-                            //Add a TextView to the layout with the message (No more spaces)
-                            TextView noSpaceText = new TextView(SubjectDashboard.this);
-                            noSpaceText.setText("No more objective spaces available");
-                            noSpaceText.setTextColor(Color.RED);
-                            noSpaceText.setGravity(Gravity.CENTER_HORIZONTAL);
-                            noSpaceText.setPadding(1,1,1,1);
-                            layout.addView(noSpaceText);
-
-                            //Need to disable "New Objective" (Neutral) button after Textview is shown
-                            View neutralButton = dialog.getActionButton(DialogAction.NEUTRAL);
-                            neutralButton.setVisibility(View.GONE);
-
-                            /*
-                            SnackbarManager.show(Snackbar.with(getApplicationContext())
-                                    .type(SnackbarType.MULTI_LINE)
-                                    .text("No more objective spaces available, you may add more after the lesson is created.")
-                                    .duration(Snackbar.SnackbarDuration.LENGTH_LONG), SubjectDashboard.this);
-                            */
-                        } else {
-
-                            switch (ObjectiveCount) {
-                                case 2:
-                                    setObjectivesFilled(2);
-                                    EditText editText2 = new EditText(SubjectDashboard.this);
-                                    layout.addView(editText2);
-                                    break;
-                                case 3:
-                                    setObjectivesFilled(3);
-                                    EditText editText3 = new EditText(SubjectDashboard.this);
-                                    layout.addView(editText3);
-                                    ObjectiveCount = 1;
-                                    break;
-                            }
-                        }
+                        EditText editText = new EditText(SubjectDashboard.this);
+                        dialogLayout.addView(editText);
                     }
-                })
-                .dismissListener(new MaterialDialog.OnDismissListener() {
                     @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        setObjectivesFilled(0);
-                        ObjectiveCount = 1;
-
+                    public void onPositive(MaterialDialog dialog) {
+                        dialog.dismiss();
+                        String[] objectives = getObjectiveValues(dialogLayout);
+                        manager.setObjectives(objectives);
+                        Toast.makeText(getApplicationContext(),manager.getLessonName(),Toast.LENGTH_LONG).show();
+                        //newLesson3
                     }
                 })
                 .show();
-    }
+                }
 
-    public void setObjectivesFilled(int count) {
-        ObjectivesFilled = count;
-    }
+    public String[] getObjectiveValues(ViewGroup view) {
+        ViewGroup viewGroup = view;
+        String[] objectiveArray = new String[view.getChildCount()];
 
+        int objectiveCount = viewGroup.getChildCount();
+
+        for (int i = 0; i < objectiveCount;i++) {
+            EditText currentEditText = (EditText) viewGroup.getChildAt(i);
+            String objective = currentEditText.getText().toString();
+            objectiveArray[i] = objective;
+        }
+        return objectiveArray;
+    }
 
     public void newLesson3(LessonManager manager) {
         //get priority

@@ -6,6 +6,7 @@ public class LessonManager {
 
     private String subject;
     private String lessonName;
+    private String[] objectives;
 
     public LessonManager(String subject) {
         this.subject = subject;
@@ -16,6 +17,10 @@ public class LessonManager {
     }
     public String getLessonName() {
         return lessonName;
+    }
+
+    public void setObjectives(String[] objectives) {
+        this.objectives = objectives;
     }
 
 
