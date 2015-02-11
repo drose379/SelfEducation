@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/subject_home"
+    android:weightSum="1">
+
+    <include
+        layout="@layout/tool_bar"
+        >
+    </include>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="150dp"
+        android:orientation="horizontal"
+        android:id="@+id/logoLayout">
+
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="30dp"
+            android:textStyle="italic"
+            android:textColor="@color/ColorSubText"
+            android:text="Self "
+        />
+        <TextView
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="30dp"
+            android:textStyle="bold"
+            android:text="Educate"
+            />
+
+        </LinearLayout>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinAnimation1"
+        android:layout_gravity="center_horizontal"
+        />
+
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/subjectList"
+    />
+
+</LinearLayout>

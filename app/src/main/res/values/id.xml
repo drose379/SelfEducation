@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="high" type="id"/>
+    <item name="neutral" type="id"/>
+    <item name="low" type="id"/>
+</resources>
