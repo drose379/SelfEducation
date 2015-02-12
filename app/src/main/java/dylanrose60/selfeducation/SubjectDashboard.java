@@ -17,6 +17,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -124,13 +126,13 @@ public class SubjectDashboard extends ActionBarActivity {
                         EditText editText = new EditText(SubjectDashboard.this);
                         dialogLayout.addView(editText);
                     }
+
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         dialog.dismiss();
                         String[] objectives = getObjectiveValues(dialogLayout);
                         manager.setObjectives(objectives);
-                        Toast.makeText(getApplicationContext(),manager.getLessonName(),Toast.LENGTH_LONG).show();
-                        //newLesson3
+                        newLesson3(manager);
                     }
                 })
                 .show();
@@ -151,7 +153,36 @@ public class SubjectDashboard extends ActionBarActivity {
     }
 
     public void newLesson3(LessonManager manager) {
-        //get priority
+
+        LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout, null);
+
+        RadioGroup rGroup = new RadioGroup(this);
+
+        RadioButton rButton1 = new RadioButton(this);
+        rButton1.setText("High");
+        RadioButton rButton2 = new RadioButton(this);
+        rButton2.setText("Neutral");
+        RadioButton rButton3 = new RadioButton(this);
+        rButton3.setText("Low");
+
+        rGroup.addView(rButton1);
+        rGroup.addView(rButton2);
+        rGroup.addView(rButton3);
+
+        dialogLayout.addView(rGroup);
+
+        new MaterialDialog.Builder(this)
+                .title("Select Priority")
+                .customView(dialogLayout,true)
+                .positiveText("Create")
+                .positiveColor(getResources().getColor(R.color.ColorSubText))
+                .negativeText("Cancel")
+                .negativeColor(Color.RED)
+                .show();
+    }
+
+    public void createLesson(LessonManager manager) {
+
     }
 
 
