@@ -14,7 +14,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -28,7 +30,10 @@ import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.enums.SnackbarType;
 
-public class SubjectDashboard extends ActionBarActivity {
+import org.json.JSONArray;
+import org.json.JSONException;
+
+public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener {
 
     private String subject;
 
@@ -70,6 +75,12 @@ public class SubjectDashboard extends ActionBarActivity {
                     }
                 })
                 .show();
+    }
+
+    public void openTagManager(View view) {
+        Intent intent = new Intent(getApplicationContext(),TagManager.class);
+        intent.putExtra("subject",subject);
+        startActivity(intent);
     }
 
     public void newLesson1() {
@@ -153,26 +164,35 @@ public class SubjectDashboard extends ActionBarActivity {
     }
 
     public void newLesson3(LessonManager manager) {
+        manager.setListener(this);
+        manager.getTags();
+    }
 
+    @Override
+    public void getArray(String stringArray) {
+        try {
+            JSONArray array = new JSONArray(stringArray);
+            String[] tagArray = new String[array.length()];
+
+            for (int i = 0;i < array.length();i++) {
+                String tag = array.getJSONObject(i).getString("tag_name");
+                tagArray[i] = tag;
+            }
+            buildTagDialog(tagArray);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void buildTagDialog(String[] tags) {
         LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout, null);
-
-        RadioGroup rGroup = new RadioGroup(this);
-
-        RadioButton rButton1 = new RadioButton(this);
-        rButton1.setText("High");
-        RadioButton rButton2 = new RadioButton(this);
-        rButton2.setText("Neutral");
-        RadioButton rButton3 = new RadioButton(this);
-        rButton3.setText("Low");
-
-        rGroup.addView(rButton1);
-        rGroup.addView(rButton2);
-        rGroup.addView(rButton3);
-
-        dialogLayout.addView(rGroup);
-
+        for (String tag : tags) {
+            CheckBox checkbox = new CheckBox(this);
+            checkbox.setText(tag);
+            dialogLayout.addView(checkbox);
+        }
         new MaterialDialog.Builder(this)
-                .title("Select Priority")
+                .title("Tag your new lesson")
                 .customView(dialogLayout,true)
                 .positiveText("Create")
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
@@ -180,6 +200,7 @@ public class SubjectDashboard extends ActionBarActivity {
                 .negativeColor(Color.RED)
                 .show();
     }
+
 
     public void createLesson(LessonManager manager) {
 

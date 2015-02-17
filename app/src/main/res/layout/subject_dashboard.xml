@@ -33,7 +33,7 @@
         android:layout_width="90dp"
         android:layout_height="65dp"
         android:id="@+id/img1"
-        android:src="@drawable/plus_100"/>
+        android:src="@drawable/plus_new"/>
 
     <TextView
         android:layout_width="90dp"
@@ -55,7 +55,7 @@
             android:layout_width="90dp"
             android:layout_height="65dp"
             android:id="@+id/img2"
-            android:src="@drawable/list_100"/>
+            android:src="@drawable/lesson_new"/>
 
         <TextView
             android:layout_width="90dp"
@@ -84,9 +84,8 @@
             <ImageView
                 android:layout_width="90dp"
                 android:layout_height="65dp"
-
                 android:id="@+id/img3"
-                android:src="@drawable/today_100"/>
+                android:src="@drawable/today_new"/>
 
             <TextView
                 android:layout_width="90dp"
@@ -108,7 +107,7 @@
                 android:layout_width="90dp"
                 android:layout_height="65dp"
                 android:id="@+id/img4"
-                android:src="@drawable/calendar_100"/>
+                android:src="@drawable/calendar_new"/>
 
             <TextView
                 android:layout_width="90dp"
@@ -121,7 +120,60 @@
 
         </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="30dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginRight="65dp"
+            android:onClick="openTagManager"
+            >
+            <ImageView
+                android:layout_width="90dp"
+                android:layout_height="65dp"
+                android:id="@+id/img5"
+                android:src="@drawable/tag_new"/>
+
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:textColor="@color/ColorSubText"
+                android:layout_below="@+id/img1"
+                android:text="Tag Manager"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_marginLeft="65dp"
+            >
+            <ImageView
+                android:layout_width="90dp"
+                android:layout_height="65dp"
+                android:id="@+id/img6"
+                android:src="@drawable/question_100"/>
+
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:gravity="center"
+                android:textColor="@color/ColorSubText"
+                android:text="All Questions"/>
+        </LinearLayout>
+
+        </LinearLayout>
 
 
-</LinearLayout>
+
+    </LinearLayout>
 

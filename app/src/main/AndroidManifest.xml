@@ -35,6 +35,10 @@
             >
         </activity>
 
+        <activity
+            android:name=".TagManager"
+            android:label="Tag Manager">
+        </activity>
 
     </application>
 
