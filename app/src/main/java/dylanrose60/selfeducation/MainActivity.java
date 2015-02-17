@@ -31,6 +31,7 @@ import java.util.List;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
+import com.pnikosis.materialishprogress.ProgressWheel;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
@@ -95,7 +96,7 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
 
     public void getSubjects() {
         final ListView listElement = (ListView) findViewById(R.id.subjectList);
-        final ProgressBar spinAnimation = (ProgressBar) findViewById(R.id.spinAnimation1);
+        final ProgressWheel spinAnimation = (ProgressWheel) findViewById(R.id.spinAnimation1);
         final LinearLayout logoText = (LinearLayout) findViewById(R.id.logoLayout);
 
         Request.Builder builder = new Request.Builder();

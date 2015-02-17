@@ -33,6 +33,9 @@ import com.nispok.snackbar.enums.SnackbarType;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener {
 
     private String subject;
@@ -169,7 +172,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
     @Override
-    public void getArray(String stringArray) {
+    public void getArray(LessonManager manager,String stringArray) {
         try {
             JSONArray array = new JSONArray(stringArray);
             String[] tagArray = new String[array.length()];
@@ -178,14 +181,14 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 String tag = array.getJSONObject(i).getString("tag_name");
                 tagArray[i] = tag;
             }
-            buildTagDialog(tagArray);
+            buildTagDialog(manager,tagArray);
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void buildTagDialog(String[] tags) {
-        LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout, null);
+    public void buildTagDialog(final LessonManager manager,String[] tags) {
+        final LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout, null);
         for (String tag : tags) {
             CheckBox checkbox = new CheckBox(this);
             checkbox.setText(tag);
@@ -193,12 +196,32 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         }
         new MaterialDialog.Builder(this)
                 .title("Tag your new lesson")
-                .customView(dialogLayout,true)
+                .customView(dialogLayout, true)
                 .positiveText("Create")
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeText("Cancel")
                 .negativeColor(Color.RED)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        List<String> selectedTags = getSelectedTags(dialogLayout);
+                        //manager.setTags(selectedTags);
+                    }
+                })
                 .show();
+    }
+
+
+    public List<String> getSelectedTags(LinearLayout layout) {
+        List<String> selectedTags = new ArrayList<>();
+        for (int i = 0;i < layout.getChildCount();i++) {
+            CheckBox currentBox = (CheckBox) layout.getChildAt(i);
+            if (currentBox.isChecked()) {
+                String boxValue = currentBox.getText().toString();
+                selectedTags.add(boxValue);
+            }
+        }
+        return selectedTags;
     }
 
 

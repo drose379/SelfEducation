@@ -18,16 +18,19 @@ import org.json.JSONException;
 import org.json.JSONStringer;
 
 import java.io.IOException;
+import java.util.List;
 
 public class LessonManager {
 
     public interface Listener {
-        public void getArray(String stringArray);
+        public void getArray(LessonManager manager,String stringArray);
     }
 
     private String subject;
     private String lessonName;
     private String[] objectives;
+    private List<String> tags;
+
     private OkHttpClient client = new OkHttpClient();
     private MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
 
@@ -42,9 +45,6 @@ public class LessonManager {
     public void setLessonName(String lesson) {
         lessonName = lesson;
     }
-    public String getLessonName() {
-        return lessonName;
-    }
 
     public void setObjectives(String[] objectives) {
         this.objectives = objectives;
@@ -53,6 +53,12 @@ public class LessonManager {
     public void setListener(Listener listener) {
         this.listener = listener;
     }
+
+    public void setTags(List<String> selectedTags) {
+        //Copy values from passed in string to field of this class
+    }
+
+    //For getting subject tags from DB
 
     public void getTags(){
         Request.Builder builder = new Request.Builder();
@@ -76,7 +82,7 @@ public class LessonManager {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        listener.getArray(responseBody);
+                        listener.getArray(LessonManager.this,responseBody);
                     }
                 });
 
@@ -84,19 +90,6 @@ public class LessonManager {
         });
     }
 
-
-    /*
-    public String[] toArray(String response) {
-
-        try {
-            JSONArray array = new JSONArray(response);
-            //build a regular String[] out of the response, with a for loop
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-    }
-    */
 
     public String buildJson() {
         JSONStringer builder = new JSONStringer();
