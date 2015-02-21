@@ -9,6 +9,4 @@
     android:popupTheme="@android:style/ThemeOverlay.Material.Dark"
     >
 
-
-
 </android.support.v7.widget.Toolbar>

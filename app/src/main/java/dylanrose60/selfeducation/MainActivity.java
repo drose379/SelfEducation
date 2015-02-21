@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
@@ -167,23 +168,32 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
     }
 
     public void newSubject() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        final EditText textArea = new EditText(this);
-        builder.setTitle("New Subject");
-        builder.setView(textArea);
-        builder.setPositiveButton("Save",new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                //Make sure editText area is filled, if not, setError on EditText
-
-                //Get text from EditText
-                String result = textArea.getText().toString();
-                //Pass it to method that uses NewSubject to create the subject
-                createSubject(result);
-            }
-        });
-        AlertDialog ready = builder.create();
-        ready.show();
+        final EditText editText = new EditText(this);
+        new MaterialDialog.Builder(this)
+                .title("New Subject")
+                .customView(editText,true)
+                .positiveText("Create")
+                .positiveColor(getResources().getColor(R.color.ColorSubText))
+                .negativeText("Cancel")
+                .negativeColor(Color.RED)
+                .autoDismiss(false)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+                        dialog.dismiss();
+                    }
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        String subject = editText.getText().toString();
+                        if (subject.length() < 1) {
+                            editText.setError("Please enter a valid subject");
+                        } else {
+                            dialog.dismiss();
+                            createSubject(subject);
+                        }
+                    }
+                })
+                .show();
     }
 
     public void createSubject(String subject) {

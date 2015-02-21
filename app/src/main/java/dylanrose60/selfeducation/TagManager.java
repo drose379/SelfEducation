@@ -28,12 +28,13 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 
-public class TagManager extends ActionBarActivity {
+public class TagManager extends ActionBarActivity implements TagDataHandler.Listener {
 
     OkHttpClient client = new OkHttpClient();
 
     private String subject;
-    private Handler handler = new Handler();
+    private TagDataHandler tagDataHandler;
+
 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +44,8 @@ public class TagManager extends ActionBarActivity {
 
         Intent intent = getIntent();
         this.subject = intent.getStringExtra("subject");
+        tagDataHandler = new TagDataHandler(subject);
+        tagDataHandler.setListener(this);
 
         buildOptionsList();
     }
@@ -78,56 +81,18 @@ public class TagManager extends ActionBarActivity {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         String tagName = editText.getText().toString();
-                        addTag(tagName);
+                        tagDataHandler.addTag(tagName);
                     }
                 })
                 .show();
     }
 
-    public void addTag(final String tag) {
-        MediaType mediaType = MediaType.parse("application/json");
-        String info = toJson(tag);
-        Request.Builder builder = new Request.Builder();
-        RequestBody body = RequestBody.create(mediaType,info);
-        builder.post(body);
-        builder.url("http://codeyourweb.net/httpTest/index.php/newTag");
-        Request request = builder.build();
-        Call newCall = client.newCall(request);
-        newCall.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        SnackbarManager.show(Snackbar.with(getApplicationContext())
-                        .text("Tag " + "'" + tag +"'" + " Created"),TagManager.this);
-                    }
-                });
-            }
-        });
-
+    @Override
+    public void tagAdded() {
+        SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Tag created"),this);
     }
 
-    public String toJson(String tag) {
-        JSONStringer stringer = new JSONStringer();
-        try {
-            stringer.object();
-            stringer.key("tag");
-            stringer.value(tag);
-            stringer.key("subject");
-            stringer.value(subject);
-            stringer.endObject();
-            return stringer.toString();
-        } catch (JSONException e)  {
-            throw new RuntimeException(e);
-        }
 
-    }
 
     public void tagList() {
 

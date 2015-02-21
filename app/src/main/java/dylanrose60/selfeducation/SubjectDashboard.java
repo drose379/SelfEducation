@@ -36,9 +36,10 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener {
+public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,TagDataHandler.Listener {
 
     private String subject;
+    private LessonManager manager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -87,11 +88,9 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
     public void newLesson1() {
-        final LessonManager manager = new LessonManager(subject);
+        manager = new LessonManager(subject);
         final EditText edit = new EditText(this);
-        /*NewLesson lessonBuilder = new NewLesson();
-        lessonBuilder.run(subject,this,handler);
-        */
+
         new MaterialDialog.Builder(this)
                 .title("Name Your Lesson")
                 .customView(edit, true)
@@ -131,7 +130,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeText("Cancel")
                 .negativeColor(Color.RED)
-                .neutralText("New Objective")
+                .neutralText("New")
                 .neutralColor(getResources().getColor(R.color.ColorPrimary))
                 .autoDismiss(false)
                 .callback(new MaterialDialog.ButtonCallback() {
@@ -144,7 +143,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         dialog.dismiss();
-                        String[] objectives = getObjectiveValues(dialogLayout);
+                        List<String> objectives = getObjectiveValues(dialogLayout);
                         manager.setObjectives(objectives);
                         newLesson3(manager);
                     }
@@ -152,27 +151,37 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 .show();
                 }
 
-    public String[] getObjectiveValues(ViewGroup view) {
+    public List<String> getObjectiveValues(ViewGroup view) {
         ViewGroup viewGroup = view;
-        String[] objectiveArray = new String[view.getChildCount()];
+
+        List<String> objectives = new ArrayList<>();
 
         int objectiveCount = viewGroup.getChildCount();
 
         for (int i = 0; i < objectiveCount;i++) {
             EditText currentEditText = (EditText) viewGroup.getChildAt(i);
             String objective = currentEditText.getText().toString();
-            objectiveArray[i] = objective;
+            objectives.add(i,objective);
         }
-        return objectiveArray;
+        return objectives;
     }
 
     public void newLesson3(LessonManager manager) {
         manager.setListener(this);
         manager.getTags();
+        //Create MaterialDialog and layout with a progress loader
+        //Once response from DB comes in (getAllTags()), get rid of the spinner animation and add the check boxes to the Dialog
+        //Use a setter and getter in the LessonManager to enable access to the Layout in getAllTags. Also have a getter and setter for spinner
+            //manager.setLayout(layoutName)
+            //manager.setSpinner(spinnerName)
+            //Spinner spin = manager.getSpinner();
+            //spin.GONE;
+            //LinearLayout layout = manager.getLayout()
+            //layout.addView(checkbox)
     }
 
     @Override
-    public void getArray(LessonManager manager,String stringArray) {
+    public void getAllTags(LessonManager manager,String stringArray) {
         try {
             JSONArray array = new JSONArray(stringArray);
             String[] tagArray = new String[array.length()];
@@ -201,14 +210,44 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeText("Cancel")
                 .negativeColor(Color.RED)
+                .neutralText("New Tag")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         List<String> selectedTags = getSelectedTags(dialogLayout);
-                        //manager.setTags(selectedTags);
+                        manager.setTags(selectedTags);
+                        manager.buildLesson();
+                    }
+                    @Override
+                    public void onNeutral(MaterialDialog masterDialog) {
+                        final EditText editText = new EditText(SubjectDashboard.this);
+                        new MaterialDialog.Builder(SubjectDashboard.this)
+                                .title("Add Tag")
+                                .customView(editText,true)
+                                .positiveText("Insert")
+                                .negativeText("Back")
+                                .callback(new MaterialDialog.ButtonCallback() {
+                                    @Override
+                                    public void onPositive(MaterialDialog subDialog) {
+                                        TagDataHandler tagHandler = new TagDataHandler(subject);
+                                        tagHandler.setListener(SubjectDashboard.this);
+                                        tagHandler.addTag(editText.getText().toString());
+                                    }
+                                    @Override
+                                    public void onNegative(MaterialDialog dialog) {
+                                        manager.getTags();
+                                    }
+                                })
+                                .show();
+
                     }
                 })
                 .show();
+    }
+
+    @Override
+    public void tagAdded() {
+        manager.getTags();
     }
 
 
@@ -224,9 +263,9 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         return selectedTags;
     }
 
-
-    public void createLesson(LessonManager manager) {
-
+    @Override
+    public void onSuccess() {
+        SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Lesson created successfully"),this);
     }
 
 
