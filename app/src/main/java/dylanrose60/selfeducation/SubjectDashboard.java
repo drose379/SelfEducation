@@ -1,5 +1,6 @@
 package dylanrose60.selfeducation;
 
+import android.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -29,6 +31,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.enums.SnackbarType;
+import com.pnikosis.materialishprogress.ProgressWheel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +39,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,TagDataHandler.Listener {
+public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener {
 
     private String subject;
     private LessonManager manager;
@@ -145,7 +148,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                         dialog.dismiss();
                         List<String> objectives = getObjectiveValues(dialogLayout);
                         manager.setObjectives(objectives);
-                        newLesson3(manager);
+                        newLesson3(manager,false);
                     }
                 })
                 .show();
@@ -166,22 +169,70 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         return objectives;
     }
 
-    public void newLesson3(LessonManager manager) {
+    public void newLesson3(final LessonManager manager,boolean newTag) {
         manager.setListener(this);
-        manager.getTags();
-        //Create MaterialDialog and layout with a progress loader
-        //Once response from DB comes in (getAllTags()), get rid of the spinner animation and add the check boxes to the Dialog
-        //Use a setter and getter in the LessonManager to enable access to the Layout in getAllTags. Also have a getter and setter for spinner
-            //manager.setLayout(layoutName)
-            //manager.setSpinner(spinnerName)
-            //Spinner spin = manager.getSpinner();
-            //spin.GONE;
-            //LinearLayout layout = manager.getLayout()
-            //layout.addView(checkbox)
+
+        LinearLayout dialogLayout = new LinearLayout(this);
+        LinearLayout.LayoutParams dialogParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        dialogLayout.setOrientation(LinearLayout.VERTICAL);
+        dialogLayout.setLayoutParams(dialogParams);
+
+        ProgressWheel spinner = new ProgressWheel(this);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(80,80);
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        spinner.setLayoutParams(params);
+        spinner.setBarColor(getResources().getColor(R.color.ColorPrimary));
+        spinner.spin();
+        dialogLayout.addView(spinner);
+        new MaterialDialog.Builder(this)
+                .title("Tag your new lesson")
+                .customView(dialogLayout, true)
+                .positiveText("Create")
+                .positiveColor(getResources().getColor(R.color.ColorSubText))
+                .negativeText("Cancel")
+                .negativeColor(Color.RED)
+                .neutralText("Add Tag")
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        List<String> selectedTags = getSelectedTags((LinearLayout) dialog.getCustomView());
+                        manager.setTags(selectedTags);
+                        manager.buildLesson();
+                    }
+
+                    @Override
+                    public void onNeutral(MaterialDialog dialog) {
+                        final EditText editText = new EditText(SubjectDashboard.this);
+                        new MaterialDialog.Builder(SubjectDashboard.this)
+                                .title("New Tag")
+                                .customView(editText, true)
+                                .positiveText("Add")
+                                .negativeText("Cancel")
+                                .callback(new MaterialDialog.ButtonCallback() {
+                                    @Override
+                                    public void onPositive(MaterialDialog dialog) {
+                                        TagDataHandler tagHandler = new TagDataHandler(subject);
+                                        tagHandler.addTag(editText.getText().toString());
+                                        newLesson3(manager,true);
+                                    }
+
+                                    @Override
+                                    public void onNegative(MaterialDialog dialog) {
+                                        newLesson3(manager,false);
+                                    }
+                                })
+                                .show();
+                    }
+                })
+                .show();
+        manager.setDialog(dialogLayout);
+        if (newTag){manager.getTags(true);} else {manager.getTags(false);}
     }
 
     @Override
-    public void getAllTags(LessonManager manager,String stringArray) {
+    public void getAllTags(LessonManager manager,String stringArray,boolean newTag) {
+        View animation = manager.getDialogLayout().getChildAt(0);
+        animation.setVisibility(View.GONE);
         try {
             JSONArray array = new JSONArray(stringArray);
             String[] tagArray = new String[array.length()];
@@ -190,70 +241,43 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 String tag = array.getJSONObject(i).getString("tag_name");
                 tagArray[i] = tag;
             }
-            buildTagDialog(manager,tagArray);
+            if (newTag) {
+                buildTagDialog(manager, tagArray, true);
+            } else {
+                buildTagDialog(manager,tagArray);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
-    public void buildTagDialog(final LessonManager manager,String[] tags) {
-        final LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getApplicationContext()).inflate(R.layout.new_lesson_layout, null);
-        for (String tag : tags) {
+    public void buildTagDialog(LessonManager manager,String[] tagArray) {
+        LinearLayout dialogLayout = manager.getDialogLayout();
+        for (String tag : tagArray) {
             CheckBox checkbox = new CheckBox(this);
             checkbox.setText(tag);
             dialogLayout.addView(checkbox);
         }
-        new MaterialDialog.Builder(this)
-                .title("Tag your new lesson")
-                .customView(dialogLayout, true)
-                .positiveText("Create")
-                .positiveColor(getResources().getColor(R.color.ColorSubText))
-                .negativeText("Cancel")
-                .negativeColor(Color.RED)
-                .neutralText("New Tag")
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        List<String> selectedTags = getSelectedTags(dialogLayout);
-                        manager.setTags(selectedTags);
-                        manager.buildLesson();
-                    }
-                    @Override
-                    public void onNeutral(MaterialDialog masterDialog) {
-                        final EditText editText = new EditText(SubjectDashboard.this);
-                        new MaterialDialog.Builder(SubjectDashboard.this)
-                                .title("Add Tag")
-                                .customView(editText,true)
-                                .positiveText("Insert")
-                                .negativeText("Back")
-                                .callback(new MaterialDialog.ButtonCallback() {
-                                    @Override
-                                    public void onPositive(MaterialDialog subDialog) {
-                                        TagDataHandler tagHandler = new TagDataHandler(subject);
-                                        tagHandler.setListener(SubjectDashboard.this);
-                                        tagHandler.addTag(editText.getText().toString());
-                                    }
-                                    @Override
-                                    public void onNegative(MaterialDialog dialog) {
-                                        manager.getTags();
-                                    }
-                                })
-                                .show();
-
-                    }
-                })
-                .show();
     }
 
-    @Override
-    public void tagAdded() {
-        manager.getTags();
-    }
+    public void buildTagDialog(LessonManager manager, String[] tagArray,boolean checkNew) {
+        LinearLayout dialogLayout = manager.getDialogLayout();
+        int tagCount = tagArray.length;
 
+        for (int i = 0; i < tagCount - 1; i++) {
+            CheckBox checkBox = new CheckBox(this);
+            checkBox.setText(tagArray[i]);
+            dialogLayout.addView(checkBox);
+        }
+        CheckBox lastBox = new CheckBox(this);
+        lastBox.setText(tagArray[tagCount-1]);
+        lastBox.setChecked(true);
+        dialogLayout.addView(lastBox);
+    }
 
     public List<String> getSelectedTags(LinearLayout layout) {
         List<String> selectedTags = new ArrayList<>();
-        for (int i = 0;i < layout.getChildCount();i++) {
+        for (int i = 1;i < layout.getChildCount();i++) {
             CheckBox currentBox = (CheckBox) layout.getChildAt(i);
             if (currentBox.isChecked()) {
                 String boxValue = currentBox.getText().toString();
