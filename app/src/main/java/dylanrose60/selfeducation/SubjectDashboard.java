@@ -1,6 +1,8 @@
 package dylanrose60.selfeducation;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
+import android.app.FragmentManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -39,7 +41,7 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener {
+public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,LCreateDialog1.Listener {
 
     private String subject;
     private LessonManager manager;
@@ -65,6 +67,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         return true;
     }
 
+    @SuppressLint("NewApi")
     public void createNew(View view) {
         final String[] items = {"Lesson","Project"};
         new MaterialDialog.Builder(this)
@@ -78,11 +81,22 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                             case "Lesson":
                                 newLesson1();
                                 break;
+                            case "Project":
+                                FragmentManager fragmentManager = getFragmentManager();
+                                LCreateDialog1 testDialog = new LCreateDialog1();
+                                testDialog.show(fragmentManager,"TestTag");
+                                break;
                         }
                     }
                 })
                 .show();
     }
+
+    @Override
+    public void getData(String testData) {
+        Toast.makeText(getApplicationContext(),testData,Toast.LENGTH_LONG).show();
+    }
+
 
     public void openTagManager(View view) {
         Intent intent = new Intent(getApplicationContext(),TagManager.class);
