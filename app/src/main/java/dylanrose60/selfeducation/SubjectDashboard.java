@@ -40,11 +40,12 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.List;
-
-public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,LCreateDialog1.Listener {
+@SuppressLint("NewApi")
+public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,LCreateDialog1.Listener,LCreateDialog2.Listener {
 
     private String subject;
-    private LessonManager manager;
+    private LessonManager manager = new LessonManager(subject);
+    private FragmentManager fragmentManager = getFragmentManager();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         return true;
     }
 
-    @SuppressLint("NewApi")
+
     public void createNew(View view) {
         final String[] items = {"Lesson","Project"};
         new MaterialDialog.Builder(this)
@@ -79,24 +80,16 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                         String itemSelected = items[selected];
                         switch (itemSelected) {
                             case "Lesson":
-                                newLesson1();
+                                //newLesson1();
+                                newLesson1Test();
                                 break;
                             case "Project":
-                                FragmentManager fragmentManager = getFragmentManager();
-                                LCreateDialog1 testDialog = new LCreateDialog1();
-                                testDialog.show(fragmentManager,"TestTag");
-                                break;
+                            break;
                         }
                     }
                 })
                 .show();
     }
-
-    @Override
-    public void getData(String testData) {
-        Toast.makeText(getApplicationContext(),testData,Toast.LENGTH_LONG).show();
-    }
-
 
     public void openTagManager(View view) {
         Intent intent = new Intent(getApplicationContext(),TagManager.class);
@@ -104,6 +97,28 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         startActivity(intent);
     }
 
+    public void newLesson1Test() {
+        LCreateDialog1 dialog1 = new LCreateDialog1();
+        dialog1.show(fragmentManager,"Dialog1");
+    }
+
+    @Override
+    public void getNewLesson(String lesson) {
+        manager.setLessonName(lesson);
+        newLesson2Test();
+    }
+
+    public void newLesson2Test() {
+        LCreateDialog2 dialog2 = new LCreateDialog2();
+        dialog2.show(fragmentManager,"Dialog2");
+    }
+
+    @Override
+    public void getObjectives(List<String> objectives) {
+        //assign objectives to manager with manager.setObjectives()
+    }
+
+    /*
     public void newLesson1() {
         manager = new LessonManager(subject);
         final EditText edit = new EditText(this);
@@ -131,7 +146,10 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 })
                 .show();
     }
+    */
 
+
+    /*
     public void newLesson2(final LessonManager manager) {
 
         EditText editText1 = new EditText(this);
@@ -167,6 +185,8 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 })
                 .show();
                 }
+
+*/
 
     public List<String> getObjectiveValues(ViewGroup view) {
         ViewGroup viewGroup = view;
