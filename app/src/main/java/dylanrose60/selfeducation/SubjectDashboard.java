@@ -115,7 +115,13 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
     @Override
     public void getObjectives(List<String> objectives) {
-        //assign objectives to manager with manager.setObjectives()
+        manager.setObjectives(objectives);
+        newLesson3Test();
+    }
+
+    public void newLesson3Test() {
+        LCreateDialog3 dialog3 = new LCreateDialog3();
+        dialog3.show(fragmentManager,"Dialog3");
     }
 
     /*
@@ -188,20 +194,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
 */
 
-    public List<String> getObjectiveValues(ViewGroup view) {
-        ViewGroup viewGroup = view;
-
-        List<String> objectives = new ArrayList<>();
-
-        int objectiveCount = viewGroup.getChildCount();
-
-        for (int i = 0; i < objectiveCount;i++) {
-            EditText currentEditText = (EditText) viewGroup.getChildAt(i);
-            String objective = currentEditText.getText().toString();
-            objectives.add(i,objective);
-        }
-        return objectives;
-    }
+/*
 
     public void newLesson3(final LessonManager manager,boolean newTag) {
         manager.setListener(this);
@@ -263,6 +256,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         if (newTag){manager.getTags(true);} else {manager.getTags(false);}
     }
 
+*/
     @Override
     public void getAllTags(LessonManager manager,String stringArray,boolean newTag) {
         View animation = manager.getDialogLayout().getChildAt(0);

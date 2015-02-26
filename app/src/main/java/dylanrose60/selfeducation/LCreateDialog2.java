@@ -15,6 +15,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @SuppressLint("NewApi")
@@ -54,6 +55,9 @@ public class LCreateDialog2 extends DialogFragment {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         //Send dialog (View) to method inside frag to pull EditText data
+                        List<String> objectives = getObjectiveValues((ViewGroup)dialog.getCustomView());
+                        listener.getObjectives(objectives);
+                        LCreateDialog2.this.dismiss();
                     }
 
                     @Override
@@ -73,7 +77,18 @@ public class LCreateDialog2 extends DialogFragment {
     }
 
     public List<String> getObjectiveValues(ViewGroup layout) {
-        //Loop over the layout children getting their value and adding to list
+        List<String> objectives = new ArrayList<>();
+
+        int objectiveCount = layout.getChildCount();
+
+        for (int i = 0; i < objectiveCount;i++) {
+            EditText currentEditText = (EditText) layout.getChildAt(i);
+            String objective = currentEditText.getText().toString();
+            if (objective.length() > 1) {
+                objectives.add(i, objective);
+            }
+        }
+        return objectives;
     }
 
 }

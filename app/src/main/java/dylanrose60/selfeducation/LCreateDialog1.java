@@ -45,6 +45,7 @@ public class LCreateDialog1 extends DialogFragment {
                         if (lessonName.length() > 1) {
                             dialog.dismiss();
                             callListener(lessonName);
+                            LCreateDialog1.this.dismiss();
                         } else {
                             editText1.setError("Enter a valid lesson name");
                         }

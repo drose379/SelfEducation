@@ -80,6 +80,7 @@ public class LessonManager {
 
     //For getting subject tags from DB
 
+/*
     public void getTags(final boolean newTag){
         Request.Builder builder = new Request.Builder();
         builder.url("http://codeyourweb.net/httpTest/index.php/getTags");
@@ -104,7 +105,7 @@ public class LessonManager {
             }
         });
     }
-
+*/
     //Methods for creating new lesson
 
     public void buildLesson() {
