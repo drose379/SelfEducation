@@ -21,15 +21,11 @@ public class TagDataHandler {
         public void tagAdded();
     }
 
-    private String subject;
     private Listener listener;
 
     OkHttpClient client = new OkHttpClient();
     Handler handler = new Handler();
 
-    public TagDataHandler(String subject) {
-        this.subject = subject;
-    }
 
     public void setListener(Listener listener) {
         this.listener = listener;
@@ -72,8 +68,6 @@ public class TagDataHandler {
             stringer.object();
             stringer.key("tag");
             stringer.value(tag);
-            stringer.key("subject");
-            stringer.value(subject);
             stringer.endObject();
             return stringer.toString();
         } catch (JSONException e)  {

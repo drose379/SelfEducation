@@ -41,10 +41,15 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 @SuppressLint("NewApi")
-public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,LCreateDialog1.Listener,LCreateDialog2.Listener {
+public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,
+        LCreateDialog1.Listener,
+        LCreateDialog2.Listener,
+        LCreateDialog3.Listener,
+        NewTagDialog.Listener
+{
 
     private String subject;
-    private LessonManager manager = new LessonManager(subject);
+    private LessonManager manager;
     private FragmentManager fragmentManager = getFragmentManager();
 
     @Override
@@ -59,6 +64,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         //Set the value of the activity title bar to the title of the subject with: setTitle(title)
         setTitle(subject);
 
+        manager = new LessonManager(subject);
     }
 
     @Override
@@ -81,6 +87,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                         switch (itemSelected) {
                             case "Lesson":
                                 //newLesson1();
+                                manager.setListener(SubjectDashboard.this);
                                 newLesson1Test();
                                 break;
                             case "Project":
@@ -116,12 +123,31 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     @Override
     public void getObjectives(List<String> objectives) {
         manager.setObjectives(objectives);
-        newLesson3Test();
+        newLesson3Test(false);
     }
 
-    public void newLesson3Test() {
+    public void newLesson3Test(Boolean newTag) {
         LCreateDialog3 dialog3 = new LCreateDialog3();
+        Bundle newTagBundle = new Bundle();
+        newTagBundle.putBoolean("new",newTag);
+        dialog3.setArguments(newTagBundle);
         dialog3.show(fragmentManager,"Dialog3");
+    }
+
+    @Override
+    public void getSelectedTags(List<String> selectedTags) {
+        manager.setTags(selectedTags);
+        buildLesson();
+    }
+
+    public void buildLesson() {
+        manager.buildLesson();
+    }
+
+    @Override
+    public void newTag(Boolean newTag) {
+        newLesson3Test(true);
+        //Pass true,so Dialog3 can putExtra a boolean of true of false to decide whether new tag is checked off
     }
 
     /*
@@ -257,63 +283,9 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
 */
-    @Override
-    public void getAllTags(LessonManager manager,String stringArray,boolean newTag) {
-        View animation = manager.getDialogLayout().getChildAt(0);
-        animation.setVisibility(View.GONE);
-        try {
-            JSONArray array = new JSONArray(stringArray);
-            String[] tagArray = new String[array.length()];
 
-            for (int i = 0;i < array.length();i++) {
-                String tag = array.getJSONObject(i).getString("tag_name");
-                tagArray[i] = tag;
-            }
-            if (newTag) {
-                buildTagDialog(manager, tagArray, true);
-            } else {
-                buildTagDialog(manager,tagArray);
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public void buildTagDialog(LessonManager manager,String[] tagArray) {
-        LinearLayout dialogLayout = manager.getDialogLayout();
-        for (String tag : tagArray) {
-            CheckBox checkbox = new CheckBox(this);
-            checkbox.setText(tag);
-            dialogLayout.addView(checkbox);
-        }
-    }
 
-    public void buildTagDialog(LessonManager manager, String[] tagArray,boolean checkNew) {
-        LinearLayout dialogLayout = manager.getDialogLayout();
-        int tagCount = tagArray.length;
-
-        for (int i = 0; i < tagCount - 1; i++) {
-            CheckBox checkBox = new CheckBox(this);
-            checkBox.setText(tagArray[i]);
-            dialogLayout.addView(checkBox);
-        }
-        CheckBox lastBox = new CheckBox(this);
-        lastBox.setText(tagArray[tagCount-1]);
-        lastBox.setChecked(true);
-        dialogLayout.addView(lastBox);
-    }
-
-    public List<String> getSelectedTags(LinearLayout layout) {
-        List<String> selectedTags = new ArrayList<>();
-        for (int i = 1;i < layout.getChildCount();i++) {
-            CheckBox currentBox = (CheckBox) layout.getChildAt(i);
-            if (currentBox.isChecked()) {
-                String boxValue = currentBox.getText().toString();
-                selectedTags.add(boxValue);
-            }
-        }
-        return selectedTags;
-    }
 
     @Override
     public void onSuccess() {

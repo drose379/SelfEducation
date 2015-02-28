@@ -26,7 +26,7 @@ import java.util.List;
 public class LessonManager {
 
     public interface Listener {
-        public void getAllTags(LessonManager manager,String stringArray,boolean newTag);
+        //public void getAllTags(LessonManager manager,String stringArray,boolean newTag);
         public void onSuccess();
     }
 
@@ -49,13 +49,6 @@ public class LessonManager {
 
     public void setLessonName(String lesson) {
         lessonName = lesson;
-    }
-
-    public void setDialog(LinearLayout layout) {
-        this.dialogLayout = layout;
-    }
-    public LinearLayout getDialogLayout() {
-        return dialogLayout;
     }
 
     public void setObjectives(List<String> objectiveList) {
@@ -157,8 +150,6 @@ public class LessonManager {
         }
     }
 
-
-
     public String completeJSONBuilder() {
 
         JSONArray tagsJSON = getTagsJSON();
@@ -166,7 +157,6 @@ public class LessonManager {
         JSONStringer builder = new JSONStringer();
 
         try {
-
             builder.object();
             builder.key("subject_name");
             builder.value(subject);
@@ -177,11 +167,10 @@ public class LessonManager {
             builder.key("tags");
             builder.value(tagsJSON); //Remove toArray()
             builder.endObject();
-
+            return builder.toString();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        return builder.toString();
     }
 
 

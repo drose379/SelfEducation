@@ -44,7 +44,7 @@ public class TagManager extends ActionBarActivity implements TagDataHandler.List
 
         Intent intent = getIntent();
         this.subject = intent.getStringExtra("subject");
-        tagDataHandler = new TagDataHandler(subject);
+        tagDataHandler = new TagDataHandler();
         tagDataHandler.setListener(this);
 
         buildOptionsList();
