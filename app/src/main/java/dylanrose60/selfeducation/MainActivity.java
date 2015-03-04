@@ -203,11 +203,13 @@ public class MainActivity extends ActionBarActivity implements
 */
     @Override
     public void getSubjectInfo(Bundle info) {
-        String subjectName = (String) info.get("subject");
-        String privacy = (String) info.get("privacy");
+        String subjectName = info.getString("subject");
+        String privacy = info.getString("privacy");
+        int serialID = info.getInt("serialID");
         subjectManager.setListener(this);
         subjectManager.setSubject(subjectName);
         subjectManager.setPrivacy(privacy);
+        subjectManager.setSerialID(serialID);
         subjectManager.create();
         getDemoInfo();
     }
@@ -215,10 +217,12 @@ public class MainActivity extends ActionBarActivity implements
     public void getDemoInfo() {
         DBHelper dbClient = new DBHelper(this);
         SQLiteDatabase db = dbClient.getReadableDatabase();
-        String select = "SELECT ID FROM subject_info WHERE subject = ?";
-        Cursor cursor = db.rawQuery(select,new String[] {"testing12"});
+        String select = "SELECT * FROM subject_info";
+        Cursor cursor = db.rawQuery(select,null);
         if (cursor.moveToFirst()) {
-            String result = cursor.getString(cursor.getColumnIndex("ID"));
+            //Loop through this row, then move to the next row and loop through again, all while adding necessary values to aray
+            int subCount = cursor.getCount();
+            Toast.makeText(this,String.valueOf(subCount),Toast.LENGTH_LONG).show();
             //result is the result
         }
     }

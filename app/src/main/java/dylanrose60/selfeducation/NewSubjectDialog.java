@@ -51,8 +51,8 @@ public class NewSubjectDialog extends DialogFragment {
         final EditText editText1 = new EditText(getActivity());
 
         RadioGroup radioGroup = new RadioGroup(getActivity());
-        radioGroup.setGravity(Gravity.CENTER_HORIZONTAL);
-        radioGroup.setOrientation(LinearLayout.HORIZONTAL);
+
+        radioGroup.setOrientation(LinearLayout.VERTICAL);
 
         final RadioButton publicButton = new RadioButton(getActivity());
         publicButton.setText("Public");
@@ -60,7 +60,7 @@ public class NewSubjectDialog extends DialogFragment {
         final RadioButton privateButton = new RadioButton(getActivity());
         privateButton.setText("Private");
         radioGroup.addView(privateButton);
-
+        radioGroup.setPadding(0,10,0,0);
 
         dialogLayout.addView(editText1);
         dialogLayout.addView(radioGroup);
@@ -80,16 +80,14 @@ public class NewSubjectDialog extends DialogFragment {
 
                         if (privateButton.isChecked()) {
                             privacy = "PRIVATE";
-                            subjectInfo.putString("subject", subjectName);
-                            subjectInfo.putString("privacy", privacy);
-                            subjectInfo.putInt("serialID",randID);
-                            addToLocal(subjectInfo);
                         } else {
                             privacy = "PUBLIC";
-                            subjectInfo.putString("subject", subjectName);
-                            subjectInfo.putString("privacy", privacy);
-                            addToLocal(subjectInfo);
                         }
+
+                        subjectInfo.putString("subject",subjectName);
+                        subjectInfo.putString("privacy",privacy);
+                        subjectInfo.putInt("serialID",randID);
+                        addToLocal(subjectInfo);
                         listener.getSubjectInfo(subjectInfo);
                     }
                 });

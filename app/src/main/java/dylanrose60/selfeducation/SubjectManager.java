@@ -22,6 +22,8 @@ public class SubjectManager {
     private Listener listener;
     private String subject;
     private String privacy;
+    private int serialID;
+
     private OkHttpClient client = new OkHttpClient();
     private MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
 
@@ -41,6 +43,7 @@ public class SubjectManager {
     public void setPrivacy(String privacy) {
         this.privacy = privacy;
     }
+    public void setSerialID(int serialID) {this.serialID = serialID;}
 
     public void create() {
         String json = toJson();
@@ -55,6 +58,8 @@ public class SubjectManager {
             stringer.value(subject);
             stringer.key("privacy");
             stringer.value(privacy);
+            stringer.key("serialID");
+            stringer.value(serialID);
             stringer.endObject();
             return stringer.toString();
         } catch (JSONException e) {
