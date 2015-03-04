@@ -24,12 +24,6 @@
         </activity>
 
         <activity
-            android:name=".SubjectList"
-            android:label="My Subjects"
-            >
-        </activity>
-
-        <activity
             android:name=".LessonList"
             android:label="SubjectList"
             >

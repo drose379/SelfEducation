@@ -1,10 +1,18 @@
 package dylanrose60.selfeducation;
 
+import android.annotation.SuppressLint;
+import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Handler;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -19,6 +27,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,19 +49,27 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
+import dylanrose60.selfeducation.tabs.SlidingTabLayout;
+
 /*
     * Main activity has a welcome screen with 2 main uses
     * Button: Create new subject
     * Button: View my subjects
  */
 
+@SuppressLint("NewApi")
+public class MainActivity extends ActionBarActivity implements
+        SubjectManager.Listener,
+        NewSubjectDialog.Listener  {
 
-public class MainActivity extends ActionBarActivity implements SubjectManager.Listener {
-
-    protected MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
     protected OkHttpClient client = new OkHttpClient();
     private List<Subject> list;
-    private Handler handler = new Handler();
+    private SubjectManager subjectManager = new SubjectManager();
+
+    //Tabs
+    private ViewPager viewPager;
+    private SlidingTabLayout tabLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,10 +78,22 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
         setTitle("Select A Subject");
-        ListView list = (ListView) findViewById(R.id.subjectList);
-        registerForContextMenu(list);
-        viewController();
-        getSubjects();
+
+        //Tabs
+        ViewPagerAdapter tabAdapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        viewPager = (ViewPager) findViewById(R.id.viewPager);
+        viewPager.setAdapter(tabAdapter);
+        tabLayout = (SlidingTabLayout) findViewById(R.id.tabLayout);
+        tabLayout.setViewPager(viewPager);
+
+
+
+        //UNDER CONSTRUCTION
+        //ListView list = (ListView) findViewById(R.id.subjectList);
+        //registerForContextMenu(list);
+        //viewController();
+        //getSubjects();
     }
 
 
@@ -82,13 +111,19 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()) {
             case R.id.addSubject :
-                newSubject();
+                //newSubject();
+                FragmentManager fragmentManager = getFragmentManager();
+                NewSubjectDialog newSubject = new NewSubjectDialog();
+                newSubject.show(fragmentManager,"NewSubject");
                 return true;
             default :
                 return super.onOptionsItemSelected(item);
         }
 
     }
+
+
+/*
 
     public void viewController() {
         ListView listElement = (ListView) findViewById(R.id.subjectList);
@@ -131,7 +166,6 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
         });
     }
 
-    //Change this method to add Subject objects to the list, each subject object will hold the values subject and start_date, and have methods to return them
     public List<Subject> toArray(String jsonString) throws JSONException {
         JSONArray json = new JSONArray(jsonString); //Need to pass in the real JSON String to here
         List<Subject> list = new ArrayList<Subject>();
@@ -166,47 +200,33 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
         });
 
     }
-
-    public void newSubject() {
-        final EditText editText = new EditText(this);
-        new MaterialDialog.Builder(this)
-                .title("New Subject")
-                .customView(editText,true)
-                .positiveText("Create")
-                .positiveColor(getResources().getColor(R.color.ColorSubText))
-                .negativeText("Cancel")
-                .negativeColor(Color.RED)
-                .autoDismiss(false)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onNegative(MaterialDialog dialog) {
-                        dialog.dismiss();
-                    }
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
-                        String subject = editText.getText().toString();
-                        if (subject.length() < 1) {
-                            editText.setError("Please enter a valid subject");
-                        } else {
-                            dialog.dismiss();
-                            createSubject(subject);
-                        }
-                    }
-                })
-                .show();
+*/
+    @Override
+    public void getSubjectInfo(Bundle info) {
+        String subjectName = (String) info.get("subject");
+        String privacy = (String) info.get("privacy");
+        subjectManager.setListener(this);
+        subjectManager.setSubject(subjectName);
+        subjectManager.setPrivacy(privacy);
+        subjectManager.create();
+        getDemoInfo();
     }
 
-    public void createSubject(String subject) {
-        SubjectManager newSubject = new SubjectManager(handler,subject);
-        newSubject.setListener(this);
-        newSubject.create();
+    public void getDemoInfo() {
+        DBHelper dbClient = new DBHelper(this);
+        SQLiteDatabase db = dbClient.getReadableDatabase();
+        String select = "SELECT ID FROM subject_info WHERE subject = ?";
+        Cursor cursor = db.rawQuery(select,new String[] {"testing12"});
+        if (cursor.moveToFirst()) {
+            String result = cursor.getString(cursor.getColumnIndex("ID"));
+            //result is the result
+        }
     }
-
 
     @Override
     public void callBack() {
         SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Created Successfully"),this);
-        getSubjects();
+        //getSubjects();
     }
 
     @Override
@@ -245,16 +265,21 @@ public class MainActivity extends ActionBarActivity implements SubjectManager.Li
     }
 
     public void deleteSubject(String subject) {
-        SubjectManager manager = new SubjectManager(handler,subject);
+        SubjectManager manager = new SubjectManager();
         manager.setListener(this);
+        manager.setSubject(subject);
         manager.deleteSubject();
     }
 
     @Override
     public void deletedCallback() {
         SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Deleted Successfully"),this);
-        getSubjects();
+        //getSubjects();
     }
+
+
+
+
 
 
 }

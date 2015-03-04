@@ -18,9 +18,10 @@ import java.io.IOException;
 
 public class SubjectManager {
 
-    private Handler handler;
+    private Handler handler = new Handler();
     private Listener listener;
     private String subject;
+    private String privacy;
     private OkHttpClient client = new OkHttpClient();
     private MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
 
@@ -29,13 +30,16 @@ public class SubjectManager {
         void deletedCallback();
     }
 
-    public SubjectManager(Handler handler, String subject) {
-        this.handler = handler;
-        this.subject = subject;
-    }
 
     public void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+    public void setPrivacy(String privacy) {
+        this.privacy = privacy;
     }
 
     public void create() {
@@ -49,6 +53,8 @@ public class SubjectManager {
             stringer.object();
             stringer.key("subjectName");
             stringer.value(subject);
+            stringer.key("privacy");
+            stringer.value(privacy);
             stringer.endObject();
             return stringer.toString();
         } catch (JSONException e) {
