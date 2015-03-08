@@ -1,8 +1,15 @@
 package dylanrose60.selfeducation;
 
+
+
 import android.support.v4.app.Fragment;
+
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+
+import dylanrose60.selfeducation.SubjectFragment.BookmarkSubjectsFragment;
+import dylanrose60.selfeducation.SubjectFragment.MySubjectsFragment;
+import dylanrose60.selfeducation.SubjectFragment.PublicSubjectsFragment;
 
 public class ViewPagerAdapter extends FragmentPagerAdapter {
 
@@ -16,17 +23,14 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         switch(position) {
             case 0 :
-                MySubjectsFragment testFrag = new MySubjectsFragment();
-                testFrag.setText("Frag1");
-                return testFrag;
+                MySubjectsFragment mySubFrag = new MySubjectsFragment();
+                return mySubFrag;
             case 1:
-                MySubjectsFragment testFrag2 = new MySubjectsFragment();
-                testFrag2.setText("Frag2");
-                return testFrag2;
+                PublicSubjectsFragment publicSubFrag = new PublicSubjectsFragment();
+                return publicSubFrag;
             case 2:
-                MySubjectsFragment testFrag3 = new MySubjectsFragment();
-                testFrag3.setText("Frag3");
-                return testFrag3;
+                BookmarkSubjectsFragment privateSubFrag = new BookmarkSubjectsFragment();
+                return privateSubFrag;
             default:
                 throw new RuntimeException();
         }

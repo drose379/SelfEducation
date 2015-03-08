@@ -1,15 +1,16 @@
-package dylanrose60.selfeducation;
+package dylanrose60.selfeducation.DialogFragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+
+import dylanrose60.selfeducation.R;
 
 @SuppressLint("NewApi")
 public class LCreateDialog1 extends DialogFragment {

@@ -1,4 +1,4 @@
-package dylanrose60.selfeducation;
+package dylanrose60.selfeducation.DialogFragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -13,11 +13,15 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.Random;
+
+import dylanrose60.selfeducation.DBHelper;
+import dylanrose60.selfeducation.R;
 
 @SuppressLint("NewApi")
 public class NewSubjectDialog extends DialogFragment {
@@ -46,13 +50,19 @@ public class NewSubjectDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstance) {
         LayoutInflater inflater = LayoutInflater.from(getActivity());
+
         LinearLayout dialogLayout = (LinearLayout) inflater.inflate(R.layout.new_subject_dialog, null);
 
         final EditText editText1 = new EditText(getActivity());
 
         RadioGroup radioGroup = new RadioGroup(getActivity());
+        radioGroup.setOrientation(LinearLayout.HORIZONTAL);
+        radioGroup.setGravity(Gravity.CENTER_HORIZONTAL);
 
-        radioGroup.setOrientation(LinearLayout.VERTICAL);
+        TextView midText = new TextView(getActivity());
+        midText.setText("Choose Privacy");
+        midText.setGravity(Gravity.CENTER_HORIZONTAL);
+        midText.setPadding(0,5,0,5);
 
         final RadioButton publicButton = new RadioButton(getActivity());
         publicButton.setText("Public");
@@ -60,9 +70,9 @@ public class NewSubjectDialog extends DialogFragment {
         final RadioButton privateButton = new RadioButton(getActivity());
         privateButton.setText("Private");
         radioGroup.addView(privateButton);
-        radioGroup.setPadding(0,10,0,0);
 
         dialogLayout.addView(editText1);
+        dialogLayout.addView(midText);
         dialogLayout.addView(radioGroup);
 
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
@@ -94,6 +104,7 @@ public class NewSubjectDialog extends DialogFragment {
         MaterialDialog dialog = builder.build();
         return dialog;
     }
+
 
     public void addToLocal(Bundle subjectInfo) {
         String subject = subjectInfo.getString("subject");

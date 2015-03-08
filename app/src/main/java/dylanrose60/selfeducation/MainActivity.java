@@ -1,17 +1,10 @@
 package dylanrose60.selfeducation;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.AlertDialog;
+
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
-import android.os.Handler;
-import android.support.v4.app.FragmentActivity;
+
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -22,33 +15,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
-import com.pnikosis.materialishprogress.ProgressWheel;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
 
+import dylanrose60.selfeducation.DialogFragment.NewSubjectDialog;
+import dylanrose60.selfeducation.SubjectFragment.MySubjectsFragment;
 import dylanrose60.selfeducation.tabs.SlidingTabLayout;
 
 /*
@@ -70,6 +46,8 @@ public class MainActivity extends ActionBarActivity implements
     private ViewPager viewPager;
     private SlidingTabLayout tabLayout;
 
+    //Fragments
+    static MySubjectsFragment mySubsFrag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,6 +62,7 @@ public class MainActivity extends ActionBarActivity implements
 
         viewPager = (ViewPager) findViewById(R.id.viewPager);
         viewPager.setAdapter(tabAdapter);
+        viewPager.setOffscreenPageLimit(3);
         tabLayout = (SlidingTabLayout) findViewById(R.id.tabLayout);
         tabLayout.setViewPager(viewPager);
 
@@ -122,85 +101,10 @@ public class MainActivity extends ActionBarActivity implements
 
     }
 
-
-/*
-
-    public void viewController() {
-        ListView listElement = (ListView) findViewById(R.id.subjectList);
-        listElement.setVisibility(View.GONE);
+    public static void setFrag0(MySubjectsFragment frag) {
+        mySubsFrag = frag;
     }
 
-    public void getSubjects() {
-        final ListView listElement = (ListView) findViewById(R.id.subjectList);
-        final ProgressWheel spinAnimation = (ProgressWheel) findViewById(R.id.spinAnimation1);
-        final LinearLayout logoText = (LinearLayout) findViewById(R.id.logoLayout);
-
-        Request.Builder builder = new Request.Builder();
-        builder.url("http://codeyourweb.net/httpTest/index.php/getSubjects");
-        Request readyRequest = builder.build();
-        Call call = client.newCall(readyRequest);
-        call.enqueue(new Callback() {
-
-            @Override
-            public void onResponse(final Response response) throws IOException {
-                listElement.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        spinAnimation.setVisibility(View.GONE);
-                        logoText.setVisibility(View.GONE);
-                        listElement.setVisibility(View.VISIBLE);
-                    }
-                });
-                String responseString = response.body().string();
-                try {
-                    List subjectList = toArray(responseString);
-                    buildList(subjectList);
-                } catch (JSONException e) {
-                    //Handle errors
-                }
-            }
-            @Override
-            public void onFailure(Request request,IOException e) {
-
-            }
-        });
-    }
-
-    public List<Subject> toArray(String jsonString) throws JSONException {
-        JSONArray json = new JSONArray(jsonString); //Need to pass in the real JSON String to here
-        List<Subject> list = new ArrayList<Subject>();
-        for(int i = 0;i<json.length();i++) {
-            JSONObject jObject = json.getJSONObject(i);
-            list.add(new Subject(jObject.getString("name"),jObject.getString("start_date"),jObject.getInt("lesson_count")));
-        }
-        return list;
-    }
-
-    public void buildList(final List array) {
-        View listViewLayout = findViewById(R.id.subject_home);
-        final ListView listView = (ListView) findViewById(R.id.subjectList);
-        final ArrayAdapter<Subject> adapter = new CustomAdapter(getApplicationContext(),R.layout.subject_card_view,array);
-        listViewLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                listView.setAdapter(adapter);
-                list = array;
-                //registerForContextMenu(listView);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView parent,View view,int position,long id) {
-                        Subject selectedSubject = list.get(position);
-                        String subjectName = selectedSubject.getSubjectName();
-                        Intent newAct = new Intent(getApplicationContext(),SubjectDashboard.class);
-                        newAct.putExtra("subjectName",subjectName);
-                        startActivity(newAct);
-                    }
-                });
-            }
-        });
-
-    }
-*/
     @Override
     public void getSubjectInfo(Bundle info) {
         String subjectName = info.getString("subject");
@@ -211,26 +115,14 @@ public class MainActivity extends ActionBarActivity implements
         subjectManager.setPrivacy(privacy);
         subjectManager.setSerialID(serialID);
         subjectManager.create();
-        getDemoInfo();
-    }
-
-    public void getDemoInfo() {
-        DBHelper dbClient = new DBHelper(this);
-        SQLiteDatabase db = dbClient.getReadableDatabase();
-        String select = "SELECT * FROM subject_info";
-        Cursor cursor = db.rawQuery(select,null);
-        if (cursor.moveToFirst()) {
-            //Loop through this row, then move to the next row and loop through again, all while adding necessary values to aray
-            int subCount = cursor.getCount();
-            Toast.makeText(this,String.valueOf(subCount),Toast.LENGTH_LONG).show();
-            //result is the result
-        }
     }
 
     @Override
     public void callBack() {
         SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Created Successfully"),this);
-        //getSubjects();
+        if (mySubsFrag != null) {
+            mySubsFrag.getLocalSubjects();
+        }
     }
 
     @Override

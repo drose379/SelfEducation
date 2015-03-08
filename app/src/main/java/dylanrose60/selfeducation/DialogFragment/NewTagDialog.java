@@ -1,4 +1,4 @@
-package dylanrose60.selfeducation;
+package dylanrose60.selfeducation.DialogFragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -9,6 +9,9 @@ import android.os.Bundle;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+
+import dylanrose60.selfeducation.R;
+import dylanrose60.selfeducation.TagDataHandler;
 
 @SuppressLint("NewApi")
 public class NewTagDialog extends DialogFragment {

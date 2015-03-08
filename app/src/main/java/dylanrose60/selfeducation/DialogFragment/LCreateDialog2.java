@@ -1,4 +1,4 @@
-package dylanrose60.selfeducation;
+package dylanrose60.selfeducation.DialogFragment;
 
 
 import android.annotation.SuppressLint;
@@ -11,12 +11,13 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import dylanrose60.selfeducation.R;
 
 @SuppressLint("NewApi")
 public class LCreateDialog2 extends DialogFragment {

@@ -1,4 +1,4 @@
-package dylanrose60.selfeducation;
+package dylanrose60.selfeducation.DialogFragment;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -27,6 +27,8 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import dylanrose60.selfeducation.R;
 
 @SuppressLint("NewApi")
 public class LCreateDialog3 extends DialogFragment {

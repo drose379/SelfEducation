@@ -1,45 +1,26 @@
 package dylanrose60.selfeducation;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.FragmentManager;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Layout;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
-import com.nispok.snackbar.enums.SnackbarType;
-import com.pnikosis.materialishprogress.ProgressWheel;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
-import java.util.ArrayList;
 import java.util.List;
+
+import dylanrose60.selfeducation.DialogFragment.LCreateDialog1;
+import dylanrose60.selfeducation.DialogFragment.LCreateDialog2;
+import dylanrose60.selfeducation.DialogFragment.LCreateDialog3;
+import dylanrose60.selfeducation.DialogFragment.NewTagDialog;
+
 @SuppressLint("NewApi")
 public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,
         LCreateDialog1.Listener,
