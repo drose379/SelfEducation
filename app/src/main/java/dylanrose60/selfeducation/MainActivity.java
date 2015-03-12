@@ -27,20 +27,9 @@ import dylanrose60.selfeducation.DialogFragment.NewSubjectDialog;
 import dylanrose60.selfeducation.SubjectFragment.MySubjectsFragment;
 import dylanrose60.selfeducation.tabs.SlidingTabLayout;
 
-/*
-    * Main activity has a welcome screen with 2 main uses
-    * Button: Create new subject
-    * Button: View my subjects
- */
-
 @SuppressLint("NewApi")
 public class MainActivity extends ActionBarActivity implements
-        SubjectManager.Listener,
-        NewSubjectDialog.Listener  {
-
-    protected OkHttpClient client = new OkHttpClient();
-    private List<Subject> list;
-    private SubjectManager subjectManager = new SubjectManager();
+        NewSubjectDialog.Listener {
 
     //Tabs
     private ViewPager viewPager;
@@ -66,13 +55,6 @@ public class MainActivity extends ActionBarActivity implements
         tabLayout = (SlidingTabLayout) findViewById(R.id.tabLayout);
         tabLayout.setViewPager(viewPager);
 
-
-
-        //UNDER CONSTRUCTION
-        //ListView list = (ListView) findViewById(R.id.subjectList);
-        //registerForContextMenu(list);
-        //viewController();
-        //getSubjects();
     }
 
 
@@ -106,76 +88,12 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void getSubjectInfo(Bundle info) {
-        String subjectName = info.getString("subject");
-        String privacy = info.getString("privacy");
-        int serialID = info.getInt("serialID");
-        subjectManager.setListener(this);
-        subjectManager.setSubject(subjectName);
-        subjectManager.setPrivacy(privacy);
-        subjectManager.setSerialID(serialID);
-        subjectManager.create();
-    }
-
-    @Override
-    public void callBack() {
+    public void subjectCreated() {
         SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Created Successfully"),this);
         if (mySubsFrag != null) {
-            mySubsFrag.getLocalSubjects();
+            mySubsFrag.onStart();
         }
     }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu,View v,ContextMenu.ContextMenuInfo info) {
-        super.onCreateContextMenu(menu,v,info);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.subject_list_menu,menu);
-    }
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Subject selectedSubject = list.get(info.position);
-        String subjectName = selectedSubject.getSubjectName();
-        switch(item.getItemId()) {
-            case R.id.delete :
-                deleteConfirm(subjectName);
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    public void deleteConfirm(final String subject) {
-        SnackbarManager.show(Snackbar.with(getApplicationContext())
-        .text("Are you sure?")
-        .actionLabel("Confirm")
-        .actionColor(Color.RED)
-        .duration(Snackbar.SnackbarDuration.LENGTH_LONG)
-        .actionListener(new ActionClickListener() {
-            @Override
-            public void onActionClicked(Snackbar snackbar) {
-                snackbar.dismiss();
-                deleteSubject(subject);
-            }
-        }),this);
-    }
-
-    public void deleteSubject(String subject) {
-        SubjectManager manager = new SubjectManager();
-        manager.setListener(this);
-        manager.setSubject(subject);
-        manager.deleteSubject();
-    }
-
-    @Override
-    public void deletedCallback() {
-        SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Deleted Successfully"),this);
-        //getSubjects();
-    }
-
-
-
-
 
 
 }

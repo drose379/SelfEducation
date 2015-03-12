@@ -28,7 +28,6 @@ public class SubjectManager {
     private MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
 
     public interface Listener {
-        void callBack();
         void deletedCallback();
     }
 
@@ -39,57 +38,6 @@ public class SubjectManager {
 
     public void setSubject(String subject) {
         this.subject = subject;
-    }
-    public void setPrivacy(String privacy) {
-        this.privacy = privacy;
-    }
-    public void setSerialID(int serialID) {this.serialID = serialID;}
-
-    public void create() {
-        String json = toJson();
-        request(json);
-    }
-
-    public String toJson() {
-        JSONStringer stringer = new JSONStringer();
-        try {
-            stringer.object();
-            stringer.key("subjectName");
-            stringer.value(subject);
-            stringer.key("privacy");
-            stringer.value(privacy);
-            stringer.key("serialID");
-            stringer.value(serialID);
-            stringer.endObject();
-            return stringer.toString();
-        } catch (JSONException e) {
-            throw new RuntimeException();
-        }
-    }
-
-    public void request(String stringBody) {
-        RequestBody body = RequestBody.create(mediaType,stringBody);
-        Request.Builder builder = new Request.Builder();
-        builder.post(body);
-        builder.url("http://codeyourweb.net/httpTest/index.php/newSubject");
-        Request request = builder.build();
-        Call newCall = client.newCall(request);
-        newCall.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                handler.post(new Runnable() {
-                   @Override
-                   public void run() {
-                       listener.callBack();
-                   }
-                });
-            }
-        });
     }
 
     public void deleteSubject() {

@@ -6,10 +6,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public static String DBName = "subjects";
-    private String tableName = "subject_info";
+    public static String DBName = "owner_ids";
+    private String tableName = "owner_id";
     private String col1 = "ID";
-    private String col2 = "subject";
 
     public DBHelper(Context context)  {
         super(context,DBName,null,1);
@@ -18,7 +17,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase database) {
         //DB schema here
-        String subjectTable = "CREATE TABLE " + tableName + "(" + col1 + " INTEGER PRIMARY KEY, " + col2 + " TEXT);";
+        String subjectTable = "CREATE TABLE " + tableName + "(" + col1 + " INTEGER PRIMARY KEY);";
         database.execSQL(subjectTable);
     }
 
