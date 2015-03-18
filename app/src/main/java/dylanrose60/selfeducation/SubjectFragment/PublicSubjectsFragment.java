@@ -148,7 +148,7 @@ public class PublicSubjectsFragment extends Fragment {
                     Log.i("finalSubList",subjectNameList.toString());
 
                     /*
-                        * Start with request of all public subject NAMES (not full info), put into a list (only something the user didnt create)
+                        * Start with request of all public subject NAMES (not full info), put into a list (only something the user didnt create) TEST
                         * In the same request as above, also grab all users bookamrks and put into List
                         * Use bookmarks List and loop over, checking if the bookmarks are found in the subject name list, if they are, remove them
                         * Use the subject name array after all bookmarks are removed to make another request to get full info for remaining subjects
