@@ -3,7 +3,7 @@
 
     <item
         android:id="@+id/bookmark"
-        android:title="Bookmark"
+        android:title="Move To Bookmarks"
         />
     <item
         android:id="@+id/hide"

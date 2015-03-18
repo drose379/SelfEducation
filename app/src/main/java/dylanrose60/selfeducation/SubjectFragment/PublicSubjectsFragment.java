@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -115,12 +116,45 @@ public class PublicSubjectsFragment extends Fragment {
         Call newCall = client.newCall(request);
         newCall.enqueue(new Callback() {
             @Override
-            public void onResponse(Response response) throws IOException {
-                String responseString = response.body().string();
+            public void onResponse(final Response response) throws IOException {
+               final String responseString = response.body().string();
                 try {
-                    List<Subject> subjectList = toArray(responseString);
-                    buildList(subjectList);
-                } catch (JSONException e) {
+                    /*
+                        *Use responseString to build Lists out of two arrays sent from server
+                        *Call method that gets passed both bookmark list and subject list
+                        *Method removes all items found in the bookmarks list from the public subjects list
+                        *Returns the new list without bookmarked items
+                    */
+                    final JSONObject master = new JSONObject(responseString);
+                    //Get sub arrays ("bookmarks","subjects")
+                    final String subjects = master.get("subjects").toString();
+                    final String bookmarks = master.get("bookmarks").toString();
+                    /*
+                        * Create List out of subjects and out of bookmarks
+                        * Send both Lists to method that removes each bookmark from the subject list
+                        * The method described above will return the modified (final) List, ready to be passed to buildList()
+                    */
+                    List<String> bookmarkList = toBookmarkList(bookmarks);
+                    List<String> subjectNameList = getSubjectNames(subjects);
+                    List<Subject> subjectFullList = toArray(subjects);
+
+                    //Loop over bookmarks instead of all subjects
+                    for (int i=0;i<bookmarkList.size();i++) {
+                        String currentBookmark = bookmarkList.get(i);
+                        if (subjectNameList.contains(currentBookmark)) {
+                            subjectNameList.remove(currentBookmark);
+                        }
+                    }
+                    Log.i("finalSubList",subjectNameList.toString());
+
+                    /*
+                        * Start with request of all public subject NAMES (not full info), put into a list (only something the user didnt create)
+                        * In the same request as above, also grab all users bookamrks and put into List
+                        * Use bookmarks List and loop over, checking if the bookmarks are found in the subject name list, if they are, remove them
+                        * Use the subject name array after all bookmarks are removed to make another request to get full info for remaining subjects
+                    */
+                    //buildList(finalSubList);
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -164,6 +198,28 @@ public class PublicSubjectsFragment extends Fragment {
         }
         subjects = list;
         return list;
+    }
+
+    public List toBookmarkList(String bookmarkString) throws JSONException {
+        JSONArray json = new JSONArray(bookmarkString);
+        List<String> bookmarkList = new ArrayList<>();
+        for (int i = 0; i < json.length();i++) {
+            JSONObject currentBookmark = json.getJSONObject(i);
+            String bookmarkValue = currentBookmark.getString("subject_name");
+            bookmarkList.add(bookmarkValue);
+        }
+        return bookmarkList;
+    }
+
+    public List getSubjectNames(String subjects) throws JSONException {
+        List<String> subNames = new ArrayList();
+        JSONArray json = new JSONArray(subjects);
+        for (int i=0;i<json.length();i++) {
+            JSONObject currentSub = json.getJSONObject(i);
+            String subName = currentSub.getString("name");
+            subNames.add(subName);
+        }
+        return subNames;
     }
 
     public void buildList(final List array) {
@@ -245,6 +301,7 @@ public class PublicSubjectsFragment extends Fragment {
 
     public void addBookmark(final String subject) {
         String json = bookmarkToJSON(subject);
+
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
@@ -260,6 +317,7 @@ public class PublicSubjectsFragment extends Fragment {
             @Override
             public void onResponse(Response response) throws IOException {
                 bookmarkSuccess(subject);
+                PublicSubjectsFragment.this.onStart();
             }
         });
     }

@@ -56,7 +56,7 @@ public class MySubjectsFragment extends Fragment {
     private OkHttpClient httpClient = new OkHttpClient();
     private Handler handler = new Handler();
     private String ownerID;
-    private List<Subject> mySubjects;
+    private List<Subject> mySubjects = null;
 
     @Override
     public void onAttach(Activity activity) {
@@ -208,20 +208,22 @@ public class MySubjectsFragment extends Fragment {
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.subject_list_menu,menu);
     }
-
+/*
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Subject selectedSubject = mySubjects.get(info.position);
-        String subjectName = selectedSubject.getSubjectName();
-        switch(item.getItemId()) {
-            case R.id.delete :
-                deleteConfirm(subjectName);
-                return true;
-            default:
-                return false;
-        }
+        Subject selectedSubject = null;
+            selectedSubject = mySubjects.get(info.position);
+            String subjectName = selectedSubject.getSubjectName();
+            switch (item.getItemId()) {
+                case R.id.delete:
+                    deleteConfirm(subjectName);
+                    return true;
+                default:
+                    return false;
+            }
     }
+*/
 
     public void deleteConfirm(final String subject) {
         SnackbarManager.show(Snackbar.with(getActivity())
