@@ -57,6 +57,8 @@ public class PublicSubjectsFragment extends Fragment {
     private SwipeRefreshLayout swipeRefresh;
     private List<Subject> subjects;
 
+    static BookmarkSubjectsFragment bookmarkFrag;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -79,6 +81,10 @@ public class PublicSubjectsFragment extends Fragment {
         getLocalSubjects();
     }
 
+    static void setBookmarkFrag(BookmarkSubjectsFragment frag) {
+        bookmarkFrag = frag;
+    }
+
     public void getLocalSubjects() {
         DBHelper dbClient = new DBHelper(getActivity());
         SQLiteDatabase db = dbClient.getReadableDatabase();
@@ -93,7 +99,7 @@ public class PublicSubjectsFragment extends Fragment {
         }
     }
 
-    public String toJSONString() {
+    public String ownerIDJSON() {
         JSONStringer json = new JSONStringer();
         try {
             json.object();
@@ -107,11 +113,11 @@ public class PublicSubjectsFragment extends Fragment {
     }
 
     public void getPublicSubjects() {
-        String json = toJSONString();
+        String json = ownerIDJSON();
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
-        builder.url("http://codeyourweb.net/httpTest/index.php/getPublicSubject1");
+        builder.url("http://codeyourweb.net/httpTest/index.php/getSubNames");
         Request request = builder.build();
         Call newCall = client.newCall(request);
         newCall.enqueue(new Callback() {
@@ -120,40 +126,26 @@ public class PublicSubjectsFragment extends Fragment {
                final String responseString = response.body().string();
                 try {
                     /*
-                        *Use responseString to build Lists out of two arrays sent from server
-                        *Call method that gets passed both bookmark list and subject list
-                        *Method removes all items found in the bookmarks list from the public subjects list
-                        *Returns the new list without bookmarked items
+                        * Start with request of all public subject NAMES (not full info), put into a list (only something the user didnt create) TEST
+                        * In the same request as above, also grab all users bookamrks and put into List
+                        * Use bookmarks List and loop over, checking if the bookmarks are found in the subject name list, if they are, remove them
+                        * Use the subject name array after all bookmarks are removed to make another request to get full info for remaining subjects
                     */
                     final JSONObject master = new JSONObject(responseString);
                     //Get sub arrays ("bookmarks","subjects")
                     final String subjects = master.get("subjects").toString();
                     final String bookmarks = master.get("bookmarks").toString();
-                    /*
-                        * Create List out of subjects and out of bookmarks
-                        * Send both Lists to method that removes each bookmark from the subject list
-                        * The method described above will return the modified (final) List, ready to be passed to buildList()
-                    */
+
                     List<String> bookmarkList = toBookmarkList(bookmarks);
                     List<String> subjectNameList = getSubjectNames(subjects);
-                    List<Subject> subjectFullList = toArray(subjects);
 
-                    //Loop over bookmarks instead of all subjects
                     for (int i=0;i<bookmarkList.size();i++) {
                         String currentBookmark = bookmarkList.get(i);
                         if (subjectNameList.contains(currentBookmark)) {
                             subjectNameList.remove(currentBookmark);
                         }
                     }
-                    Log.i("finalSubList",subjectNameList.toString());
-
-                    /*
-                        * Start with request of all public subject NAMES (not full info), put into a list (only something the user didnt create) TEST
-                        * In the same request as above, also grab all users bookamrks and put into List
-                        * Use bookmarks List and loop over, checking if the bookmarks are found in the subject name list, if they are, remove them
-                        * Use the subject name array after all bookmarks are removed to make another request to get full info for remaining subjects
-                    */
-                    //buildList(finalSubList);
+                    getFinalSubjects(subjectNameList);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -185,6 +177,34 @@ public class PublicSubjectsFragment extends Fragment {
 
             public void onFailure(Request request,IOException e) {
 
+            }
+        });
+    }
+
+    public void getFinalSubjects(List<String> subNames) {
+        JSONArray jsonArray = new JSONArray(subNames);
+        String json = jsonArray.toString();
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
+        Request.Builder builder = new Request.Builder();
+        builder.url("http://codeyourweb.net/httpTest/index.php/getPubSubFull1");
+        builder.post(body);
+        Request request = builder.build();
+        Call newCall = client.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                String responseString = response.body().string();
+                try {
+                    List<Subject> finalSubList = toArray(responseString);
+                    buildList(finalSubList);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -318,6 +338,7 @@ public class PublicSubjectsFragment extends Fragment {
             public void onResponse(Response response) throws IOException {
                 bookmarkSuccess(subject);
                 PublicSubjectsFragment.this.onStart();
+                bookmarkFrag.onStart();
             }
         });
     }
