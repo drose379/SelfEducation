@@ -42,6 +42,7 @@ import org.json.JSONStringer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
@@ -94,8 +95,12 @@ public class PublicSubjectsFragment extends Fragment {
             ownerID = cursor.getString(cursor.getColumnIndex("ID"));
             getPublicSubjects();
         } else {
-            //Called if user has no personal subjects that need to be removed from PUBLIC list
-            getAllPublicSubjects();
+            Random rand = new Random();
+            int randID = rand.nextInt(1000000);
+            SQLiteDatabase writableDB = dbClient.getWritableDatabase();
+            String insertID = "INSERT INTO owner_id (ID) VALUES ('"+randID+"')";
+            writableDB.execSQL(insertID);
+            getLocalSubjects();
         }
     }
 

@@ -14,7 +14,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
@@ -32,6 +34,7 @@ import org.json.JSONStringer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
@@ -97,7 +100,21 @@ public class BookmarkSubjectsFragment extends Fragment {
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
                 try {
-                    List<Subject> bookmarks =toArray(responseString);
+                    List<Subject> bookmarks = toArray(responseString);
+                    if (bookmarks.size() > 0) {
+                        final LinearLayout logoText = (LinearLayout) getView().findViewById(R.id.logoLayout);
+                        final TextView noticeText = (TextView) getView().findViewById(R.id.bookmarkNotice);
+                        final TextView directionsText = (TextView) getView().findViewById(R.id.bookmarkDirections);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                logoText.setVisibility(View.GONE);
+                                noticeText.setVisibility(View.GONE);
+                                directionsText.setVisibility(View.GONE);
+                            }
+                        });
+
+                    }
                     buildList(bookmarks);
                 } catch (JSONException e) {
                     e.printStackTrace();
