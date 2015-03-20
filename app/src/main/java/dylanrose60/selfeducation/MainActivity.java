@@ -24,6 +24,7 @@ import com.nispok.snackbar.listeners.ActionClickListener;
 import com.squareup.okhttp.OkHttpClient;
 
 import dylanrose60.selfeducation.DialogFragment.NewSubjectDialog;
+import dylanrose60.selfeducation.DialogFragment.NewTagDialog;
 import dylanrose60.selfeducation.SubjectFragment.MySubjectsFragment;
 import dylanrose60.selfeducation.tabs.SlidingTabLayout;
 
@@ -94,6 +95,5 @@ public class MainActivity extends ActionBarActivity implements
             mySubsFrag.onStart();
         }
     }
-
 
 }

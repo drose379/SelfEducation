@@ -187,7 +187,6 @@ public class MySubjectsFragment extends Fragment {
             public void run() {
                 listView.setAdapter(adapter);
                 final List<Subject> list = array;
-                //registerForContextMenu(listView);
                 listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView parent,View view,int position,long id) {
@@ -208,7 +207,7 @@ public class MySubjectsFragment extends Fragment {
         MenuInflater inflater = getActivity().getMenuInflater();
         inflater.inflate(R.menu.subject_list_menu,menu);
     }
-/*
+
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -223,7 +222,6 @@ public class MySubjectsFragment extends Fragment {
                     return false;
             }
     }
-*/
 
     public void deleteConfirm(final String subject) {
         SnackbarManager.show(Snackbar.with(getActivity())

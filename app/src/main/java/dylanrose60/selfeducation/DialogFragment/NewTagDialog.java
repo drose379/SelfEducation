@@ -51,6 +51,10 @@ public class NewTagDialog extends DialogFragment {
                             editText1.setError("Enter a valid tag");
                         }
                     }
+                    @Override
+                    public void onNegative(MaterialDialog dialog) {
+
+                    }
                 });
         MaterialDialog dialog = builder.build();
         return dialog;

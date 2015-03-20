@@ -127,7 +127,11 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
     @Override
     public void newTag(Boolean newTag) {
-        newLesson3Test(true);
+        if (newTag) {
+            newLesson3Test(true);
+        } else {
+            newLesson3Test(false);
+        }
         //Pass true,so Dialog3 can putExtra a boolean of true of false to decide whether new tag is checked off
     }
 
