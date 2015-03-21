@@ -53,7 +53,8 @@ public class NewTagDialog extends DialogFragment {
                     }
                     @Override
                     public void onNegative(MaterialDialog dialog) {
-
+                        //inflate the Tagselecter dialog again with false boolean
+                        listener.newTag(false);
                     }
                 });
         MaterialDialog dialog = builder.build();

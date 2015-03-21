@@ -128,7 +128,7 @@ public class PublicSubjectsFragment extends Fragment {
         newCall.enqueue(new Callback() {
             @Override
             public void onResponse(final Response response) throws IOException {
-               final String responseString = response.body().string();
+                final String responseString = response.body().string();
                 try {
                     /*
                         * Start with request of all public subject NAMES (not full info), put into a list (only something the user didnt create) TEST
@@ -140,16 +140,29 @@ public class PublicSubjectsFragment extends Fragment {
                     //Get sub arrays ("bookmarks","subjects")
                     final String subjects = master.get("subjects").toString();
                     final String bookmarks = master.get("bookmarks").toString();
+                    final String hiddenSubs = master.get("hidden").toString();
+
+                    Log.i("hiddenSubs",hiddenSubs);
 
                     List<String> bookmarkList = toBookmarkList(bookmarks);
                     List<String> subjectNameList = getSubjectNames(subjects);
+                    List<String> hiddenNameList = getHiddenNames(hiddenSubs);
 
+                    //Remove all items that are bookmarked from list
                     for (int i=0;i<bookmarkList.size();i++) {
                         String currentBookmark = bookmarkList.get(i);
                         if (subjectNameList.contains(currentBookmark)) {
                             subjectNameList.remove(currentBookmark);
                         }
                     }
+                    //Remove all items that are "hidden" from list
+                    for (int i=0;i<hiddenNameList.size();i++) {
+                        String currentItem = hiddenNameList.get(i);
+                        if (subjectNameList.contains(currentItem)) {
+                            subjectNameList.remove(currentItem);
+                        }
+                    }
+                    //Get full info on any subject that has passed through checks
                     getFinalSubjects(subjectNameList);
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -157,29 +170,6 @@ public class PublicSubjectsFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Request request,IOException e) {
-
-            }
-        });
-    }
-
-    public void getAllPublicSubjects() {
-        Request.Builder builder = new Request.Builder();
-        builder.url("http://codeyourweb.net/httpTest/index.php/getPublicSubject2");
-        Request request = builder.build();
-        Call newCall = client.newCall(request);
-        newCall.enqueue(new Callback() {
-            @Override
-            public void onResponse(Response response) throws IOException {
-                String responseString = response.body().string();
-                try {
-                    List<Subject> subjectList = toArray(responseString);
-                    buildList(subjectList);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-
             public void onFailure(Request request,IOException e) {
 
             }
@@ -247,6 +237,17 @@ public class PublicSubjectsFragment extends Fragment {
         return subNames;
     }
 
+    public List getHiddenNames(String hiddenItems) throws JSONException {
+        List<String> hiddenSubs = new ArrayList();
+        JSONArray json = new JSONArray(hiddenItems);
+        for (int i=0;i<json.length();i++) {
+            JSONObject currentSub = json.getJSONObject(i);
+            String subName = currentSub.getString("subject_name");
+            hiddenSubs.add(subName);
+        }
+        return hiddenSubs;
+    }
+
     public void buildList(final List array) {
         ViewGroup layout = (ViewGroup) getView();
 
@@ -303,13 +304,38 @@ public class PublicSubjectsFragment extends Fragment {
                 addBookmark(subjectName);
                 return true;
             case R.id.hide :
-                //Create method to send subject and owner info to hidden table on web server
+                hideSubject(subjectName);
             default:
                 return false;
         }
     }
 
-    public String bookmarkToJSON(String subject) {
+    public void hideSubject(String subject) {
+        //Hide the subject
+        //Refresh the list
+        //Make sure to remove hidden subjects from the master subject list, (just like bookmarks are removed from the master array)
+        String json = subjectToJson(subject);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
+        Request.Builder rBuilder = new Request.Builder();
+        rBuilder.post(body);
+        rBuilder.url("http://codeyourweb.net/httpTest/index.php/hideSubject");
+        Request request = rBuilder.build();
+        Call newCall = client.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                PublicSubjectsFragment.this.onStart();
+            }
+        });
+    }
+
+
+    public String subjectToJson(String subject) {
         JSONStringer jsonStringer = new JSONStringer();
         try {
             jsonStringer.object();
@@ -325,7 +351,7 @@ public class PublicSubjectsFragment extends Fragment {
     }
 
     public void addBookmark(final String subject) {
-        String json = bookmarkToJSON(subject);
+        String json = subjectToJson(subject);
 
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
         Request.Builder builder = new Request.Builder();

@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -99,10 +100,14 @@ public class MySubjectsFragment extends Fragment {
         ViewGroup layout = (ViewGroup) getView();
 
         ProgressWheel spinner = (ProgressWheel) layout.findViewById(R.id.spinnerAnimation);
+        LinearLayout logoText = (LinearLayout) layout.findViewById(R.id.logoLayout);
         TextView welcomeText1 = (TextView) layout.findViewById(R.id.welcomeText1);
         TextView welcomeText2 = (TextView) layout.findViewById(R.id.welcomeText2);
 
+        //Fade animations in and out using AlphaAnimation
+
         spinner.setVisibility(View.GONE);
+        logoText.setVisibility(View.VISIBLE);
         welcomeText1.setVisibility(View.VISIBLE);
         welcomeText2.setVisibility(View.VISIBLE);
     }
@@ -138,17 +143,23 @@ public class MySubjectsFragment extends Fragment {
                 final TextView welcomeText1 = (TextView) getView().findViewById(R.id.welcomeText1);
                 final TextView welcomeText2 = (TextView) getView().findViewById(R.id.welcomeText2);
                 final LinearLayout logoText = (LinearLayout) getView().findViewById(R.id.logoLayout);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        spinAnimation.setVisibility(View.GONE);
-                        logoText.setVisibility(View.GONE);
-                        welcomeText1.setVisibility(View.GONE);
-                        welcomeText2.setVisibility(View.GONE);
-                    }
-                });
                 try {
-                    List<Subject> subjectList = toArray(responseString);
+                    final List<Subject> subjectList = toArray(responseString);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (subjectList.size() < 1) {
+                                showWelcomeText();
+                            } else {
+                                spinAnimation.setVisibility(View.GONE);
+                                logoText.setVisibility(View.GONE);
+                                welcomeText1.setVisibility(View.GONE);
+                                welcomeText2.setVisibility(View.GONE);
+                            }
+                        }
+                    });
+
+
                     buildList(subjectList);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -211,16 +222,22 @@ public class MySubjectsFragment extends Fragment {
     @Override
     public boolean onContextItemSelected(MenuItem item) {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Subject selectedSubject = null;
-            selectedSubject = mySubjects.get(info.position);
-            String subjectName = selectedSubject.getSubjectName();
+        String subjectName = null;
+        if (mySubjects != null && mySubjects.size() > 0) {
+            //Subject selectedSubject = mySubjects.get(info.);
+            Log.i("itemPosition",String.valueOf(info.position));
+            Log.i("itemPosition",mySubjects.get(info.position).getSubjectName());
+            subjectName = mySubjects.get(info.position).getSubjectName();
+        }
             switch (item.getItemId()) {
                 case R.id.delete:
                     deleteConfirm(subjectName);
                     return true;
+
                 default:
                     return false;
             }
+
     }
 
     public void deleteConfirm(final String subject) {
