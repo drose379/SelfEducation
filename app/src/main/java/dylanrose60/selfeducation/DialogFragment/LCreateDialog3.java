@@ -63,7 +63,7 @@ public class LCreateDialog3 extends DialogFragment {
     }
 
     public Dialog onCreateDialog(Bundle savedInstance) {
-        getTags(false);
+        getTags();
         ProgressWheel loadWheel = new ProgressWheel(getActivity());
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(80,80);
         params.gravity = Gravity.CENTER_HORIZONTAL;
@@ -103,7 +103,7 @@ public class LCreateDialog3 extends DialogFragment {
         return dialog;
     }
 
-    public void getTags(final boolean newTag){
+    public void getTags(){
         Request.Builder builder = new Request.Builder();
         builder.url("http://codeyourweb.net/httpTest/index.php/getTags");
         Request ready = builder.build();

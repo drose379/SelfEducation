@@ -9,6 +9,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,21 +17,33 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 
+import java.io.IOException;
 import java.util.List;
 
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+
+import org.json.JSONException;
+import org.json.JSONStringer;
 
 import dylanrose60.selfeducation.DialogFragment.NewSubjectDialog;
 import dylanrose60.selfeducation.DialogFragment.NewTagDialog;
+import dylanrose60.selfeducation.DialogFragment.SubjectCategoryDialog;
 import dylanrose60.selfeducation.SubjectFragment.MySubjectsFragment;
 import dylanrose60.selfeducation.tabs.SlidingTabLayout;
 
 @SuppressLint("NewApi")
 public class MainActivity extends ActionBarActivity implements
-        NewSubjectDialog.Listener {
+        NewSubjectDialog.Listener,
+        SubjectCategoryDialog.Listener {
 
     //Tabs
     private ViewPager viewPager;
@@ -38,6 +51,9 @@ public class MainActivity extends ActionBarActivity implements
 
     //Fragments
     static MySubjectsFragment mySubsFrag;
+
+    //http
+    private OkHttpClient httpClient = new OkHttpClient();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,11 +105,63 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     @Override
-    public void subjectCreated() {
-        SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Created Successfully"),this);
-        if (mySubsFrag != null) {
-            mySubsFrag.onStart();
+    public void dialog1Complete(Bundle subjectInfo) {
+        FragmentManager fragmentManager = getFragmentManager();
+        SubjectCategoryDialog categoryDialog = new SubjectCategoryDialog();
+        categoryDialog.setArguments(subjectInfo);
+        categoryDialog.show(fragmentManager,"categoryDialog");
+    }
+
+    @Override
+    public void subInfoComplete(Bundle subjectInfo) {
+        Log.i("fullSubInfo",subjectInfo.toString());
+        String subJSON = subBundleJSON(subjectInfo);
+        createSubject(subJSON);
+    }
+
+    public String subBundleJSON(Bundle subjectInfo) {
+
+        String subjectName = subjectInfo.getString("subject");
+        String privacy = subjectInfo.getString("privacy");
+        String category = subjectInfo.getString("category");
+        String ownerId = subjectInfo.getString("owner_id");
+
+        try {
+            JSONStringer json = new JSONStringer();
+            json.object();
+            json.key("subject");
+            json.value(subjectName);
+            json.key("privacy");
+            json.value(privacy);
+            json.key("category");
+            json.value(category);
+            json.key("owner_id");
+            json.value(ownerId);
+            json.endObject();
+            return json.toString();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    public void createSubject(String json) {
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
+        Request.Builder builder = new Request.Builder();
+        builder.post(body);
+        builder.url("http://codeyourweb.net/httpTest/index.php/newSubject");
+        Request request = builder.build();
+        Call newCall = httpClient.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                mySubsFrag.onStart();
+            }
+        });
     }
 
 }

@@ -19,18 +19,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.Callback;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
-import org.json.JSONException;
-import org.json.JSONStringer;
-
-import java.io.IOException;
 import java.util.Random;
 
 import dylanrose60.selfeducation.DBHelper;
@@ -40,15 +29,15 @@ import dylanrose60.selfeducation.R;
 public class NewSubjectDialog extends DialogFragment {
 
     public interface Listener {
-        public void subjectCreated();
+        public void dialog1Complete(Bundle subjectInfo);
     }
 
     private String privacy;
     private Listener listener;
     //Need to make a static getInstance method for getting instance of DBHelper
     private DBHelper dbClient;
-    private OkHttpClient client = new OkHttpClient();
-    private Handler handler = new Handler();
+    //private OkHttpClient client = new OkHttpClient();
+    //private Handler handler = new Handler();
 
     @Override
     public void onAttach(Activity activity) {
@@ -108,7 +97,7 @@ public class NewSubjectDialog extends DialogFragment {
 
                         subjectInfo.putString("subject",subjectName);
                         subjectInfo.putString("privacy",privacy);
-                        addToLocal(subjectInfo);
+                        getOwnerID(subjectInfo);
                         //addToRemote(subjectInfo);
                     }
                 });
@@ -117,25 +106,28 @@ public class NewSubjectDialog extends DialogFragment {
     }
 
 
-    public void addToLocal(Bundle subjectInfo) {
-        //Get readable DB, check if owner ID is present, if it is, do nothing, if its not, getWritable and create one
-        DBHelper dbClient = new DBHelper(getActivity());
+    public void getOwnerID(Bundle subjectInfo) {
+        //Get readable DB, check if owner ID is present, if it is, get the ID and add to bundle, if its not, getWritable and create one
+        //DBHelper dbClient = new DBHelper(getActivity());
         SQLiteDatabase readableDB = dbClient.getReadableDatabase();
         String getOwnerId = "SELECT ID from owner_id";
         Cursor response = readableDB.rawQuery(getOwnerId,null);
         if (response.moveToFirst()) {
             String ownerId = response.getString(response.getColumnIndex("ID"));
             subjectInfo.putString("owner_id",ownerId);
-            addToRemote(subjectInfo);
+            listener.dialog1Complete(subjectInfo);
+            //addToRemote(subjectInfo);
         } else {
             Random rand = new Random();
             int randID = rand.nextInt(1000000);
             SQLiteDatabase writableDB = dbClient.getWritableDatabase();
             String insertID = "INSERT INTO owner_id (ID) VALUES ('"+randID+"')";
             writableDB.execSQL(insertID);
-            addToLocal(subjectInfo);
+            getOwnerID(subjectInfo);
         }
     }
+
+    /*
 
     public void addToRemote(Bundle subjectInfo) {
         String json = toJson(subjectInfo);
@@ -187,5 +179,7 @@ public class NewSubjectDialog extends DialogFragment {
             }
         });
     }
+
+    */
 
 }

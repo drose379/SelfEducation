@@ -74,8 +74,6 @@
     <ListView
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:indicatorLeft="?android:attr/expandableListPreferredItemIndicatorLeft"
-        android:dividerHeight="0.5dp"
         android:id="@+id/subjectList"
         />
 
