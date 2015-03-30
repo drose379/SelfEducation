@@ -93,7 +93,7 @@ public class PublicSubjectsFragment extends Fragment {
         Cursor cursor = db.rawQuery(query,null);
         if (cursor.moveToFirst()) {
             ownerID = cursor.getString(cursor.getColumnIndex("ID"));
-            getPublicSubjects();
+            //getPublicSubjects();
         } else {
             Random rand = new Random();
             int randID = rand.nextInt(1000000);
@@ -117,6 +117,8 @@ public class PublicSubjectsFragment extends Fragment {
         return json.toString();
     }
 
+    /*
+
     public void getPublicSubjects() {
         String json = ownerIDJSON();
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
@@ -135,7 +137,7 @@ public class PublicSubjectsFragment extends Fragment {
                         * In the same request as above, also grab all users bookamrks and put into List
                         * Use bookmarks List and loop over, checking if the bookmarks are found in the subject name list, if they are, remove them
                         * Use the subject name array after all bookmarks are removed to make another request to get full info for remaining subjects
-                    */
+
                     final JSONObject master = new JSONObject(responseString);
                     //Get sub arrays ("bookmarks","subjects")
                     final String subjects = master.get("subjects").toString();
@@ -176,6 +178,8 @@ public class PublicSubjectsFragment extends Fragment {
         });
     }
 
+
+
     public void getFinalSubjects(List<String> subNames) {
         JSONArray jsonArray = new JSONArray(subNames);
         String json = jsonArray.toString();
@@ -204,6 +208,8 @@ public class PublicSubjectsFragment extends Fragment {
         });
     }
 
+
+
     public List<Subject> toArray(String jsonString) throws JSONException {
         JSONArray json = new JSONArray(jsonString); //Need to pass in the real JSON String to here
         List<Subject> list = new ArrayList<Subject>();
@@ -214,6 +220,8 @@ public class PublicSubjectsFragment extends Fragment {
         subjects = list;
         return list;
     }
+
+    */
 
     public List toBookmarkList(String bookmarkString) throws JSONException {
         JSONArray json = new JSONArray(bookmarkString);

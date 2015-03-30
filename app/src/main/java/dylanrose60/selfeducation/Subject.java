@@ -2,24 +2,18 @@ package dylanrose60.selfeducation;
 
 public class Subject {
 
-    public String subjectName;
-    public String startDate;
-    public int lessonCount;
+    private String subjectName;
+    private String category;
 
-    public Subject(String name,String date,int lessonCount) {
+    public Subject(String name,String category) {
         subjectName = name;
-        startDate = date;
-        this.lessonCount = lessonCount;
+        this.category = category;
     }
 
     public String getSubjectName() {
         return subjectName;
     }
 
-    public String getStartDate() {
-        return startDate;
-    }
-
-    public int getLessonCount() { return lessonCount; }
+    public String getCategory() {return category; }
 
 }

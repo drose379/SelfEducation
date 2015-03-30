@@ -18,7 +18,7 @@ public class CustomAdapter extends ArrayAdapter {
         super(context,layout,array);
         list = array;
     }
-
+/*
     @Override
     public View getView(int position,View recycledView,ViewGroup parent) {
         LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -46,6 +46,8 @@ public class CustomAdapter extends ArrayAdapter {
         return v;
     }
 
+
+*/
 
 
 }

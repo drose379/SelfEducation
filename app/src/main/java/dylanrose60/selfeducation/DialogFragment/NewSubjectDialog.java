@@ -54,6 +54,7 @@ public class NewSubjectDialog extends DialogFragment {
 
         LinearLayout dialogLayout = (LinearLayout) inflater.inflate(R.layout.new_subject_dialog, null);
 
+
         final EditText editText1 = new EditText(getActivity());
 
         RadioGroup radioGroup = new RadioGroup(getActivity());
@@ -76,6 +77,8 @@ public class NewSubjectDialog extends DialogFragment {
         dialogLayout.addView(midText);
         dialogLayout.addView(radioGroup);
 
+
+
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                 .title("New Subject")
                 .customView(dialogLayout, true)
@@ -83,22 +86,29 @@ public class NewSubjectDialog extends DialogFragment {
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeText("Cancel")
                 .negativeColor(Color.RED)
+                .autoDismiss(false)
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
                         String subjectName = editText1.getText().toString();
-                        Bundle subjectInfo = new Bundle();
+                        if (subjectName.length() > 0) {
+                            dialog.dismiss();
+                            Bundle subjectInfo = new Bundle();
 
-                        if (privateButton.isChecked()) {
-                            privacy = "PRIVATE";
+                            if (privateButton.isChecked()) {
+                                privacy = "PRIVATE";
+                            } else {
+                                privacy = "PUBLIC";
+                            }
+
+                            subjectInfo.putString("subject", subjectName);
+                            subjectInfo.putString("privacy", privacy);
+                            getOwnerID(subjectInfo);
+                            //addToRemote(subjectInfo);
                         } else {
-                            privacy = "PUBLIC";
+                            editText1.setError("Please enter a subject");
                         }
 
-                        subjectInfo.putString("subject",subjectName);
-                        subjectInfo.putString("privacy",privacy);
-                        getOwnerID(subjectInfo);
-                        //addToRemote(subjectInfo);
                     }
                 });
         MaterialDialog dialog = builder.build();

@@ -69,7 +69,7 @@ public class BookmarkSubjectsFragment extends Fragment {
         super.onStart();
         PublicSubjectsFragment.setBookmarkFrag(this);
         getOwnerId();
-        getBookmarks();
+        //getBookmarks();
     }
 
     public void getOwnerId() {
@@ -81,7 +81,7 @@ public class BookmarkSubjectsFragment extends Fragment {
             owner_id = cursor.getString(cursor.getColumnIndex("ID"));
         }
     }
-
+/*
     public void getBookmarks() {
         String json = ownerIDJSON();
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
@@ -115,7 +115,7 @@ public class BookmarkSubjectsFragment extends Fragment {
                         });
 
                     }
-                    buildList(bookmarks);
+                    //buildList(bookmarks);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -135,7 +135,7 @@ public class BookmarkSubjectsFragment extends Fragment {
         }
         return json.toString();
     }
-
+/*
     public List<Subject> toArray(String jsonString) throws JSONException {
         JSONArray json = new JSONArray(jsonString); //Need to pass in the real JSON String to here
         List<Subject> list = new ArrayList<Subject>();
@@ -173,5 +173,7 @@ public class BookmarkSubjectsFragment extends Fragment {
             }
         });
     }
+
+    */
 
 }

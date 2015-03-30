@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -42,10 +43,13 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+import dylanrose60.selfeducation.Category;
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
+import dylanrose60.selfeducation.ExpListAdapter;
 import dylanrose60.selfeducation.MainActivity;
 import dylanrose60.selfeducation.R;
 import dylanrose60.selfeducation.Subject;
@@ -130,87 +134,150 @@ public class MySubjectsFragment extends Fragment {
     public void getSubjects() {
         String json = toJSONString(ownerID);
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
-        Request.Builder builder = new Request.Builder();
-        builder.post(body);
-        builder.url("http://codeyourweb.net/httpTest/index.php/getLocalSubjectData"); //add url
-        Request request = builder.build();
+        Request.Builder rBuilder = new Request.Builder();
+        rBuilder.post(body);
+        rBuilder.url("http://codeyourweb.net/httpTest/index.php/getLocalSubs");
+        Request request = rBuilder.build();
         Call newCall = httpClient.newCall(request);
         newCall.enqueue(new Callback() {
             @Override
-            public void onResponse(Response response) throws IOException {
-                String responseString = response.body().string();
-                final ProgressWheel spinAnimation = (ProgressWheel) getView().findViewById(R.id.spinnerAnimation);
-                final TextView welcomeText1 = (TextView) getView().findViewById(R.id.welcomeText1);
-                final TextView welcomeText2 = (TextView) getView().findViewById(R.id.welcomeText2);
-                final LinearLayout logoText = (LinearLayout) getView().findViewById(R.id.logoLayout);
-                try {
-                    final List<Subject> subjectList = toArray(responseString);
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (subjectList.size() < 1) {
-                                showWelcomeText();
-                            } else {
-                                spinAnimation.setVisibility(View.GONE);
-                                logoText.setVisibility(View.GONE);
-                                welcomeText1.setVisibility(View.GONE);
-                                welcomeText2.setVisibility(View.GONE);
-                            }
-                        }
-                    });
+            public void onFailure(Request request, IOException e) {
 
-
-                    buildList(subjectList);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
 
             @Override
-            public void onFailure(Request request,IOException exception) {
+            public void onResponse(Response response) throws IOException {
+                String responseString = response.body().string();
+                try {
+                    JSONObject responseObject = new JSONObject(responseString);
+                    String categories = responseObject.getString("categories");
+                    String subFullInfo = responseObject.getString("fullSubInfo");
 
+                    /*
+                        * Make a list out of categories
+                        * Make a list containing subjbect objects (must add a category field to the subject class
+                        * Create  a new HashMap instance
+                        * Loop over each category
+                        * Get the keySet() for the hashmap, if the hashmap keyset does not contain the current category,
+                        * Create a new List<String>
+                        * Inner loop:
+                        * Loop over the list of subjects, get subject category for each subject, if the categry matches the current category
+                        * Add it to the current list
+                        * Make sure new list is created for each category
+                     */
+
+                    List<String> catList = catToList(categories);
+                    List<Subject> subFullList = subToList(subFullInfo);
+                    HashMap<String,List<String>> subInfoMap = mapData(catList,subFullList);
+
+                    List<String> finalCatList = new ArrayList<String>(subInfoMap.keySet());
+
+                    List<Category> catFullInfo = fullCatBuilder(categories);
+
+                    buildList(subInfoMap, finalCatList, catFullInfo);
+                    //Waht is difference between finalCatList and catList? (catList does not funcion w/ adapter)
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }
 
-
-    public List<Subject> toArray(String jsonString) throws JSONException {
-        JSONArray json = new JSONArray(jsonString);
-        List<Subject> list = new ArrayList<Subject>();
-        for(int i = 0;i<json.length();i++) {
-            JSONObject jObject = json.getJSONObject(i);
-            list.add(new Subject(jObject.getString("name"),jObject.getString("start_date"),jObject.getInt("lesson_count")));
-        }
-        mySubjects = list;
-        return list;
+    public List<String> catToList(String catString) throws JSONException {
+        List<String> tempList = new ArrayList<String>();
+            JSONArray catArray = new JSONArray(catString);
+            for (int i=0;i<catArray.length();i++) {
+                JSONObject currentObject = catArray.getJSONObject(i);
+                String currentCat = currentObject.getString("category");
+                tempList.add(currentCat);
+            }
+        return tempList;
     }
 
-    public void buildList(final List array) {
-        ViewGroup layout = (ViewGroup) getView();
+    public List<Subject> subToList(String subFull) throws JSONException {
+        List<Subject> subjectFull = new ArrayList<Subject>();
+        JSONArray subArray = new JSONArray(subFull);
+        for (int i=0;i<subArray.length();i++) {
+            JSONObject subObject =  subArray.getJSONObject(i);
+            String subName = subObject.getString("name");
+            String category = subObject.getString("category");
+            subjectFull.add(new Subject(subName,category));
+        }
+        return subjectFull;
+    }
 
-      //Build listview
+    public HashMap<String,List<String>> mapData(List<String> categories,List<Subject> subjects) {
+        HashMap<String,List<String>> map = new HashMap<String,List<String>>();
+        for (String category : categories) {
+            List<String> tempItems = new ArrayList<String>();
+            for (Subject subject : subjects) {
+                String subName = subject.getSubjectName();
+                String cat = subject.getCategory();
+                if (category .equals(cat)) {
+                    tempItems.add(subName);
+                }
+            }
+            if (tempItems.size() > 0) {
+                map.put(category, tempItems);
+            }
+        }
+        return map;
+    }
 
-        final ListView listView = (ListView) layout.findViewById(R.id.subjectList);
-        registerForContextMenu(listView);
-        final ArrayAdapter<Subject> adapter = new CustomAdapter(getActivity(),R.layout.subject_card_view,array);
+    public List<Category> fullCatBuilder(String catInfo) throws JSONException {
+        //Create an array list and create Category objects, then add the refs to a list
+        List<Category> catList = new ArrayList<Category>();
+        JSONArray catArray = new JSONArray(catInfo);
+        for(int i=0;i<catArray.length();i++) {
+            JSONObject catObj = catArray.getJSONObject(i);
+            String catName = catObj.getString("category");
+            String catDesc = catObj.getString("description");
+
+            catList.add(new Category(catName,catDesc));
+        }
+        return catList;
+    }
+
+
+    public void buildList(final HashMap<String,List<String>> map,final List<String> categories,final List<Category> catFullInfo) {
         handler.post(new Runnable() {
             @Override
             public void run() {
-                listView.setAdapter(adapter);
-                final List<Subject> list = array;
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView parent,View view,int position,long id) {
-                        Subject selectedSubject = list.get(position);
-                        String subjectName = selectedSubject.getSubjectName();
-                        Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
-                        newAct.putExtra("subjectName",subjectName);
-                        startActivity(newAct);
-                    }
-                });
+                LinearLayout logoText = (LinearLayout) getView().findViewById(R.id.logoLayout);
+                ProgressWheel loader = (ProgressWheel) getView().findViewById(R.id.spinnerAnimation);
+                TextView welcomeText1 = (TextView) getView().findViewById(R.id.welcomeText1);
+                TextView welcomeText2 = (TextView) getView().findViewById(R.id.welcomeText2);
+
+                if (categories.size() > 0) {
+                    logoText.setVisibility(View.GONE);
+                    loader.setVisibility(View.GONE);
+                    welcomeText1.setVisibility(View.GONE);
+                    welcomeText2.setVisibility(View.GONE);
+
+                    ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.expSubList);
+                    ExpListAdapter adapter = new ExpListAdapter(getActivity(), map, categories, catFullInfo);
+                    expList.setAdapter(adapter);
+                    expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                        @Override
+                        public boolean onChildClick(ExpandableListView parent,View v,int groupPosition,int childPosition,long id) {
+                            List<String> group = map.get(categories.get(groupPosition));
+                            String child = group.get(childPosition);
+
+                            Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
+                            newAct.putExtra("subjectName",child);
+                            startActivity(newAct);
+
+                            return true;
+                        }
+                    });
+                } else {
+                    showWelcomeText();
+                }
             }
         });
     }
+
+/*
 
     @Override
     public void onCreateContextMenu(ContextMenu menu,View v,ContextMenu.ContextMenuInfo info) {
@@ -286,5 +353,7 @@ public class MySubjectsFragment extends Fragment {
         });
         onStart();
     }
+
+    */
 
 }

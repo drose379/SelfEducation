@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import java.io.IOException;
 import java.util.List;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
 import com.nispok.snackbar.listeners.ActionClickListener;
@@ -34,6 +35,7 @@ import com.squareup.okhttp.Response;
 import org.json.JSONException;
 import org.json.JSONStringer;
 
+import dylanrose60.selfeducation.DialogFragment.NewCategoryDialog;
 import dylanrose60.selfeducation.DialogFragment.NewSubjectDialog;
 import dylanrose60.selfeducation.DialogFragment.NewTagDialog;
 import dylanrose60.selfeducation.DialogFragment.SubjectCategoryDialog;
@@ -89,10 +91,28 @@ public class MainActivity extends ActionBarActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         switch(item.getItemId()) {
             case R.id.addSubject :
-                //newSubject();
-                FragmentManager fragmentManager = getFragmentManager();
-                NewSubjectDialog newSubject = new NewSubjectDialog();
-                newSubject.show(fragmentManager,"NewSubject");
+                //Inflate a menu that asks: Category OR Subject. Inflate respective dialog after selecton
+                final String[] options = {"Category","Subject"};
+                new MaterialDialog.Builder(this)
+                        .title("Create New...")
+                        .items(options)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog materialDialog, View view, int selected, CharSequence charSequence) {
+                                String selection = options[selected];
+                                if (selection.equals("Subject")) {
+                                    FragmentManager fragmentManager = getFragmentManager();
+                                    NewSubjectDialog newSubject = new NewSubjectDialog();
+                                    newSubject.show(fragmentManager, "NewSubject");
+                                } else if (selection.equals("Category")) {
+                                    FragmentManager fragmentManager = getFragmentManager();
+                                    NewCategoryDialog newCategory = new NewCategoryDialog();
+                                    newCategory.show(fragmentManager, "NewCategory");
+                                }
+
+                            }
+                        })
+                        .build().show();
                 return true;
             default :
                 return super.onOptionsItemSelected(item);
