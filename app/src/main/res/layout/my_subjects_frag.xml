@@ -78,7 +78,6 @@
         android:dividerHeight="0dp"
         android:divider="#00000000"
         android:id="@+id/expSubList"
-
         />
 
 

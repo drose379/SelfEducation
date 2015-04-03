@@ -50,6 +50,7 @@ import dylanrose60.selfeducation.Category;
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
 import dylanrose60.selfeducation.ExpListAdapter;
+import dylanrose60.selfeducation.FragmentUtility;
 import dylanrose60.selfeducation.MainActivity;
 import dylanrose60.selfeducation.R;
 import dylanrose60.selfeducation.Subject;
@@ -59,7 +60,10 @@ import dylanrose60.selfeducation.SubjectManager;
 public class MySubjectsFragment extends Fragment {
 
     private OkHttpClient httpClient = new OkHttpClient();
+    private FragmentUtility fragUtil = new FragmentUtility();
+
     private Handler handler = new Handler();
+
     private String ownerID;
     private List<Subject> mySubjects = null;
 
@@ -166,13 +170,13 @@ public class MySubjectsFragment extends Fragment {
                         * Make sure new list is created for each category
                      */
 
-                    List<String> catList = catToList(categories);
-                    List<Subject> subFullList = subToList(subFullInfo);
-                    HashMap<String,List<String>> subInfoMap = mapData(catList,subFullList);
+                    List<String> catList = fragUtil.catToList(categories);
+                    List<Subject> subFullList = fragUtil.subToList(subFullInfo);
+                    HashMap<String,List<String>> subInfoMap = fragUtil.mapData(catList,subFullList);
 
                     List<String> finalCatList = new ArrayList<String>(subInfoMap.keySet());
 
-                    List<Category> catFullInfo = fullCatBuilder(categories);
+                    List<Category> catFullInfo = fragUtil.fullCatBuilder(categories);
 
                     buildList(subInfoMap, finalCatList, catFullInfo);
                     //Waht is difference between finalCatList and catList? (catList does not funcion w/ adapter)
@@ -183,60 +187,8 @@ public class MySubjectsFragment extends Fragment {
         });
     }
 
-    public List<String> catToList(String catString) throws JSONException {
-        List<String> tempList = new ArrayList<String>();
-            JSONArray catArray = new JSONArray(catString);
-            for (int i=0;i<catArray.length();i++) {
-                JSONObject currentObject = catArray.getJSONObject(i);
-                String currentCat = currentObject.getString("category");
-                tempList.add(currentCat);
-            }
-        return tempList;
-    }
 
-    public List<Subject> subToList(String subFull) throws JSONException {
-        List<Subject> subjectFull = new ArrayList<Subject>();
-        JSONArray subArray = new JSONArray(subFull);
-        for (int i=0;i<subArray.length();i++) {
-            JSONObject subObject =  subArray.getJSONObject(i);
-            String subName = subObject.getString("name");
-            String category = subObject.getString("category");
-            subjectFull.add(new Subject(subName,category));
-        }
-        return subjectFull;
-    }
 
-    public HashMap<String,List<String>> mapData(List<String> categories,List<Subject> subjects) {
-        HashMap<String,List<String>> map = new HashMap<String,List<String>>();
-        for (String category : categories) {
-            List<String> tempItems = new ArrayList<String>();
-            for (Subject subject : subjects) {
-                String subName = subject.getSubjectName();
-                String cat = subject.getCategory();
-                if (category .equals(cat)) {
-                    tempItems.add(subName);
-                }
-            }
-            if (tempItems.size() > 0) {
-                map.put(category, tempItems);
-            }
-        }
-        return map;
-    }
-
-    public List<Category> fullCatBuilder(String catInfo) throws JSONException {
-        //Create an array list and create Category objects, then add the refs to a list
-        List<Category> catList = new ArrayList<Category>();
-        JSONArray catArray = new JSONArray(catInfo);
-        for(int i=0;i<catArray.length();i++) {
-            JSONObject catObj = catArray.getJSONObject(i);
-            String catName = catObj.getString("category");
-            String catDesc = catObj.getString("description");
-
-            catList.add(new Category(catName,catDesc));
-        }
-        return catList;
-    }
 
 
     public void buildList(final HashMap<String,List<String>> map,final List<String> categories,final List<Category> catFullInfo) {

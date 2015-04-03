@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -41,11 +42,15 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import dylanrose60.selfeducation.Category;
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
+import dylanrose60.selfeducation.ExpListAdapter;
+import dylanrose60.selfeducation.FragmentUtility;
 import dylanrose60.selfeducation.R;
 import dylanrose60.selfeducation.Subject;
 import dylanrose60.selfeducation.SubjectDashboard;
@@ -53,10 +58,17 @@ import dylanrose60.selfeducation.SubjectDashboard;
 public class PublicSubjectsFragment extends Fragment {
 
     private OkHttpClient client = new OkHttpClient();
+    private FragmentUtility fragUtil = new FragmentUtility();
+
     private Handler handler = new Handler();
+
     private String ownerID;
     private SwipeRefreshLayout swipeRefresh;
     private List<Subject> subjects;
+
+    //Map needs to be made accessable from the context menu override method. Needs access to all values.
+    private HashMap<String,List<String>> map = null;
+    private List<String> categories = new ArrayList<String>();
 
     static BookmarkSubjectsFragment bookmarkFrag;
 
@@ -93,7 +105,7 @@ public class PublicSubjectsFragment extends Fragment {
         Cursor cursor = db.rawQuery(query,null);
         if (cursor.moveToFirst()) {
             ownerID = cursor.getString(cursor.getColumnIndex("ID"));
-            //getPublicSubjects();
+            getPublicSubjects();
         } else {
             Random rand = new Random();
             int randID = rand.nextInt(1000000);
@@ -117,7 +129,7 @@ public class PublicSubjectsFragment extends Fragment {
         return json.toString();
     }
 
-    /*
+
 
     public void getPublicSubjects() {
         String json = ownerIDJSON();
@@ -137,6 +149,7 @@ public class PublicSubjectsFragment extends Fragment {
                         * In the same request as above, also grab all users bookamrks and put into List
                         * Use bookmarks List and loop over, checking if the bookmarks are found in the subject name list, if they are, remove them
                         * Use the subject name array after all bookmarks are removed to make another request to get full info for remaining subjects
+                    */
 
                     final JSONObject master = new JSONObject(responseString);
                     //Get sub arrays ("bookmarks","subjects")
@@ -144,7 +157,7 @@ public class PublicSubjectsFragment extends Fragment {
                     final String bookmarks = master.get("bookmarks").toString();
                     final String hiddenSubs = master.get("hidden").toString();
 
-                    Log.i("hiddenSubs",hiddenSubs);
+                    Log.i("allSubs",subjects);
 
                     List<String> bookmarkList = toBookmarkList(bookmarks);
                     List<String> subjectNameList = getSubjectNames(subjects);
@@ -190,6 +203,7 @@ public class PublicSubjectsFragment extends Fragment {
         Request request = builder.build();
         Call newCall = client.newCall(request);
         newCall.enqueue(new Callback() {
+
             @Override
             public void onFailure(Request request, IOException e) {
 
@@ -199,8 +213,20 @@ public class PublicSubjectsFragment extends Fragment {
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
                 try {
-                    List<Subject> finalSubList = toArray(responseString);
-                    buildList(finalSubList);
+                    JSONObject responseObject = new JSONObject(responseString);
+
+                    String subInfo = responseObject.getString("subjectInfo");
+                    String categories = responseObject.getString("catInfo");
+
+                    List<String> catList = fragUtil.catToList(categories);
+                    List<Subject> fullSubList = fragUtil.subToList(subInfo);
+                    HashMap<String,List<String>> map = fragUtil.mapData(catList, fullSubList);
+                    //Need to set map to field so context menu has access to it
+                    setContextMenuData(map,catList);
+
+                    List<Category> fullCatInfo = fragUtil.fullCatBuilder(categories);
+
+                    buildList(map,catList,fullCatInfo);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -208,20 +234,10 @@ public class PublicSubjectsFragment extends Fragment {
         });
     }
 
-
-
-    public List<Subject> toArray(String jsonString) throws JSONException {
-        JSONArray json = new JSONArray(jsonString); //Need to pass in the real JSON String to here
-        List<Subject> list = new ArrayList<Subject>();
-        for(int i = 0;i<json.length();i++) {
-            JSONObject jObject = json.getJSONObject(i);
-            list.add(new Subject(jObject.getString("name"),jObject.getString("start_date"),jObject.getInt("lesson_count")));
-        }
-        subjects = list;
-        return list;
+    public void setContextMenuData(HashMap<String,List<String>> map,List<String> categories) {
+        this.map = map;
+        this.categories = categories;
     }
-
-    */
 
     public List toBookmarkList(String bookmarkString) throws JSONException {
         JSONArray json = new JSONArray(bookmarkString);
@@ -256,38 +272,32 @@ public class PublicSubjectsFragment extends Fragment {
         return hiddenSubs;
     }
 
-    public void buildList(final List array) {
-        ViewGroup layout = (ViewGroup) getView();
-
-        //Build listview
-
-        final ListView listView = (ListView) layout.findViewById(R.id.publicSubjectList);
-        registerForContextMenu(listView);
-        final ArrayAdapter<Subject> adapter = new CustomAdapter(getActivity(),R.layout.subject_card_view,array);
-        swipeRefresh = (SwipeRefreshLayout) layout.findViewById(R.id.publicSwipeView);
+    public void buildList(final HashMap<String,List<String>> map,final List<String> categories,final List<Category> catFullInfo) {
+        swipeRefresh = (SwipeRefreshLayout) getView().findViewById(R.id.publicSwipeView);
         swipeRefresh.setColorSchemeResources(R.color.ColorPrimary, R.color.ColorMenuAccent, R.color.ColorSubText);
+
+        final ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.expSubList);
+        registerForContextMenu(expList);
+        final ExpListAdapter adapter = new ExpListAdapter(getActivity(),map,categories,catFullInfo);
         handler.post(new Runnable() {
             @Override
             public void run() {
-                listView.setAdapter(adapter);
-                final List<Subject> list = array;
-                //registerForContextMenu(listView);
-                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView parent,View view,int position,long id) {
-                        Subject selectedSubject = list.get(position);
-                        String subjectName = selectedSubject.getSubjectName();
-                        Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
-                        newAct.putExtra("subjectName",subjectName);
-                        startActivity(newAct);
-                    }
-                });
+                expList.setAdapter(adapter);
+            }
+        });
+
+
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
                 //Check if refresh is going, if it is, shut it off
                 if (swipeRefresh.isRefreshing()) {
                     swipeRefresh.setRefreshing(false);
                 }
             }
         });
+
         swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -304,15 +314,17 @@ public class PublicSubjectsFragment extends Fragment {
     }
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
-        Subject selectedSubject = subjects.get(info.position);
-        String subjectName = selectedSubject.getSubjectName();
+        ExpandableListView.ExpandableListContextMenuInfo menuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
+        int parent = ExpandableListView.getPackedPositionGroup(menuInfo.packedPosition);
+        int child = ExpandableListView.getPackedPositionChild(menuInfo.packedPosition);
+        String subject = map.get(categories.get(parent)).get(child);
+
         switch(item.getItemId()) {
             case R.id.bookmark :
-                addBookmark(subjectName);
+                addBookmark(subject);
                 return true;
             case R.id.hide :
-                hideSubject(subjectName);
+                hideSubject(subject);
             default:
                 return false;
         }
