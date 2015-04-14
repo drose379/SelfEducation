@@ -29,11 +29,12 @@ import dylanrose60.selfeducation.R;
 public class NewSubjectDialog extends DialogFragment {
 
     public interface Listener {
-        public void dialog1Complete(Bundle subjectInfo);
+        public void newSubComplete(Bundle subjectInfo);
     }
 
     private String privacy;
     private Listener listener;
+    private Bundle subjectInfo = null;
     //Need to make a static getInstance method for getting instance of DBHelper
     private DBHelper dbClient;
     //private OkHttpClient client = new OkHttpClient();
@@ -44,6 +45,7 @@ public class NewSubjectDialog extends DialogFragment {
         super.onAttach(activity);
         listener = (Listener) activity;
         dbClient = new DBHelper(activity);
+        subjectInfo = getArguments();
         //Create rand ID, assign to randID
     }
 
@@ -93,7 +95,6 @@ public class NewSubjectDialog extends DialogFragment {
                         String subjectName = editText1.getText().toString();
                         if (subjectName.length() > 0) {
                             dialog.dismiss();
-                            Bundle subjectInfo = new Bundle();
 
                             if (privateButton.isChecked()) {
                                 privacy = "PRIVATE";
@@ -103,7 +104,7 @@ public class NewSubjectDialog extends DialogFragment {
 
                             subjectInfo.putString("subject", subjectName);
                             subjectInfo.putString("privacy", privacy);
-                            getOwnerID(subjectInfo);
+                            getOwnerID();
                             //addToRemote(subjectInfo);
                         } else {
                             editText1.setError("Please enter a subject");
@@ -116,7 +117,7 @@ public class NewSubjectDialog extends DialogFragment {
     }
 
 
-    public void getOwnerID(Bundle subjectInfo) {
+    public void getOwnerID() {
         //Get readable DB, check if owner ID is present, if it is, get the ID and add to bundle, if its not, getWritable and create one
         //DBHelper dbClient = new DBHelper(getActivity());
         SQLiteDatabase readableDB = dbClient.getReadableDatabase();
@@ -125,7 +126,7 @@ public class NewSubjectDialog extends DialogFragment {
         if (response.moveToFirst()) {
             String ownerId = response.getString(response.getColumnIndex("ID"));
             subjectInfo.putString("owner_id",ownerId);
-            listener.dialog1Complete(subjectInfo);
+            listener.newSubComplete(subjectInfo);
             //addToRemote(subjectInfo);
         } else {
             Random rand = new Random();
@@ -133,7 +134,7 @@ public class NewSubjectDialog extends DialogFragment {
             SQLiteDatabase writableDB = dbClient.getWritableDatabase();
             String insertID = "INSERT INTO owner_id (ID) VALUES ('"+randID+"')";
             writableDB.execSQL(insertID);
-            getOwnerID(subjectInfo);
+            getOwnerID();
         }
     }
 

@@ -1,5 +1,7 @@
 package dylanrose60.selfeducation;
 
+import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,12 +25,18 @@ public class FragmentUtility {
         return tempList;
     }
 
-    public List<Subject> subToList(String subFull) throws JSONException {
+    public List<Subject> subToList(String subFull,boolean fromBookmarks) throws JSONException {
         List<Subject> subjectFull = new ArrayList<Subject>();
         JSONArray subArray = new JSONArray(subFull);
         for (int i=0;i<subArray.length();i++) {
             JSONObject subObject =  subArray.getJSONObject(i);
-            String subName = subObject.getString("name");
+            String subName;
+            if (fromBookmarks) {
+                subName = subObject.getString("subject_name");
+            } else {
+                subName = subObject.getString("name");
+            }
+
             String category = subObject.getString("category");
             subjectFull.add(new Subject(subName,category));
         }
@@ -50,15 +58,16 @@ public class FragmentUtility {
     }
 
 
-    public HashMap<String,List<String>> mapData(List<String> categories,List<Subject> subjects) {
+    public HashMap<String,List<String>> mapData(List<String> categories,List<Subject> subjects,boolean debug) {
         HashMap<String,List<String>> map = new HashMap<String,List<String>>();
         for (String category : categories) {
             List<String> tempItems = new ArrayList<String>();
             for (Subject subject : subjects) {
                 String subName = subject.getSubjectName();
                 String cat = subject.getCategory();
-                if (category .equals(cat)) {
+                if (category.trim() .equals(cat.trim())) {
                     tempItems.add(subName);
+                    if (debug) {Log.i("itemAdded",subName);}
                 }
             }
             if (tempItems.size() > 0) {
@@ -66,6 +75,18 @@ public class FragmentUtility {
             }
         }
         return map;
+    }
+
+    public List<String> trimCategories(List<String> categories, HashMap<String,List<String>> map) {
+
+        for (int i = 0; i<categories.size(); i++) {
+            String category = categories.get(i).trim();
+            if (!map.containsKey(category)) {
+                categories.remove(category);
+                Log.i("catRemoved",category);
+            }
+        }
+        return categories;
     }
 
 }

@@ -45,7 +45,8 @@ import dylanrose60.selfeducation.tabs.SlidingTabLayout;
 @SuppressLint("NewApi")
 public class MainActivity extends ActionBarActivity implements
         NewSubjectDialog.Listener,
-        SubjectCategoryDialog.Listener {
+        SubjectCategoryDialog.Listener,
+        NewCategoryDialog.Listener {
 
     //Tabs
     private ViewPager viewPager;
@@ -102,8 +103,8 @@ public class MainActivity extends ActionBarActivity implements
                                 String selection = options[selected];
                                 if (selection.equals("Subject")) {
                                     FragmentManager fragmentManager = getFragmentManager();
-                                    NewSubjectDialog newSubject = new NewSubjectDialog();
-                                    newSubject.show(fragmentManager, "NewSubject");
+                                    SubjectCategoryDialog categoryDialog = new SubjectCategoryDialog();
+                                    categoryDialog.show(fragmentManager,"categoryDialog");
                                 } else if (selection.equals("Category")) {
                                     FragmentManager fragmentManager = getFragmentManager();
                                     NewCategoryDialog newCategory = new NewCategoryDialog();
@@ -124,20 +125,42 @@ public class MainActivity extends ActionBarActivity implements
         mySubsFrag = frag;
     }
 
+
+    //If user adds new category from subject category selection dialog
     @Override
-    public void dialog1Complete(Bundle subjectInfo) {
+    public void newCategory() {
+        //inflate subject category selected
         FragmentManager fragmentManager = getFragmentManager();
-        SubjectCategoryDialog categoryDialog = new SubjectCategoryDialog();
-        categoryDialog.setArguments(subjectInfo);
-        categoryDialog.show(fragmentManager,"categoryDialog");
+        //Call new category dialog, pass boolean telling it wether to create listener and callback when done
+        NewCategoryDialog newCatDialog = new NewCategoryDialog();
+        Bundle callback = new Bundle();
+        callback.putBoolean("callback",true);
+        newCatDialog.setArguments(callback);
+        newCatDialog.show(fragmentManager,"newCat");
     }
 
     @Override
-    public void subInfoComplete(Bundle subjectInfo) {
-        Log.i("fullSubInfo",subjectInfo.toString());
+    public void subCategoryComplete(Bundle subjectInfo) {
+        FragmentManager fragmentManager = getFragmentManager();
+        NewSubjectDialog newSubject = new NewSubjectDialog();
+        newSubject.setArguments(subjectInfo);
+        newSubject.show(fragmentManager, "NewSubject");
+
+    }
+
+    @Override
+    public void newSubComplete(Bundle subjectInfo) {
         String subJSON = subBundleJSON(subjectInfo);
         createSubject(subJSON);
     }
+
+    @Override
+    public void newCategoryAdded() {
+        FragmentManager fragmentManager = getFragmentManager();
+        SubjectCategoryDialog categoryDialog = new SubjectCategoryDialog();
+        categoryDialog.show(fragmentManager,"categoryDialog");
+    }
+
 
     public String subBundleJSON(Bundle subjectInfo) {
 

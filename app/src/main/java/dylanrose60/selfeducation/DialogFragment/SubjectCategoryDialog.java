@@ -36,8 +36,6 @@ public class SubjectCategoryDialog extends DialogFragment {
 
     private Listener listener;
 
-    private Bundle subjectInfo;
-
     private OkHttpClient httpClient = new OkHttpClient();
     private String categoriesString = null;
 
@@ -47,14 +45,14 @@ public class SubjectCategoryDialog extends DialogFragment {
     private RadioGroup rGroup;
 
     public interface Listener {
-        public void subInfoComplete(Bundle subjectInfo);
+        public void subCategoryComplete(Bundle subjectInfo);
+        public void newCategory();
     }
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         this.listener = (Listener) activity;
-        subjectInfo = getArguments();
     }
 
     @Override
@@ -84,6 +82,7 @@ public class SubjectCategoryDialog extends DialogFragment {
         builder.positiveText("Create");
         builder.negativeText("Cancel");
         builder.neutralText("Add Category");
+        builder.autoDismiss(false);
         builder.callback(new MaterialDialog.ButtonCallback() {
             @Override
             public void onPositive(MaterialDialog dialog) {
@@ -93,12 +92,13 @@ public class SubjectCategoryDialog extends DialogFragment {
                     RadioButton currentButton = (RadioButton) rGroup.getChildAt(i);
                     if (currentButton.isChecked()) {
                         String category = (String) currentButton.getText();
+                        Bundle subjectInfo = new Bundle();
                         subjectInfo.putString("category",category);
-                        listener.subInfoComplete(subjectInfo);
+                        dialog.dismiss();
+                        listener.subCategoryComplete(subjectInfo);
                     }
                 }
             }
-
             @Override
             public void onNegative(MaterialDialog dialog) {
                 dialog.dismiss();
@@ -106,7 +106,9 @@ public class SubjectCategoryDialog extends DialogFragment {
 
             @Override
             public void onNeutral(MaterialDialog dialog) {
-                //new dialog for creating new category
+                dialog.dismiss();
+                listener.newCategory();
+
             }
         });
 

@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -28,11 +29,15 @@ public class LessonList extends ActionBarActivity implements LessonListGrabber.L
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
 
+        Bundle intentBundle = getIntent().getExtras();
+        Bundle listParams = intentBundle.getBundle("listParams");
+        Log.i("listParam", listParams.getString("type"));
 
-
+        /*
         subject = getIntent().getStringExtra("subject");
         setTitle(subject + "| Lessons:");
         buildView();
+        */
     }
 
     public void buildView() {

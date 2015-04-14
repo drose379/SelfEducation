@@ -9,14 +9,26 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONStringer;
+
+import java.io.IOException;
 import java.util.List;
 
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog1;
@@ -33,27 +45,123 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 {
 
     private String subject;
+    private int type;
+    private Bundle bookmarkInfo;
+
     private LessonManager manager;
     private FragmentManager fragmentManager = getFragmentManager();
+    private OkHttpClient httpClient = new OkHttpClient();
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.subject_dashboard);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
-        setSupportActionBar(toolbar);
+
         //Get the title of the subject the user selected or created in the previous activity
         Intent intent = getIntent();
-        subject = intent.getStringExtra("subjectName");
+        Bundle subInfo = intent.getBundleExtra("selectedInfo");
+        subject = (String) subInfo.get("subName");
+        type = (int) subInfo.get("subType");
+        //0 == local | 1 == public | 2 == bookmark (if 2, need to get more data about the bookmark
+
+        switch (type) {
+            case 0:
+                setContentView(R.layout.subject_dashboard_local);
+                break;
+            case 1:
+                setContentView(R.layout.subject_dashboard_public);
+                break;
+            case 2:
+                setContentView(R.layout.subject_dashboard_local);
+                String ownerID = (String) subInfo.get("ownerID");
+                //Bundle bookmarkInfo = getBookmarkInfo(ownerID);
+                getBookmarkInfo(ownerID);
+                break;
+        }
+
+
+        //if type is bookmark, get owner ID from bundle and then make request to DB to get bookmark info where ownerID and bookmark name match
+
+        //Need to get bundle from getIntent()
+        //Bundle will contain booleans containing the information needed for the correct layout to be chosen
+        //Make sure Activity knows which tab being called from, either Local,Public, or bookmark
+
+        super.onCreate(savedInstanceState);
+
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        setSupportActionBar(toolbar);
+
         //Set the value of the activity title bar to the title of the subject with: setTitle(title)
         setTitle(subject);
 
         manager = new LessonManager(subject);
 
-        LinearLayout parent = (LinearLayout) findViewById(R.id.parentLayout);
-        //parent.setOnTouchListener(new (this) {
+        LinearLayout parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
+        parentLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Method must be overridden for OnSwipeTouchListener to work... not sure why.
+            }
+        });
+        parentLayout.setOnTouchListener(new OnSwipeTouchListener() {
+            @Override
+            public boolean onSwipeRight() {
+                Intent mainIntent = new Intent(SubjectDashboard.this,MainActivity.class);
+                startActivity(mainIntent);
+                SubjectDashboard.this.finish();
+                return true;
+            }
+        });
+    }
 
-        //});
+    public String ownerIDJSON(String owner_id) {
+        JSONStringer json = new JSONStringer();
+        try {
+            json.object();
+            json.key("owner_id");
+            json.value(owner_id);
+            json.key("subject");
+            json.value(subject);
+            json.endObject();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return json.toString();
+    }
+
+    public void getBookmarkInfo(String ownerID) {
+        String subData = ownerIDJSON(ownerID);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),subData);
+        Request.Builder builder = new Request.Builder();
+        builder.post(body);
+        builder.url("http://codeyourweb.net/httpTest/index.php/getBookmarkData");
+        Request request = builder.build();
+        Call newCall = httpClient.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                String responseString = response.body().string();
+                Bundle bookmarkInfo = new Bundle();
+                try {
+                    JSONArray responseArray = new JSONArray(responseString);
+                    JSONObject responseObj = responseArray.getJSONObject(0);
+
+
+                    bookmarkInfo.putString("lessons_privacy",responseObj.getString("lesson_privacy"));
+                    bookmarkInfo.putInt("subscribed", responseObj.getInt("subscribed"));
+                    bookmarkInfo.putString("category", responseObj.getString("category"));
+                    bookmarkInfo.putInt("bookmarkID", responseObj.getInt("bookmark_id"));
+                    SubjectDashboard.this.bookmarkInfo = bookmarkInfo;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -75,11 +183,11 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                         String itemSelected = items[selected];
                         switch (itemSelected) {
                             case "Lesson":
-                                //newLesson1();
                                 manager.setListener(SubjectDashboard.this);
                                 newLesson1Test();
                                 break;
                             case "Project":
+                                //New project code
                             break;
                         }
                     }
@@ -130,7 +238,11 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
     public void buildLesson() {
-        manager.buildLesson();
+        if (bookmarkInfo != null) {
+            manager.buildLesson(bookmarkInfo);
+        } else if (bookmarkInfo == null) {
+            manager.buildLesson();
+        }
     }
 
     @Override
@@ -152,7 +264,20 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
     public void toLessonList(View view) {
         Intent intent = new Intent(getApplicationContext(),LessonList.class);
-        intent.putExtra("subject",subject);
+        Bundle listParams = new Bundle();
+        listParams.putString("subject",subject);
+        listParams.putString("type","Local");
+        intent.putExtra("listParams",listParams);
+        startActivity(intent);
+    }
+
+    public void toPublicLessonList(View view) {
+        //open lesson list but pass paramas that this is a public sub that user is not subscribed to
+        Intent intent = new Intent(getApplicationContext(),LessonList.class);
+        Bundle listParams = new Bundle();
+        listParams.putString("subject",subject);
+        listParams.putString("type","Public");
+        intent.putExtra("listParams",listParams);
         startActivity(intent);
     }
 

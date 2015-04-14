@@ -1,6 +1,8 @@
 package dylanrose60.selfeducation;
 
+import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -126,6 +128,35 @@ public class LessonManager {
         });
     }
 
+    public void buildLesson(Bundle bookmarkInfo) {
+        //Customize this to build lesson to bookmark prefs.
+        String lessonData = bookmarkJSONBuilder(bookmarkInfo);
+        Log.i("bookmarkLesson","Bookmark Lesson Method Called");
+
+        RequestBody body = RequestBody.create(mediaType,lessonData);
+        Request.Builder rBuilder = new Request.Builder();
+        rBuilder.post(body);
+        rBuilder.url("http://codeyourweb.net/httpTest/index.php/newBookmarkLesson");
+        Request request = rBuilder.build();
+        Call newCall = client.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                handler.post(new Runnable() {
+                    public void run() {
+                        listener.onSuccess();
+                    }
+                });
+            }
+        });
+
+    }
+
     public JSONArray getTagsJSON() {
         JSONArray tagsJSON = new JSONArray();
         try {
@@ -171,6 +202,35 @@ public class LessonManager {
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public String bookmarkJSONBuilder(Bundle bookmarkData) {
+        JSONArray tagsJSON = getTagsJSON();
+        JSONArray objectivesJSON = getObjectivesJSON();
+        JSONStringer builder = new JSONStringer();
+
+        try {
+            builder.object();
+            builder.key("subject_name");
+            builder.value(subject);
+            builder.key("lesson_name");
+            builder.value(lessonName);
+            builder.key("objectives");
+            builder.value(objectivesJSON);
+            builder.key("tags");
+            builder.value(tagsJSON);
+            builder.key("lesson_privacy");
+            builder.value(bookmarkData.getString("lessons_privacy"));
+            builder.key("subscribed");
+            builder.value(bookmarkData.getInt("subscribed"));
+            builder.key("bookmarkID");
+            builder.value(bookmarkData.getInt("bookmarkID"));
+            builder.endObject();
+            return builder.toString();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 

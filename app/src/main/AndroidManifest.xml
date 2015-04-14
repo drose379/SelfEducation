@@ -11,15 +11,18 @@
             android:name=".MainActivity"
             android:label="Self Education"
             >
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
+
         <activity
             android:name=".SubjectDashboard"
             android:label="Dashboard"
+            android:parentActivityName=".MainActivity"
             >
         </activity>
 

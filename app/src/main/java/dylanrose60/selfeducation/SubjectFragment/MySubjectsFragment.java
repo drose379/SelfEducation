@@ -171,8 +171,8 @@ public class MySubjectsFragment extends Fragment {
                      */
 
                     List<String> catList = fragUtil.catToList(categories);
-                    List<Subject> subFullList = fragUtil.subToList(subFullInfo);
-                    HashMap<String,List<String>> subInfoMap = fragUtil.mapData(catList,subFullList);
+                    List<Subject> subFullList = fragUtil.subToList(subFullInfo,false);
+                    HashMap<String,List<String>> subInfoMap = fragUtil.mapData(catList,subFullList,false);
 
                     List<String> finalCatList = new ArrayList<String>(subInfoMap.keySet());
 
@@ -216,7 +216,12 @@ public class MySubjectsFragment extends Fragment {
                             String child = group.get(childPosition);
 
                             Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
-                            newAct.putExtra("subjectName",child);
+                            Bundle selectedSubInfo = new Bundle();
+                            selectedSubInfo.putString("subName",child);
+                            selectedSubInfo.putInt("subType",0);
+                            //need to add values to tell which tab was selected
+
+                            newAct.putExtra("selectedInfo",selectedSubInfo);
                             startActivity(newAct);
 
                             return true;

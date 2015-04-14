@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ColorPrimary">#039be5</color>
+    <color name="ColorStatusBar">#0277bd</color>
     <color name="ColorAccent">#FFFFFF</color>
     <color name="ColorSubText">#01579b</color>
     <color name="ColorMenuAccent">#e1f5fe</color>

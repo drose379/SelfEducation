@@ -1,11 +1,13 @@
 package dylanrose60.selfeducation.DialogFragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.widget.EditText;
@@ -31,7 +33,30 @@ import dylanrose60.selfeducation.R;
 @SuppressLint("NewApi")
 public class NewCategoryDialog extends DialogFragment {
 
+    //Need to create a listener interface
+    //Make sure to pass false for hasArgs when calling regularly from main.
+    //When user clicks positive button, check if boolean sendToListener is true, if it is, use the listener.
+    //Only assign the listener to the activity if boolean hasArgs is true
+
+    public interface Listener {
+        public void newCategoryAdded();
+    }
+
     private OkHttpClient httpClient = new OkHttpClient();
+    private Handler handler = new Handler();
+
+    private boolean runCallback = false;
+    public Listener listener = null;
+
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        Bundle callbackBool = getArguments();
+        if (callbackBool != null) {
+            Boolean callback = callbackBool.getBoolean("callback");
+            runCallback = true;
+            listener = (Listener) activity;
+        }
+    }
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstance) {
@@ -89,7 +114,14 @@ public class NewCategoryDialog extends DialogFragment {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                Log.i("newCat",response.body().string());
+                if (runCallback) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.newCategoryAdded();
+                        }
+                    });
+                }
             }
         });
     }

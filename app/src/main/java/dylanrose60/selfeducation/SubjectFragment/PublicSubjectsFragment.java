@@ -1,6 +1,9 @@
 package dylanrose60.selfeducation.SubjectFragment;
 
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -9,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.internal.view.menu.MenuBuilder;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -20,7 +24,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.PopupMenu;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -219,8 +227,8 @@ public class PublicSubjectsFragment extends Fragment {
                     String categories = responseObject.getString("catInfo");
 
                     List<String> catList = fragUtil.catToList(categories);
-                    List<Subject> fullSubList = fragUtil.subToList(subInfo);
-                    HashMap<String,List<String>> map = fragUtil.mapData(catList, fullSubList);
+                    List<Subject> fullSubList = fragUtil.subToList(subInfo,false);
+                    HashMap<String,List<String>> map = fragUtil.mapData(catList, fullSubList,false);
                     //Need to set map to field so context menu has access to it
                     setContextMenuData(map,catList);
 
@@ -277,12 +285,70 @@ public class PublicSubjectsFragment extends Fragment {
         swipeRefresh.setColorSchemeResources(R.color.ColorPrimary, R.color.ColorMenuAccent, R.color.ColorSubText);
 
         final ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.expSubList);
-        registerForContextMenu(expList);
         final ExpListAdapter adapter = new ExpListAdapter(getActivity(),map,categories,catFullInfo);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 expList.setAdapter(adapter);
+
+                expList.setOnItemLongClickListener(new ExpandableListView.OnItemLongClickListener() {
+                    @Override
+                    public boolean onItemLongClick(AdapterView parent,View v,int position,long id) {
+                        ExpandableListView expListInside = (ExpandableListView) parent;
+
+                        //Get type that was selected (Parent or child)
+                        long pos = expListInside.getExpandableListPosition(position);
+                        int type = expListInside.getPackedPositionType(pos);
+
+                        //Only fire if child was long pressed
+                        if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
+                            //Get position of parent and child in order to grab value from HashMap
+                            int parentPos = expListInside.getPackedPositionGroup(pos);
+                            int childPos = expListInside.getPackedPositionChild(pos);
+
+                            final String selectedSub = map.get(categories.get(parentPos)).get(childPos);
+                            final String selectedCat = categories.get(parentPos);
+
+                            //Inflate the menu
+                            String[] menuOptions = {"Move To Bookmarks","Hide"};
+                            MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity());
+                            builder.items(menuOptions);
+                            builder.itemsCallback(new MaterialDialog.ListCallback() {
+                                @Override
+                                public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+                                    if (i == 0) {
+                                        //need to pass category too
+                                        addBookmark(selectedSub,selectedCat);
+                                    } else {
+                                        hideSubject(selectedSub);
+                                    }
+                                }
+                            });
+                            MaterialDialog menu = builder.build();
+                            menu.show();
+                        } else {
+                            Log.i("childLong","Parent long pressed");
+                        }
+                        return true;
+                    }
+                });
+
+                expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+                    @Override
+                    public boolean onChildClick(ExpandableListView view,View v,int group,int child,long id) {
+                        List<String> groupList = map.get(categories.get(group));
+                        String subject = groupList.get(child);
+
+                        Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
+                        Bundle selectedInfo = new Bundle();
+                        selectedInfo.putString("subName",subject);
+                        selectedInfo.putInt("subType",1);
+                        newAct.putExtra("selectedInfo",selectedInfo);
+                        startActivity(newAct);
+
+                        return true;
+                    }
+                });
             }
         });
 
@@ -302,32 +368,9 @@ public class PublicSubjectsFragment extends Fragment {
             @Override
             public void onRefresh() {
                 PublicSubjectsFragment.this.onStart();
+                bookmarkFrag.onStart();
             }
         });
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu,View v,ContextMenu.ContextMenuInfo info) {
-        super.onCreateContextMenu(menu,v,info);
-        MenuInflater inflater = getActivity().getMenuInflater();
-        inflater.inflate(R.menu.public_sub_menu,menu);
-    }
-    @Override
-    public boolean onContextItemSelected(MenuItem item) {
-        ExpandableListView.ExpandableListContextMenuInfo menuInfo = (ExpandableListView.ExpandableListContextMenuInfo) item.getMenuInfo();
-        int parent = ExpandableListView.getPackedPositionGroup(menuInfo.packedPosition);
-        int child = ExpandableListView.getPackedPositionChild(menuInfo.packedPosition);
-        String subject = map.get(categories.get(parent)).get(child);
-
-        switch(item.getItemId()) {
-            case R.id.bookmark :
-                addBookmark(subject);
-                return true;
-            case R.id.hide :
-                hideSubject(subject);
-            default:
-                return false;
-        }
     }
 
     public void hideSubject(String subject) {
@@ -370,10 +413,89 @@ public class PublicSubjectsFragment extends Fragment {
         return jsonStringer.toString();
     }
 
-    public void addBookmark(final String subject) {
-        String json = subjectToJson(subject);
+    public void addBookmark(final String subject,final String category) {
+        //Inflate dialog asking bookmark prefs
+        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final LinearLayout dialogLayout = (LinearLayout) inflater.inflate(R.layout.bookmark_prefs,null);
 
-        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
+
+
+        MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(getActivity());
+        dialogBuilder.title("Bookmark Preferences");
+        dialogBuilder.customView(dialogLayout,true);
+        dialogBuilder.positiveText("Save");
+        dialogBuilder.negativeText("Cancel");
+        dialogBuilder.positiveColor(getResources().getColor(R.color.ColorSubText));
+        dialogBuilder.negativeColor(Color.RED);
+        dialogBuilder.callback(new MaterialDialog.ButtonCallback() {
+            @Override
+            public void onPositive(MaterialDialog dialog) {
+                //Get radio selections, save them to strings
+                //Create json bundle from all bookmark info
+                //Send it to server to be sorted
+                String subscribe;
+                String publicLessons;
+
+                RadioGroup rGroup1 = (RadioGroup) dialogLayout.findViewById(R.id.question1);
+                RadioGroup rGroup2 = (RadioGroup) dialogLayout.findViewById(R.id.question2);
+
+                int selectedID1 = rGroup1.getCheckedRadioButtonId();
+                int selectedID2 = rGroup2.getCheckedRadioButtonId();
+
+                RadioButton selectedButton1 = (RadioButton) dialogLayout.findViewById(selectedID1);
+                RadioButton selectedButton2 = (RadioButton) dialogLayout.findViewById(selectedID2);
+
+                String selectedItem1 = (String) selectedButton1.getText();
+                String selectedItem2 = (String) selectedButton2.getText();
+
+                subscribe = selectedItem1;
+                publicLessons = selectedItem2;
+
+                //Bundle up all info and make request
+
+                //Need to create random bookmarkID
+                Random rand = new Random();
+                int bookmarkId = rand.nextInt(1000000);
+                String bookmarkBundle = infoToJSON(subject,category,subscribe,publicLessons,ownerID,String.valueOf(bookmarkId));
+                createBookmark(bookmarkBundle,subject);
+            }
+            public void onNegative(MaterialDialog dialog) {
+                dialog.dismiss();
+            }
+        });
+
+        MaterialDialog dialog = dialogBuilder.build();
+        dialog.show();
+
+    }
+
+    public String infoToJSON(String subject,String category,String subscribe,String publicLessons,String ownerID,String bookmarkID) {
+        //USe json stringer to create json string
+        JSONStringer stringer = new JSONStringer();
+        try {
+            stringer.object();
+            stringer.key("subName");
+            stringer.value(subject);
+            stringer.key("category");
+            stringer.value(category);
+            stringer.key("ownerID");
+            stringer.value(ownerID);
+            stringer.key("bookmarkID");
+            stringer.value(bookmarkID);
+            stringer.key("subscribe");
+            stringer.value(subscribe);
+            stringer.key("publicLessons");
+            stringer.value(publicLessons);
+            stringer.endObject();
+            return stringer.toString();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void createBookmark(String bookmarkInfo,final String bookmarkName) {
+        //make request
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),bookmarkInfo);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
         builder.url("http://codeyourweb.net/httpTest/index.php/newBookmark");
@@ -387,14 +509,14 @@ public class PublicSubjectsFragment extends Fragment {
 
             @Override
             public void onResponse(Response response) throws IOException {
-                bookmarkSuccess(subject);
+                bookmarkSuccess(bookmarkName);
                 PublicSubjectsFragment.this.onStart();
                 bookmarkFrag.onStart();
             }
         });
     }
 
-    public void bookmarkSuccess(final String subject) {
+    public void bookmarkSuccess(final String bookmark) {
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -406,7 +528,7 @@ public class PublicSubjectsFragment extends Fragment {
                         .actionListener(new ActionClickListener() {
                             @Override
                             public void onActionClicked(Snackbar snackbar) {
-                                goToSubject(subject);
+                                goToSubject(bookmark);
                             }
                         }), getActivity());
             }
