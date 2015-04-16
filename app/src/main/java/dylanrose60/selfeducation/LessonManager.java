@@ -105,6 +105,7 @@ public class LessonManager {
 
     public void buildLesson() {
         String lessonData = completeJSONBuilder();
+        Log.i("localLessonData",lessonData);
         RequestBody body = RequestBody.create(mediaType,lessonData);
         Request.Builder rBuilder = new Request.Builder();
         rBuilder.post(body);

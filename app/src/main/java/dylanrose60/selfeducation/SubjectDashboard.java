@@ -47,6 +47,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     private String subject;
     private int type;
     private Bundle bookmarkInfo;
+    private String ownerID;
 
     private LessonManager manager;
     private FragmentManager fragmentManager = getFragmentManager();
@@ -66,15 +67,17 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         switch (type) {
             case 0:
                 setContentView(R.layout.subject_dashboard_local);
+                //GetLocalLessons
                 break;
             case 1:
                 setContentView(R.layout.subject_dashboard_public);
+                //Get public lessons
                 break;
             case 2:
-                setContentView(R.layout.subject_dashboard_local);
-                String ownerID = (String) subInfo.get("ownerID");
+                setContentView(R.layout.subject_dashboard_bookmark);
+                ownerID = (String) subInfo.get("ownerID");
                 //Bundle bookmarkInfo = getBookmarkInfo(ownerID);
-                getBookmarkInfo(ownerID);
+                getBookmarkInfo();
                 break;
         }
 
@@ -106,9 +109,8 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         parentLayout.setOnTouchListener(new OnSwipeTouchListener() {
             @Override
             public boolean onSwipeRight() {
-                Intent mainIntent = new Intent(SubjectDashboard.this,MainActivity.class);
-                startActivity(mainIntent);
-                SubjectDashboard.this.finish();
+                //this is the method that gets called when physical back key gets pushed on device, works perfectly in this situation too
+                onBackPressed();
                 return true;
             }
         });
@@ -129,7 +131,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         return json.toString();
     }
 
-    public void getBookmarkInfo(String ownerID) {
+    public void getBookmarkInfo() {
         String subData = ownerIDJSON(ownerID);
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),subData);
         Request.Builder builder = new Request.Builder();
@@ -262,11 +264,23 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
 
 
-    public void toLessonList(View view) {
+    public void toLocalLessonList(View view) {
         Intent intent = new Intent(getApplicationContext(),LessonList.class);
         Bundle listParams = new Bundle();
         listParams.putString("subject",subject);
         listParams.putString("type","Local");
+        listParams.putString("ownerID",ownerID);
+        intent.putExtra("listParams",listParams);
+        startActivity(intent);
+    }
+
+
+    public void toBookmarkLessonList(View view) {
+        Intent intent = new Intent(getApplicationContext(),LessonList.class);
+        Bundle listParams = new Bundle();
+        listParams.putString("subject",subject);
+        listParams.putString("type","Bookmark");
+        listParams.putString("ownerID",ownerID);
         intent.putExtra("listParams",listParams);
         startActivity(intent);
     }
@@ -277,6 +291,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         Bundle listParams = new Bundle();
         listParams.putString("subject",subject);
         listParams.putString("type","Public");
+        listParams.putString("ownerID",ownerID);
         intent.putExtra("listParams",listParams);
         startActivity(intent);
     }

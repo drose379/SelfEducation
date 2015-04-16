@@ -80,7 +80,7 @@ public class FragmentUtility {
     public List<String> trimCategories(List<String> categories, HashMap<String,List<String>> map) {
 
         for (int i = 0; i<categories.size(); i++) {
-            String category = categories.get(i).trim();
+            String category = categories.get(i);
             if (!map.containsKey(category)) {
                 categories.remove(category);
                 Log.i("catRemoved",category);
