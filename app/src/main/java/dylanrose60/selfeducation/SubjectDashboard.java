@@ -2,19 +2,26 @@ package dylanrose60.selfeducation;
 
 import android.annotation.SuppressLint;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.nispok.snackbar.Snackbar;
 import com.nispok.snackbar.SnackbarManager;
+import com.nispok.snackbar.listeners.ActionClickListener;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
@@ -31,11 +38,13 @@ import org.json.JSONStringer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog1;
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog2;
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog3;
 import dylanrose60.selfeducation.DialogFragment.NewTagDialog;
+import dylanrose60.selfeducation.SubjectFragment.PublicSubjectsFragment;
 
 @SuppressLint("NewApi")
 public class SubjectDashboard extends ActionBarActivity implements LessonManager.Listener,
@@ -48,12 +57,16 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     private String category = null;
     private String subject;
     private int type;
-    private Bundle bookmarkInfo;
     private String ownerID;
+    private Bundle bookmarkInfo;
+
 
     private LessonManager manager;
     private FragmentManager fragmentManager = getFragmentManager();
     private OkHttpClient httpClient = new OkHttpClient();
+    Handler handler = new Handler();
+
+    static PublicSubjectsFragment publicFrag;
 
 
     @Override
@@ -73,6 +86,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 break;
             case 1:
                 setContentView(R.layout.subject_dashboard_public);
+                ownerID = subInfo.getString("ownerID");
                 category = subInfo.getString("category");
                 //Get public lessons
                 break;
@@ -288,6 +302,122 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
             * Once user creates lesson, close the current activity with .finish()
             * Show SnackBar with success and green "Go" button
         */
+
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        final LinearLayout dialogLayout = (LinearLayout) inflater.inflate(R.layout.bookmark_prefs,null);
+
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this);
+        builder.title("Bookmark Preferences");
+        builder.customView(dialogLayout,true);
+        builder.positiveText("Save");
+        builder.negativeText("Cancel");
+        builder.positiveColor(getResources().getColor(R.color.ColorSubText));
+        builder.negativeColor(Color.RED);
+        builder.callback(new MaterialDialog.ButtonCallback() {
+            @Override
+            public void onPositive(MaterialDialog dialog) {
+                String subscribe;
+                String publicLessons;
+
+                RadioGroup rGroup1 = (RadioGroup) dialogLayout.findViewById(R.id.question1);
+                RadioGroup rGroup2 = (RadioGroup) dialogLayout.findViewById(R.id.question2);
+
+                int selectedID1 = rGroup1.getCheckedRadioButtonId();
+                int selectedID2 = rGroup2.getCheckedRadioButtonId();
+
+                RadioButton rButton1 = (RadioButton) dialogLayout.findViewById(selectedID1);
+                RadioButton rButton2 = (RadioButton) dialogLayout.findViewById(selectedID2);
+
+                subscribe = (String) rButton1.getText();
+                publicLessons = (String) rButton2.getText();
+
+                //create bookmark w values
+                Random rand = new Random();
+                int bookmarkID = rand.nextInt(1000000);
+
+                List<String> keys = new ArrayList<String>();
+                List<String> values = new ArrayList<String>();
+
+                keys.add("subName");
+                keys.add("category");
+                keys.add("ownerID");
+                keys.add("bookmarkID");
+                keys.add("subscribe");
+                keys.add("publicLessons");
+
+                values.add(subject);
+                values.add(category);
+                values.add(ownerID);
+                values.add(String.valueOf(bookmarkID));
+                values.add(subscribe);
+                values.add(publicLessons);
+
+
+                try {
+                    String bookmarkInfo = CommunicationUtil.toJSONString(keys,values);
+                    createBookmark(bookmarkInfo,subject);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            @Override
+            public void onNegative(MaterialDialog dialog) {
+                dialog.dismiss();
+            }
+        });
+
+        MaterialDialog dialog = builder.build();
+        dialog.show();
+
+    }
+
+    public static void setPublicSubFrag(PublicSubjectsFragment instance) {
+        publicFrag = instance;
+    }
+
+    public void createBookmark(String bookmarkInfo,final String bookmarkName) {
+        //make request
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),bookmarkInfo);
+        Request.Builder builder = new Request.Builder();
+        builder.post(body);
+        builder.url("http://codeyourweb.net/httpTest/index.php/newBookmark");
+        Request request = builder.build();
+        Call newCall = httpClient.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+               // bookmarkSuccess(bookmarkName);
+                publicFrag.onStart();
+                SubjectDashboard.this.finish();
+            }
+        });
+    }
+
+    public void bookmarkSuccess(final String bookmark) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                SnackbarManager.show(Snackbar.with(SubjectDashboard.this)
+                        .text("Bookmark Created")
+                        .actionLabel("Go")
+                        .actionColor(Color.GREEN)
+                        .duration(Snackbar.SnackbarDuration.LENGTH_LONG)
+                        .actionListener(new ActionClickListener() {
+                            @Override
+                            public void onActionClicked(Snackbar snackbar) {
+                                //goToSubject(bookmark);
+                                Log.i("goto",bookmark);
+                            }
+                        }), SubjectDashboard.this);
+            }
+        });
+
     }
 
 

@@ -290,6 +290,7 @@ public class PublicSubjectsFragment extends Fragment {
             public void run() {
                 expList.setAdapter(adapter);
 
+        /*
                 expList.setOnItemLongClickListener(new ExpandableListView.OnItemLongClickListener() {
                     @Override
                     public boolean onItemLongClick(AdapterView parent,View v,int position,long id) {
@@ -332,6 +333,8 @@ public class PublicSubjectsFragment extends Fragment {
                     }
                 });
 
+        */
+
                 expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                     @Override
                     public boolean onChildClick(ExpandableListView view,View v,int group,int child,long id) {
@@ -345,9 +348,12 @@ public class PublicSubjectsFragment extends Fragment {
                         Bundle selectedInfo = new Bundle();
                         selectedInfo.putString("category",category);
                         selectedInfo.putString("subName",subject);
+                        selectedInfo.putString("ownerID",ownerID);
                         selectedInfo.putInt("subType",1);
                         newAct.putExtra("selectedInfo",selectedInfo);
-                        //add category to bundle
+
+                        SubjectDashboard.setPublicSubFrag(PublicSubjectsFragment.this);
+
                         startActivity(newAct);
 
                         return true;
@@ -460,8 +466,30 @@ public class PublicSubjectsFragment extends Fragment {
                 //Need to create random bookmarkID
                 Random rand = new Random();
                 int bookmarkId = rand.nextInt(1000000);
-                String bookmarkBundle = infoToJSON(subject,category,subscribe,publicLessons,ownerID,String.valueOf(bookmarkId));
-                createBookmark(bookmarkBundle,subject);
+
+                List<String> keys = new ArrayList<String>();
+                List<String> values = new ArrayList<String>();
+
+                keys.add("subName");
+                keys.add("category");
+                keys.add("ownerID");
+                keys.add("bookmarkID");
+                keys.add("subscribe");
+                keys.add("publicLessons");
+
+                values.add(subject);
+                values.add(category);
+                values.add(ownerID);
+                values.add(String.valueOf(bookmarkId));
+                values.add(subscribe);
+                values.add(publicLessons);
+
+                try {
+                    String bookmarkInfo = CommunicationUtil.toJSONString(keys, values);
+                    createBookmark(bookmarkInfo,subject);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
             public void onNegative(MaterialDialog dialog) {
                 dialog.dismiss();
@@ -471,30 +499,6 @@ public class PublicSubjectsFragment extends Fragment {
         MaterialDialog dialog = dialogBuilder.build();
         dialog.show();
 
-    }
-
-    public String infoToJSON(String subject,String category,String subscribe,String publicLessons,String ownerID,String bookmarkID) {
-        //USe json stringer to create json string
-        JSONStringer stringer = new JSONStringer();
-        try {
-            stringer.object();
-            stringer.key("subName");
-            stringer.value(subject);
-            stringer.key("category");
-            stringer.value(category);
-            stringer.key("ownerID");
-            stringer.value(ownerID);
-            stringer.key("bookmarkID");
-            stringer.value(bookmarkID);
-            stringer.key("subscribe");
-            stringer.value(subscribe);
-            stringer.key("publicLessons");
-            stringer.value(publicLessons);
-            stringer.endObject();
-            return stringer.toString();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void createBookmark(String bookmarkInfo,final String bookmarkName) {
