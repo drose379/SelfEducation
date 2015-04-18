@@ -29,6 +29,7 @@ import org.json.JSONObject;
 import org.json.JSONStringer;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog1;
@@ -43,7 +44,8 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         LCreateDialog3.Listener,
         NewTagDialog.Listener
 {
-
+        //category is only needed when infalting a public subject dash layout, incase user creates new bookmark
+    private String category = null;
     private String subject;
     private int type;
     private Bundle bookmarkInfo;
@@ -71,6 +73,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 break;
             case 1:
                 setContentView(R.layout.subject_dashboard_public);
+                category = subInfo.getString("category");
                 //Get public lessons
                 break;
             case 2:
@@ -132,7 +135,24 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
     public void getBookmarkInfo() {
-        String subData = ownerIDJSON(ownerID);
+        //needs to be changed to use bookmarkUtil
+
+        List<String> keys = new ArrayList<String>();
+        List<String> values = new ArrayList<String>();
+
+        keys.add("owner_id");
+        keys.add("subject");
+        values.add(ownerID);
+        values.add(subject);
+
+        String subData = null;
+
+        try {
+            subData = CommunicationUtil.toJSONString(keys,values);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),subData);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
@@ -260,6 +280,14 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     @Override
     public void onSuccess() {
         SnackbarManager.show(Snackbar.with(getApplicationContext()).text("Lesson created successfully"),this);
+    }
+
+    public void newBookmarkFromDash(View v) {
+        /*
+            * Inflate the bookmark dialog with 2 preference options
+            * Once user creates lesson, close the current activity with .finish()
+            * Show SnackBar with success and green "Go" button
+        */
     }
 
 

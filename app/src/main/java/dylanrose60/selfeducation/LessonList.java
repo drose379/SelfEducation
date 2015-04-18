@@ -59,30 +59,28 @@ public class LessonList extends ActionBarActivity{
         if (type .equals("Bookmark")) {
             getBookmarkLessons();
         } else if (type.equals("Local")) {
-            //get local lessons
+            getLocalLessons();
         } else {
-            //get public lessons
+            getPublicLessons();
         }
 
-    }
-
-    public String ownerIDJSON() {
-
-        JSONStringer json = new JSONStringer();
-        try {
-            json.object();
-            json.key("owner_id");
-            json.value(ownerID);
-            json.endObject();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return json.toString();
     }
 
     public void getBookmarkLessons() {
-        String ownerIdJSON = ownerIDJSON();
-        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),ownerIdJSON);
+        String ownerIDJSON = null;
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("owner_id");
+        value.add(ownerID);
+
+        try {
+            ownerIDJSON = CommunicationUtil.toJSONString(key, value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),ownerIDJSON);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
         builder.url("http://codeyourweb.net/httpTest/index.php/getBookmarkLessons");
@@ -101,9 +99,7 @@ public class LessonList extends ActionBarActivity{
                 JSONObject respObject;
                 try {
                     respObject = new JSONObject(responseString);
-                    //Pull lessons as a string from the objject, if not work, use JSONArray and pull JSONObject from that.
                     thisSubBookmarks = respObject.getString(subject);
-
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -119,8 +115,76 @@ public class LessonList extends ActionBarActivity{
         });
     }
 
+    public void getLocalLessons() {
+        String infoJSON = null;
 
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
 
+        key.add("subject");
+        value.add(subject);
 
+        try {
+            infoJSON = CommunicationUtil.toJSONString(key,value);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),infoJSON);
+        Request.Builder builder = new Request.Builder();
+        builder.post(body);
+        builder.url("http://codeyourweb.net/httpTest/index.php/getLocalLessons");
+        Request request = builder.build();
+        Call newCall = httpClient.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                String responseString = response.body().string();
+                Log.i("localLessons",responseString);
+            }
+        });
+    }
+
+    public void getPublicLessons() {
+        String infoJSON = null;
+
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("subject");
+        value.add(subject);
+
+        try {
+            infoJSON = CommunicationUtil.toJSONString(key,value);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),infoJSON);
+        Request.Builder builder = new Request.Builder();
+        builder.post(body);
+        builder.url("http://codeyourweb.net/httpTest/index.php/getPublicLessons");
+        Request request = builder.build();
+        Call newCall = httpClient.newCall(request);
+        newCall.enqueue(new Callback() {
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Response response) throws IOException {
+                String responseString = response.body().string();
+                Log.i("publicLessons",responseString);
+            }
+        });
+    }
 
 }

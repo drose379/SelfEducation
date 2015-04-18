@@ -55,6 +55,7 @@ import java.util.List;
 import java.util.Random;
 
 import dylanrose60.selfeducation.Category;
+import dylanrose60.selfeducation.CommunicationUtil;
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
 import dylanrose60.selfeducation.ExpListAdapter;
@@ -124,23 +125,21 @@ public class PublicSubjectsFragment extends Fragment {
         }
     }
 
-    public String ownerIDJSON() {
-        JSONStringer json = new JSONStringer();
+    public void getPublicSubjects() {
+        String json = null;
+
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("owner_id");
+        value.add(ownerID);
+
         try {
-            json.object();
-            json.key("owner_id");
-            json.value(ownerID);
-            json.endObject();
+            json = CommunicationUtil.toJSONString(key,value);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return json.toString();
-    }
 
-
-
-    public void getPublicSubjects() {
-        String json = ownerIDJSON();
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
@@ -337,13 +336,18 @@ public class PublicSubjectsFragment extends Fragment {
                     @Override
                     public boolean onChildClick(ExpandableListView view,View v,int group,int child,long id) {
                         List<String> groupList = map.get(categories.get(group));
+                        List<String> allCategories = new ArrayList<String>(map.keySet());
+
+                        String category = allCategories.get(group);
                         String subject = groupList.get(child);
 
                         Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
                         Bundle selectedInfo = new Bundle();
+                        selectedInfo.putString("category",category);
                         selectedInfo.putString("subName",subject);
                         selectedInfo.putInt("subType",1);
                         newAct.putExtra("selectedInfo",selectedInfo);
+                        //add category to bundle
                         startActivity(newAct);
 
                         return true;

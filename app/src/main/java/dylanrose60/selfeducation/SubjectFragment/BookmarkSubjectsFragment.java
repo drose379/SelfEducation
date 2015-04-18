@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Random;
 
 import dylanrose60.selfeducation.Category;
+import dylanrose60.selfeducation.CommunicationUtil;
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
 import dylanrose60.selfeducation.ExpListAdapter;
@@ -107,7 +108,20 @@ public class BookmarkSubjectsFragment extends Fragment {
 
 
     public void getBookmarks() {
-        String json = ownerIDJSON();
+        String json = null;
+
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("owner_id");
+        value.add(owner_id);
+
+        try {
+            json = CommunicationUtil.toJSONString(key,value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), json);
         Request.Builder builder = new Request.Builder();
         builder.url("http://codeyourweb.net/httpTest/index.php/getBookmarks");

@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import dylanrose60.selfeducation.Category;
+import dylanrose60.selfeducation.CommunicationUtil;
 import dylanrose60.selfeducation.CustomAdapter;
 import dylanrose60.selfeducation.DBHelper;
 import dylanrose60.selfeducation.ExpListAdapter;
@@ -120,23 +121,21 @@ public class MySubjectsFragment extends Fragment {
         welcomeText2.setVisibility(View.VISIBLE);
     }
 
-    public String toJSONString(String ownerID) {
-        JSONStringer json = new JSONStringer();
+    public void getSubjects() {
+        String json = null;
+
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("owner_id");
+        value.add(ownerID);
+
         try {
-            json.object();
-            json.key("owner_id");
-            json.value(ownerID);
-            json.endObject();
+            json = CommunicationUtil.toJSONString(key,value);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        return json.toString();
-    }
 
-
-
-    public void getSubjects() {
-        String json = toJSONString(ownerID);
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
         Request.Builder rBuilder = new Request.Builder();
         rBuilder.post(body);

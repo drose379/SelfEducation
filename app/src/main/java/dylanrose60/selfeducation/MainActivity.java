@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.AdapterView;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -150,7 +151,24 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void newSubComplete(Bundle subjectInfo) {
-        String subJSON = subBundleJSON(subjectInfo);
+        String subJSON = null;
+
+        List<String> keys = new ArrayList<String>();
+        List<String> values = new ArrayList<String>();
+
+        keys.add("subject");
+        keys.add("privacy");
+        keys.add("category");
+        keys.add("owner_id");
+        values.add(subjectInfo.getString("subject"));
+        values.add(subjectInfo.getString("privacy"));
+        values.add(subjectInfo.getString("category"));
+        values.add(subjectInfo.getString("owner_id"));
+        try {
+            subJSON = CommunicationUtil.toJSONString(keys,values);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         createSubject(subJSON);
     }
 
@@ -161,31 +179,6 @@ public class MainActivity extends ActionBarActivity implements
         categoryDialog.show(fragmentManager,"categoryDialog");
     }
 
-
-    public String subBundleJSON(Bundle subjectInfo) {
-
-        String subjectName = subjectInfo.getString("subject");
-        String privacy = subjectInfo.getString("privacy");
-        String category = subjectInfo.getString("category");
-        String ownerId = subjectInfo.getString("owner_id");
-
-        try {
-            JSONStringer json = new JSONStringer();
-            json.object();
-            json.key("subject");
-            json.value(subjectName);
-            json.key("privacy");
-            json.value(privacy);
-            json.key("category");
-            json.value(category);
-            json.key("owner_id");
-            json.value(ownerId);
-            json.endObject();
-            return json.toString();
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public void createSubject(String json) {
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),json);
