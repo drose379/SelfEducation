@@ -16,6 +16,8 @@ import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import android.net.Uri;
+
 import dylanrose60.selfeducation.R;
 
 @SuppressLint("NewApi")
@@ -24,6 +26,7 @@ public class LCreateDialog4 extends DialogFragment {
     private Listener listener;
 
     private LinearLayout dialogLayout;
+    private String imgUriString;
 
     public interface Listener {
         public void getDefaultImage(String imgPath);
@@ -32,7 +35,7 @@ public class LCreateDialog4 extends DialogFragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        //this.listener = (Listener) activity;
+        this.listener = (Listener) activity;
     }
 
     @Override
@@ -53,7 +56,13 @@ public class LCreateDialog4 extends DialogFragment {
 
     public void onActivityResult(int requestCode,int resultCode,Intent intent) {
         ImageView testImg = (ImageView) dialogLayout.findViewById(R.id.testImg);
-        testImg.setImageURI(intent.getData());
+        testImg.setVisibility(View.VISIBLE);
+
+        Uri imgUri = intent.getData();
+        //Need URI as string to save to db. To show img, use URI.parse(string) later
+        imgUriString = String.valueOf(intent.getData());
+
+        testImg.setImageURI(imgUri);
     }
 
 
@@ -62,7 +71,7 @@ public class LCreateDialog4 extends DialogFragment {
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                 .title("Set default image")
                 .customView(dialogLayout,true)
-                .positiveText("Submit")
+                .positiveText("Finish")
                 .negativeText("Cancel")
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeColor(Color.RED)
@@ -70,7 +79,10 @@ public class LCreateDialog4 extends DialogFragment {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-
+                        //Make sure imgUriString is not null, if it is, do not move on
+                        //if it is NOT null, send to listener which will create the lesson
+                        dialog.dismiss();
+                        listener.getDefaultImage(imgUriString);
                     }
 
                     @Override

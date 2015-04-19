@@ -36,6 +36,7 @@ public class LessonManager {
     private String lessonName;
     private List<String> objectives = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
+    private String imgUri;
     private LinearLayout dialogLayout;
 
     private OkHttpClient client = new OkHttpClient();
@@ -71,6 +72,10 @@ public class LessonManager {
 
     public void setListener(Listener listener) {
         this.listener = listener;
+    }
+
+    public void setImgUri(String uri) {
+        this.imgUri = uri;
     }
 
     //For getting subject tags from DB
@@ -198,6 +203,8 @@ public class LessonManager {
             builder.value(objectivesJSON);
             builder.key("tags");
             builder.value(tagsJSON); //Remove toArray()
+            builder.key("imgUri");
+            builder.value(imgUri);
             builder.endObject();
             return builder.toString();
         } catch (JSONException e) {

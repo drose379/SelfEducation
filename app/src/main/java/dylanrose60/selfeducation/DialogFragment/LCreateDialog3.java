@@ -76,7 +76,7 @@ public class LCreateDialog3 extends DialogFragment {
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
                 .title("Tag your new lesson")
                 .customView(dialogLayout,true)
-                .positiveText("Finish")
+                .positiveText("Next")
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeText("Cancel")
                 .negativeColor(Color.RED)
