@@ -10,5 +10,6 @@
     <string name="bookmarkDirections">To add a bookmark, slide over to the \"Public Subjects\" tab, long press on a subject, and choose
     "Move to Bookmarks".
     </string>
+    <string name="imgPickerDirections">Please choose an image that will display with your lesson, if you do not want to show an image now, please choose \"Use Default\"</string>
 
 </resources>

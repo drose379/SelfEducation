@@ -62,6 +62,7 @@ public class LCreateDialog3 extends DialogFragment {
         dialogLayout.setLayoutParams(dialogParams);
     }
 
+    @Override
     public Dialog onCreateDialog(Bundle savedInstance) {
         getTags();
         ProgressWheel loadWheel = new ProgressWheel(getActivity());

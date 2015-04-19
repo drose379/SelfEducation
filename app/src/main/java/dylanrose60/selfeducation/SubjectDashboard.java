@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog1;
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog2;
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog3;
+import dylanrose60.selfeducation.DialogFragment.LCreateDialog4;
 import dylanrose60.selfeducation.DialogFragment.NewTagDialog;
 import dylanrose60.selfeducation.SubjectFragment.PublicSubjectsFragment;
 
@@ -273,7 +274,10 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     @Override
     public void getSelectedTags(List<String> selectedTags) {
         manager.setTags(selectedTags);
-        buildLesson();
+        //Need to call to new dialog that asks for default image for the lesson
+        //buildLesson();
+        LCreateDialog4 dialog4 = new LCreateDialog4();
+        dialog4.show(fragmentManager,"dialog4");
     }
 
     public void buildLesson() {
