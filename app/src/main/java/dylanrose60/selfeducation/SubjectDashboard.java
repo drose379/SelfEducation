@@ -39,6 +39,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog1;
 import dylanrose60.selfeducation.DialogFragment.LCreateDialog2;
@@ -392,9 +395,22 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
             @Override
             public void onResponse(Response response) throws IOException {
-               // bookmarkSuccess(bookmarkName);
+                bookmarkSuccess(bookmarkName);
                 publicFrag.onStart();
-                SubjectDashboard.this.finish();
+
+                //Need to call finish after a delay, so the snackbar has time to show. 3 seconds.
+
+                ScheduledExecutorService delayCaller = Executors.newSingleThreadScheduledExecutor();
+
+                Runnable delayMethod = new Runnable() {
+                    @Override
+                    public void run() {
+                        SubjectDashboard.this.finish();
+                    }
+                };
+
+                delayCaller.schedule(delayMethod,1,TimeUnit.SECONDS);
+
             }
         });
     }
