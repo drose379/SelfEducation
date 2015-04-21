@@ -5,8 +5,12 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +21,14 @@ import android.widget.LinearLayout;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import android.net.Uri;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 
 import dylanrose60.selfeducation.R;
 
@@ -62,7 +74,16 @@ public class LCreateDialog4 extends DialogFragment {
         //Need URI as string to save to db. To show img, use URI.parse(string) later
         imgUriString = String.valueOf(intent.getData());
 
-        testImg.setImageURI(imgUri);
+        try {
+            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imgUri);
+            testImg.setImageBitmap(bitmap);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+            byte[] byteArray = outputStream.toByteArray();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
 
