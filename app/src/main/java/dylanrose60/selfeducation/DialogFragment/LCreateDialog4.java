@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import dylanrose60.selfeducation.R;
 
@@ -72,27 +73,29 @@ public class LCreateDialog4 extends DialogFragment {
         ImageView testImg = (ImageView) dialogLayout.findViewById(R.id.testImg);
         testImg.setVisibility(View.VISIBLE);
 
+        //Get the Local URI path for the image on the device
         Uri imgUri = intent.getData();
-        //Need URI as string to save to db. To show img, use URI.parse(string) later
+        //Just grabs a string (_data) and puts it into a String[] to be passed into ContentResolver query() method
+        String[] fileStream = {MediaStore.Images.Media.DATA};
+        //Get all data for the given path
+        Cursor cursor = getActivity().getContentResolver().query(imgUri,fileStream,null,null,null);
+        //make sure cursor is on first item
+        cursor.moveToFirst();
 
-        try {
-            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imgUri);
-            testImg.setImageBitmap(bitmap);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        //Get the column number for _data in the cursor. _data holds the path
 
-            bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
+        //int columnIndex = cursor.getColumnIndex(fileStream[0]);
+        int columnIndex = cursor.getColumnIndex("_data");
+        //get the path of the image using the columnIndex from the cursor and _data column
+        String filePath = cursor.getString(columnIndex);
+        //Create a new file from the filePath
+        File file = new File(filePath);
 
-            byte[] bitmapByteArray = outputStream.toByteArray();
+        Bitmap finalImage = BitmapFactory.decodeFile(filePath);
+
+        testImg.setImageBitmap(finalImage);
 
 
-            String base64String = Base64.encodeToString(bitmapByteArray,Base64.DEFAULT);
-
-            imgUriString = base64String;
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
     }
 
