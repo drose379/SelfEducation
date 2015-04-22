@@ -7,10 +7,12 @@ import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,14 +74,22 @@ public class LCreateDialog4 extends DialogFragment {
 
         Uri imgUri = intent.getData();
         //Need URI as string to save to db. To show img, use URI.parse(string) later
-        imgUriString = String.valueOf(intent.getData());
 
         try {
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getActivity().getContentResolver(), imgUri);
             testImg.setImageBitmap(bitmap);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
             bitmap.compress(Bitmap.CompressFormat.JPEG,100,outputStream);
-            byte[] byteArray = outputStream.toByteArray();
+
+            byte[] bitmapByteArray = outputStream.toByteArray();
+
+
+            String base64String = Base64.encodeToString(bitmapByteArray,Base64.DEFAULT);
+
+            imgUriString = base64String;
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
