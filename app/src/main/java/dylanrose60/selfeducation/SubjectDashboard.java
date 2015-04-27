@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -282,8 +284,8 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
     @Override
-    public void getDefaultImage(String base64) {
-        manager.setImgUri(base64);
+    public void getDefaultImage(Bitmap image) {
+        manager.setImgFile(image);
         buildLesson();
     }
 

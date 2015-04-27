@@ -151,6 +151,7 @@ public class MySubjectsFragment extends Fragment {
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
+                Log.i("mySubResponse",responseString);
                 try {
                     JSONObject responseObject = new JSONObject(responseString);
                     String categories = responseObject.getString("categories");

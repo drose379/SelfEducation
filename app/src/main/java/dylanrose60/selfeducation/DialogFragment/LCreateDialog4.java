@@ -41,10 +41,11 @@ public class LCreateDialog4 extends DialogFragment {
     private Listener listener;
 
     private LinearLayout dialogLayout;
-    private String imgUriString;
+    //private File imgFile;
+    private Bitmap imgBitmap;
 
     public interface Listener {
-        public void getDefaultImage(String imgPath);
+        public void getDefaultImage(Bitmap imgBitmap);
     }
 
     @Override
@@ -75,6 +76,8 @@ public class LCreateDialog4 extends DialogFragment {
 
         //Get the Local URI path for the image on the device
         Uri imgUri = intent.getData();
+
+        /*
         //Just grabs a string (_data) and puts it into a String[] to be passed into ContentResolver query() method
         String[] fileStream = {MediaStore.Images.Media.DATA};
         //Get all data for the given path
@@ -91,9 +94,24 @@ public class LCreateDialog4 extends DialogFragment {
         //Create a new file from the filePath
         File file = new File(filePath);
 
+        imgFile = file;
+        Log.i("imageFileSize",String.valueOf(imgFile.length()));
+
+        //Need to pass this file to a method that uploads file to server. Php script needs to save path to image on server in lesson table in database
+
         Bitmap finalImage = BitmapFactory.decodeFile(filePath);
 
-        testImg.setImageBitmap(finalImage);
+        */
+
+        try {
+            InputStream input = getActivity().getContentResolver().openInputStream(imgUri);
+            imgBitmap = BitmapFactory.decodeStream(input);
+            testImg.setImageBitmap(imgBitmap);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        //testImg.setImageBitmap(finalImage);
 
 
 
@@ -116,7 +134,11 @@ public class LCreateDialog4 extends DialogFragment {
                         //Make sure imgUriString is not null, if it is, do not move on
                         //if it is NOT null, send to listener which will create the lesson
                         dialog.dismiss();
-                        listener.getDefaultImage(imgUriString);
+                        if (imgBitmap != null) {
+                            listener.getDefaultImage(imgBitmap);
+                        } else {
+                            //Do not dismiss, ask user to choose a photo (offer stock photos)
+                        }
                     }
 
                     @Override
