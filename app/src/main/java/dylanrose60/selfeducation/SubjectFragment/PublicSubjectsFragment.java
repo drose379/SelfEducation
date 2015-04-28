@@ -339,14 +339,17 @@ public class PublicSubjectsFragment extends Fragment {
                     @Override
                     public boolean onChildClick(ExpandableListView view,View v,int group,int child,long id) {
                         List<String> groupList = map.get(categories.get(group));
-                        List<String> allCategories = new ArrayList<String>(map.keySet());
+                        //List<String> allCategories = new ArrayList<String>(map.keySet());
 
-                        String category = allCategories.get(group);
+                        //Need to use the same map list as the one being displayed on the fragment list
+
+                        String category = categories.get(group);
                         String subject = groupList.get(child);
 
                         Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
                         Bundle selectedInfo = new Bundle();
                         selectedInfo.putString("category",category);
+                        Log.i("selCategory",category);
                         selectedInfo.putString("subName",subject);
                         selectedInfo.putString("ownerID",ownerID);
                         selectedInfo.putInt("subType",1);
@@ -422,6 +425,8 @@ public class PublicSubjectsFragment extends Fragment {
         }
         return jsonStringer.toString();
     }
+
+/*
 
     public void addBookmark(final String subject,final String category) {
         //Inflate dialog asking bookmark prefs
@@ -500,7 +505,7 @@ public class PublicSubjectsFragment extends Fragment {
         dialog.show();
 
     }
-
+*/
     public void createBookmark(String bookmarkInfo,final String bookmarkName) {
         //make request
         RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),bookmarkInfo);

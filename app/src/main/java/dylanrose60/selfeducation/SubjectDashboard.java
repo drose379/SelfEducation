@@ -95,6 +95,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                 setContentView(R.layout.subject_dashboard_public);
                 ownerID = subInfo.getString("ownerID");
                 category = subInfo.getString("category");
+                Log.i("publicCategory",subInfo.getString("category"));
                 //Get public lessons
                 break;
             case 2:
@@ -121,7 +122,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         //Set the value of the activity title bar to the title of the subject with: setTitle(title)
         setTitle(subject);
 
-        manager = new LessonManager(subject);
+        manager = new LessonManager(this,subject);
 
         LinearLayout parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         parentLayout.setOnClickListener(new View.OnClickListener() {
@@ -371,6 +372,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
                 try {
                     String bookmarkInfo = CommunicationUtil.toJSONString(keys,values);
+                    Log.i("bookmarkCat",category);
                     createBookmark(bookmarkInfo,subject);
                 } catch (JSONException e) {
                     e.printStackTrace();

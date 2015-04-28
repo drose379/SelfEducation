@@ -1,16 +1,22 @@
 package dylanrose60.selfeducation;
 
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Base64;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.pnikosis.materialishprogress.ProgressWheel;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.Headers;
@@ -39,6 +45,8 @@ public class LessonManager {
         public void onSuccess();
     }
 
+    private Context context;
+
     private String subject;
     private String lessonName;
     private List<String> objectives = new ArrayList<>();
@@ -48,7 +56,7 @@ public class LessonManager {
     //private File imageFile;
     private Bitmap imageBitmap;
     private String imageSavedURL;
-    private LinearLayout dialogLayout;
+    private MaterialDialog loadingDialog;
 
     private OkHttpClient client = new OkHttpClient();
     private MediaType mediaType = MediaType.parse("application/json;charset=utf-8");
@@ -57,7 +65,8 @@ public class LessonManager {
 
     private Handler handler = new Handler();
 
-    public LessonManager(String subject) {
+    public LessonManager(Context context,String subject) {
+        this.context = context;
         this.subject = subject;
     }
 
@@ -126,6 +135,9 @@ public class LessonManager {
     //Testing uploading lesson image file to server, real method is below
 
     public void buildLesson() {
+
+        showLoadingDialog();
+
         //Bitmap bitmapImage = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
         ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
         imageBitmap.compress(Bitmap.CompressFormat.JPEG,75,byteOutput);
@@ -198,6 +210,7 @@ public class LessonManager {
 
             @Override
             public void onResponse(Response response) throws IOException {
+                loadingDialog.dismiss();
                 Log.i("newLesson","Lesson added");
             }
         });
@@ -238,6 +251,14 @@ public class LessonManager {
 */
 
     public void buildLesson(final Bundle bookmarkInfo) {
+
+        /*
+            * Create material dialog with loader in it, must be a private field
+            * Dismiss it once addFullBookmarkLessonInfo is done (onResponse)
+         */
+
+        showLoadingDialog();
+
         ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
         imageBitmap.compress(Bitmap.CompressFormat.JPEG,75,byteOutput);
         byte[] imageBytes = byteOutput.toByteArray();
@@ -295,13 +316,44 @@ public class LessonManager {
 
             @Override
             public void onResponse(Response response) throws IOException {
+                loadingDialog.dismiss();
+                /*
                 handler.post(new Runnable() {
                     public void run() {
                         listener.onSuccess();
                     }
                 });
+                */
             }
         });
+    }
+
+    public void showLoadingDialog() {
+        Activity activity = (Activity) context;
+
+        MaterialDialog.Builder dialogBuilder = new MaterialDialog.Builder(context);
+
+        LinearLayout layout = new LinearLayout(activity);
+
+        LinearLayout.LayoutParams dialogParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setLayoutParams(dialogParams);
+
+        ProgressWheel loadWheel = new ProgressWheel(activity);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(80,80);
+        params.gravity = Gravity.CENTER_HORIZONTAL;
+        loadWheel.setLayoutParams(params);
+        loadWheel.setBarColor(activity.getResources().getColor(R.color.ColorPrimary));
+        loadWheel.spin();
+
+        layout.addView(loadWheel);
+
+        dialogBuilder.customView(layout,true);
+        dialogBuilder.title("One Moment");
+        dialogBuilder.autoDismiss(false);
+
+        loadingDialog = dialogBuilder.build();
+        loadingDialog.show();
     }
 
 
