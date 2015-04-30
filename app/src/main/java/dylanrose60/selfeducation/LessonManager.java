@@ -138,11 +138,7 @@ public class LessonManager {
 
         showLoadingDialog();
 
-        //Bitmap bitmapImage = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
-        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG,75,byteOutput);
-        byte[] imageBytes = byteOutput.toByteArray();
-        String base64Image = Base64.encodeToString(imageBytes,Base64.DEFAULT);
+        String base64Image = toBase64();
 
         /*
             * Upload base64 string to script
@@ -259,10 +255,7 @@ public class LessonManager {
 
         showLoadingDialog();
 
-        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG,75,byteOutput);
-        byte[] imageBytes = byteOutput.toByteArray();
-        String base64Image = Base64.encodeToString(imageBytes,Base64.DEFAULT);
+        String base64Image = toBase64();
 
         List<String> key = new ArrayList<String>();
         List<String> value = new ArrayList<String>();
@@ -326,6 +319,15 @@ public class LessonManager {
                 */
             }
         });
+    }
+
+    public String toBase64() {
+        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+        imageBitmap.compress(Bitmap.CompressFormat.JPEG,75,byteOutput);
+        byte[] imageBytes = byteOutput.toByteArray();
+        String base64Image = Base64.encodeToString(imageBytes,Base64.DEFAULT);
+
+        return base64Image;
     }
 
     public void showLoadingDialog() {

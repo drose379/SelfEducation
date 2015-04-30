@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.provider.OpenableColumns;
@@ -21,8 +23,19 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.pnikosis.materialishprogress.ProgressWheel;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import android.net.Uri;
+import android.widget.TextView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -41,6 +54,8 @@ public class LCreateDialog4 extends DialogFragment {
     private Listener listener;
 
     private LinearLayout dialogLayout;
+    private OkHttpClient httpClient = new OkHttpClient();
+
     //private File imgFile;
     private Bitmap imgBitmap;
 
@@ -127,6 +142,8 @@ public class LCreateDialog4 extends DialogFragment {
                 .negativeText("Cancel")
                 .positiveColor(getResources().getColor(R.color.ColorSubText))
                 .negativeColor(Color.RED)
+                .neutralText("Stock Photo")
+                .neutralColor(getActivity().getResources().getColor(R.color.ColorBlack))
                 .autoDismiss(false)
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
@@ -139,6 +156,64 @@ public class LCreateDialog4 extends DialogFragment {
                         } else {
                             //Do not dismiss, ask user to choose a photo (offer stock photos)
                         }
+                    }
+
+                    @Override
+                    public void onNeutral(MaterialDialog dialog) {
+                        Log.i("neutralPressed","Neutral Pressed");
+
+                        /*
+                            * Add progresswheel to img_picker XML layout and set its visibility to Visible when neutral is pressed
+                            * Set visibility to GONE when all info is returned
+                         */
+
+                        ProgressWheel wheel = (ProgressWheel) dialogLayout.findViewById(R.id.progSpinner);
+                        wheel.setVisibility(View.VISIBLE);
+
+                        /*Need to create a listview with all stock photos inside, once user selects photo, buildLesson()
+                            * Get all Bitmaps in a list List<Bitmap>
+                            * Create ListView
+                            * Create custom ListView adapter that adds each image to view
+                            * Create onClickListener for images that gives link to selected image
+                        */
+                        Request.Builder builder = new Request.Builder();
+                        builder.url("http://codeyourweb.net/httpTest/index.php/getStockImages");
+                        Request request = builder.build();
+                        Call newCall = httpClient.newCall(request);
+                        newCall.enqueue(new Callback() {
+                            @Override
+                            public void onFailure(Request request, IOException e) {
+                                Log.i("stockImagesInfo","Failure");
+                            }
+
+                            @Override
+                            public void onResponse(Response response) throws IOException {
+
+                                Log.i("stockImagesInfo", "Called");
+                                String responseString = response.body().string();
+                                Log.i("stockImagesInfo",String.valueOf(responseString.length()));
+
+                                try {
+
+                                    /*
+                                        * Ship application with all stock images pre-loaded, put them in their own dir and put them in a ListView
+
+                                    Loop over i for the amount of stock images there are,
+                                    Inside the loop, use I to grab the current drawable
+                                    Add current drawable to List<Drawable>
+                                    Use that list in the adapter to make a ListView of images to choose from
+
+                                    Drawable test = getActivity().getResources()
+                                            .getDrawable(getResources().getIdentifier("stock_"+i,"drawable",getActivity().getPackageName()));
+                                    */
+                                    JSONArray masterResp = new JSONArray(responseString);
+                                    Log.i("stockImagesInfo", String.valueOf(masterResp.length()));
+                                    dialogLayout.findViewById(R.id.progSpinner).setVisibility(View.GONE);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
                     }
 
                     @Override
