@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
-public class CustomOptionsAdapter extends ArrayAdapter {
+public class CustomOptionsAdapter extends ArrayAdapter<String> {
 
     private String[] options;
 

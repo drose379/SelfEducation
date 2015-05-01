@@ -18,6 +18,7 @@ import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -31,6 +32,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import android.net.Uri;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -45,6 +47,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 
 import dylanrose60.selfeducation.R;
 
@@ -162,58 +166,28 @@ public class LCreateDialog4 extends DialogFragment {
                     public void onNeutral(MaterialDialog dialog) {
                         Log.i("neutralPressed","Neutral Pressed");
 
-                        /*
-                            * Add progresswheel to img_picker XML layout and set its visibility to Visible when neutral is pressed
-                            * Set visibility to GONE when all info is returned
-                         */
+                        List<Drawable> stockImages = new ArrayList<Drawable>();
 
-                        ProgressWheel wheel = (ProgressWheel) dialogLayout.findViewById(R.id.progSpinner);
-                        wheel.setVisibility(View.VISIBLE);
+                        for(int i = 1;i<5;i++) {
+                            /*
+                            //Need to get smaller version of drawable to solve OutOfMemoryError
+                            Drawable currentImage = getActivity().getResources()
+                                    .getDrawable(getResources().getIdentifier("stock_"+i,"drawable",getActivity().getPackageName()));
+                            stockImages.add(currentImage);
+                            */
+                            String drawableURI = "stock_" + i;
+                            int imageResource = getResources().getIdentifier(drawableURI,"drawable",getActivity().getPackageName());
+                            Drawable drawable = getResources().getDrawable(imageResource);
 
-                        /*Need to create a listview with all stock photos inside, once user selects photo, buildLesson()
-                            * Get all Bitmaps in a list List<Bitmap>
-                            * Create ListView
-                            * Create custom ListView adapter that adds each image to view
-                            * Create onClickListener for images that gives link to selected image
-                        */
-                        Request.Builder builder = new Request.Builder();
-                        builder.url("http://codeyourweb.net/httpTest/index.php/getStockImages");
-                        Request request = builder.build();
-                        Call newCall = httpClient.newCall(request);
-                        newCall.enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Request request, IOException e) {
-                                Log.i("stockImagesInfo","Failure");
-                            }
+                            stockImages.add(drawable);
+                        }
+                        //Need to add ListView to img_picker layout with Visibility.GONE and change visibility to Visibile here, then create / use the adapter
+                        Log.i("stockImages",String.valueOf(stockImages.size()));
 
-                            @Override
-                            public void onResponse(Response response) throws IOException {
+                        ListView imageList = (ListView) dialogLayout.findViewById(R.id.stockImageList);
+                        ArrayAdapter<Drawable> adapter = new StockImageListAdapter(getActivity(),stockImages,R.layout.stock_image_layout);
+                        imageList.setAdapter(adapter);
 
-                                Log.i("stockImagesInfo", "Called");
-                                String responseString = response.body().string();
-                                Log.i("stockImagesInfo",String.valueOf(responseString.length()));
-
-                                try {
-
-                                    /*
-                                        * Ship application with all stock images pre-loaded, put them in their own dir and put them in a ListView
-
-                                    Loop over i for the amount of stock images there are,
-                                    Inside the loop, use I to grab the current drawable
-                                    Add current drawable to List<Drawable>
-                                    Use that list in the adapter to make a ListView of images to choose from
-
-                                    Drawable test = getActivity().getResources()
-                                            .getDrawable(getResources().getIdentifier("stock_"+i,"drawable",getActivity().getPackageName()));
-                                    */
-                                    JSONArray masterResp = new JSONArray(responseString);
-                                    Log.i("stockImagesInfo", String.valueOf(masterResp.length()));
-                                    dialogLayout.findViewById(R.id.progSpinner).setVisibility(View.GONE);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
                     }
 
                     @Override
