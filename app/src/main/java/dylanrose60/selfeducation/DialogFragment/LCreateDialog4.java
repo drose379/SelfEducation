@@ -62,6 +62,7 @@ public class LCreateDialog4 extends DialogFragment {
 
     //private File imgFile;
     private Bitmap imgBitmap;
+    private String stockImageName;
 
     public interface Listener {
         public void getDefaultImage(Bitmap imgBitmap);
@@ -158,7 +159,8 @@ public class LCreateDialog4 extends DialogFragment {
                         if (imgBitmap != null) {
                             listener.getDefaultImage(imgBitmap);
                         } else {
-                            //Do not dismiss, ask user to choose a photo (offer stock photos)
+                            //get image name from property set by method
+
                         }
                     }
 
@@ -185,7 +187,7 @@ public class LCreateDialog4 extends DialogFragment {
                         Log.i("stockImages",String.valueOf(stockImages.size()));
 
                         ListView imageList = (ListView) dialogLayout.findViewById(R.id.stockImageList);
-                        ArrayAdapter<Drawable> adapter = new StockImageListAdapter(getActivity(),stockImages,R.layout.stock_image_layout);
+                        ArrayAdapter<Drawable> adapter = new StockImageListAdapter(LCreateDialog4.this,getActivity(),stockImages,R.layout.stock_image_layout);
                         imageList.setAdapter(adapter);
 
                     }
@@ -198,6 +200,28 @@ public class LCreateDialog4 extends DialogFragment {
 
         MaterialDialog dialog = builder.build();
         return dialog;
+    }
+
+    public void setStockDrawable(Drawable drawable,String imageName) {
+        stockImageName = imageName;
+        int resID = getResources().getIdentifier(imageName,"drawable",getActivity().getPackageName());
+        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),resID);
+        this.imgBitmap = bitmap;
+
+        ImageView testImg = (ImageView) dialogLayout.findViewById(R.id.testImg);
+        ListView stockImageList = (ListView) dialogLayout.findViewById(R.id.stockImageList);
+
+        stockImageList.setVisibility(View.GONE);
+
+        testImg.setVisibility(View.VISIBLE);
+        testImg.setImageBitmap(bitmap);
+
+        /*
+            * buildLesson(Bitmap) needs to accept a new parameter (boolean) telling whether image is stockImage or not
+            * if image is stock image, do not upload to server, simply save string with drawable name to the URL col in table
+            * BUG: Once stock image is chosen, stock image button in dialog does not work again
+         */
+
     }
 
 }
