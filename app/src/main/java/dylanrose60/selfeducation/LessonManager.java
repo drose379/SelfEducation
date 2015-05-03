@@ -52,6 +52,8 @@ public class LessonManager {
     private List<String> objectives = new ArrayList<>();
     private List<String> tags = new ArrayList<>();
 
+    private boolean isStockImage;
+    private String stockName;
 
     //private File imageFile;
     private Bitmap imageBitmap;
@@ -94,8 +96,12 @@ public class LessonManager {
         this.listener = listener;
     }
 
-    public void setImgFile(Bitmap imageBitmap) {
+    public void setImgFile(Bitmap imageBitmap,String stockName,boolean isStockImage) {
         this.imageBitmap = imageBitmap;
+        this.isStockImage = isStockImage;
+        this.stockName = stockName;
+        //Need to get stock image name, pass null to it if no stock image used
+        //this.stockImageName = stockName;
     }
 
     public void setImageURL(String url) {
@@ -136,9 +142,16 @@ public class LessonManager {
 
     public void buildLesson() {
 
-        showLoadingDialog();
+        if (isStockImage) {
+            addFullLessonInfo(true);
+            showLoadingDialog();
+            //Working
+            Log.i("stockName",stockName);
+        } else {
 
-        String base64Image = toBase64();
+            showLoadingDialog();
+
+            String base64Image = toBase64();
 
         /*
             * Upload base64 string to script
@@ -147,47 +160,54 @@ public class LessonManager {
             * Get URI to the image and save to DB with rest of lesson data
          */
 
-        List<String> key = new ArrayList<String>();
-        List<String> value = new ArrayList<String>();
+            List<String> key = new ArrayList<String>();
+            List<String> value = new ArrayList<String>();
 
-        key.add("base64Image");
-        value.add(base64Image);
+            key.add("base64Image");
+            value.add(base64Image);
 
-        String jsonReady = null;
+            String jsonReady = null;
 
-        try {
-            jsonReady = CommunicationUtil.toJSONString(key,value);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            try {
+                jsonReady = CommunicationUtil.toJSONString(key, value);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            RequestBody body = RequestBody.create(mediaType, jsonReady);
+            Request.Builder builder = new Request.Builder();
+            builder.url("http://codeyourweb.net/httpTest/index.php/setDefaultImage");
+            builder.post(body);
+            Request request = builder.build();
+            Call call = client.newCall(request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Request request, IOException e) {
+
+                }
+
+                @Override
+                public void onResponse(Response response) throws IOException {
+                    imageSavedURL = response.body().string();
+                    Log.i("serverResp", imageSavedURL);
+                    addFullLessonInfo(false);
+                }
+            });
+
         }
-
-        RequestBody body = RequestBody.create(mediaType,jsonReady);
-        Request.Builder builder = new Request.Builder();
-        builder.url("http://codeyourweb.net/httpTest/index.php/setDefaultImage");
-        builder.post(body);
-        Request request = builder.build();
-        Call call = client.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                imageSavedURL = response.body().string();
-                Log.i("serverResp",imageSavedURL);
-                addFullLessonInfo();
-            }
-        });
-
     }
 
-    public void addFullLessonInfo() {
+    public void addFullLessonInfo(boolean stockImage) {
 
         /*
             * Need to make tags and objectives into JSONArray before adding it to List
             * Is it bad to not have <String> identifier for the List
+         */
+
+        /*
+            * !!!
+            * Need to act upon the stockImage boolean, if image is stock, replace imageURL with stock image name (stock_2) stockName property
+            * !!!
          */
 
         String finalJSON = completeJSONBuilder();
@@ -400,7 +420,11 @@ public class LessonManager {
             builder.key("tags");
             builder.value(tagsJSON); //Remove toArray()
             builder.key("imgUri");
-            builder.value(imageSavedURL);
+            if (isStockImage) {
+                builder.value(stockName);
+            } else {
+                builder.value(imageSavedURL);
+            }
             builder.endObject();
             return builder.toString();
         } catch (JSONException e) {

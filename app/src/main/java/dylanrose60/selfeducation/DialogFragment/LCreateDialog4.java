@@ -64,8 +64,10 @@ public class LCreateDialog4 extends DialogFragment {
     private Bitmap imgBitmap;
     private String stockImageName;
 
+    private boolean stockImageSet;
+
     public interface Listener {
-        public void getDefaultImage(Bitmap imgBitmap);
+        public void getDefaultImage(Bitmap imgBitmap,String stockImageName,boolean isStockImage);
     }
 
     @Override
@@ -157,10 +159,11 @@ public class LCreateDialog4 extends DialogFragment {
                         //if it is NOT null, send to listener which will create the lesson
                         dialog.dismiss();
                         if (imgBitmap != null) {
-                            listener.getDefaultImage(imgBitmap);
-                        } else {
-                            //get image name from property set by method
-
+                            if (!stockImageSet) {
+                                listener.getDefaultImage(imgBitmap,null,false);
+                            } else {
+                                listener.getDefaultImage(imgBitmap,stockImageName,true);
+                            }
                         }
                     }
 
@@ -207,6 +210,7 @@ public class LCreateDialog4 extends DialogFragment {
         int resID = getResources().getIdentifier(imageName,"drawable",getActivity().getPackageName());
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(),resID);
         this.imgBitmap = bitmap;
+        this.stockImageSet = true;
 
         ImageView testImg = (ImageView) dialogLayout.findViewById(R.id.testImg);
         ListView stockImageList = (ListView) dialogLayout.findViewById(R.id.stockImageList);

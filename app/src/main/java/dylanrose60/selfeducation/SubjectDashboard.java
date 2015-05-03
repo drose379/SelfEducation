@@ -285,8 +285,8 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     }
 
     @Override
-    public void getDefaultImage(Bitmap image) {
-        manager.setImgFile(image);
+    public void getDefaultImage(Bitmap image,String stockName,boolean isStockImage) {
+        manager.setImgFile(image,stockName,isStockImage);
         buildLesson();
     }
 

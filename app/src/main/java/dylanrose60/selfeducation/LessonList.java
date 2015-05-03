@@ -20,6 +20,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONStringer;
@@ -33,8 +34,6 @@ public class LessonList extends ActionBarActivity{
     private String subject;
     private String ownerID;
     private String type;
-
-    private String thisSubBookmarks;
 
     //Testing
     private Handler handler = new Handler();
@@ -98,19 +97,17 @@ public class LessonList extends ActionBarActivity{
                 Log.i("bookmarkLessons",responseString);
                 JSONObject respObject;
                 try {
+
                     respObject = new JSONObject(responseString);
-                    thisSubBookmarks = respObject.getString(subject);
+                    String bookmarks = respObject.getString(subject);
+
+                    JSONArray bookmarkLessons = new JSONArray(bookmarks);
+
+                    buildList(bookmarkLessons,1);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                //for debug
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(LessonList.this,thisSubBookmarks,Toast.LENGTH_LONG).show();
-                    }
-                });
-
             }
         });
     }
@@ -147,6 +144,13 @@ public class LessonList extends ActionBarActivity{
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
                 Log.i("localLessons",responseString);
+                try {
+                    JSONArray allLocalLessons = new JSONArray(responseString);
+                    Log.i("locLessonCount",String.valueOf(allLocalLessons.length()));
+                    buildList(allLocalLessons,0);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -185,6 +189,25 @@ public class LessonList extends ActionBarActivity{
                 Log.i("publicLessons",responseString);
             }
         });
+    }
+
+    public void buildList(JSONArray lessons,int type) throws JSONException {
+        /*
+            * Type key:
+            * 0 : local
+            * 1 : bookmark
+            * 2: public
+            *
+            * To get inside JSONArray use JSONObject
+            * EXAMPLE: JSONObject innerArray = (JSONObject) lessons.get(0);
+         */
+
+        /*
+            * Create listview in lesson_list_view.xml
+            * Create card layout for each lesson
+            * Create Adapter that extends ArrayAdapter, gets passed the JSONArray and the type, works according to type (names of cols to be pulled from Array)
+        */
+
     }
 
 }
