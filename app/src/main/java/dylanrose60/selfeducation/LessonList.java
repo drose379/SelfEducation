@@ -192,6 +192,7 @@ public class LessonList extends ActionBarActivity{
     }
 
     public void buildList(JSONArray lessons,int type) throws JSONException {
+
         /*
             * Type key:
             * 0 : local
@@ -207,6 +208,8 @@ public class LessonList extends ActionBarActivity{
             * Create card layout for each lesson
             * Create Adapter that extends ArrayAdapter, gets passed the JSONArray and the type, works according to type (names of cols to be pulled from Array)
         */
+
+        ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
 
     }
 

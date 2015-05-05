@@ -31,6 +31,9 @@ public class StockImageListAdapter extends ArrayAdapter<Drawable> {
 
     @Override
     public View getView(int position,View recycledView,ViewGroup parent) {
+
+        Log.i("imgPos",String.valueOf(position));
+
         View v = recycledView;
 
         if (recycledView == null) {
