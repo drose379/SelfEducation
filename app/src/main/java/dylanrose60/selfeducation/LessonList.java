@@ -1,5 +1,6 @@
 package dylanrose60.selfeducation;
 
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,6 +39,7 @@ public class LessonList extends ActionBarActivity{
     //Testing
     private Handler handler = new Handler();
     private OkHttpClient httpClient = new OkHttpClient();
+    private AsyncImageGrab aSyncImageGrab = new AsyncImageGrab();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -212,22 +214,39 @@ public class LessonList extends ActionBarActivity{
 
         List<JSONObject> lessonInfo = new ArrayList<JSONObject>();
 
+        /*
+            * Need to use AsyncImageGrabber to grab all images for each lesson
+            * Add the bitmap to the List, send to adapter with regular info
+         */
+
         for (int i = 0; i<lessons.length();i++) {
             JSONObject currentObj = (JSONObject) lessons.get(i);
             lessonInfo.add(currentObj);
         }
 
+        aSyncImageGrab.execute(lessonInfo);
+
+
+
+
         final ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
-        final LessonListAdapter adapter = new LessonListAdapter(this,lessonInfo);
+        //final LessonListAdapter adapter = new LessonListAdapter(this,lessonInfo);
 
-
+/*
         handler.post(new Runnable() {
             @Override
             public void run() {
                 lessonListView.setAdapter(adapter);
             }
         });
+*/
+    }
 
+    public static void asyncCallback(List<Bitmap> lessonImages) {
+        Log.i("asCallback","Callback called");
+        /*
+            * Get ref to listview and listview adapter here, assign listview adapter to listview, making sure all data is grabbed
+         */
     }
 
 }

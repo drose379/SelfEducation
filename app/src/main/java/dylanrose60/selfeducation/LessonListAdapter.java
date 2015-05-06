@@ -24,7 +24,7 @@ public class LessonListAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     static List<Bitmap> lessonImages = new ArrayList<Bitmap>();
 
-    public LessonListAdapter(Context context,List<JSONObject> lessons) {
+    public LessonListAdapter(Context context,List<JSONObject> lessons,List<Bitmap> lessonImages) {
         inflater = LayoutInflater.from(context);
         this.lessons = lessons;
 
@@ -38,15 +38,6 @@ public class LessonListAdapter extends BaseAdapter {
             *
          */
 
-        AsyncImageGrab imageGrab = new AsyncImageGrab();
-
-        //Create for loop over List<JSONObject>, call AsyncImageGrabber for each (giving url) and let AsyncImageGrabber do the rest
-
-
-    }
-
-    public static void callback(Bitmap lessonImage) {
-        //Add the lessonImage bitmap to the List<Bitmap> called lessonImages
     }
 
     @Override
