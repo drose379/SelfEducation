@@ -207,9 +207,26 @@ public class LessonList extends ActionBarActivity{
             * Create listview in lesson_list_view.xml
             * Create card layout for each lesson
             * Create Adapter that extends ArrayAdapter, gets passed the JSONArray and the type, works according to type (names of cols to be pulled from Array)
+            * Need to create List<JSONObject> instead of passing JSONArray to adapter
         */
 
-        ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
+        List<JSONObject> lessonInfo = new ArrayList<JSONObject>();
+
+        for (int i = 0; i<lessons.length();i++) {
+            JSONObject currentObj = (JSONObject) lessons.get(i);
+            lessonInfo.add(currentObj);
+        }
+
+        final ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
+        final LessonListAdapter adapter = new LessonListAdapter(this,lessonInfo);
+
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                lessonListView.setAdapter(adapter);
+            }
+        });
 
     }
 
