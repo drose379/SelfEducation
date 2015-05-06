@@ -7,56 +7,56 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.util.Log;
+
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class AsyncImageGrab extends AsyncTask<List<JSONObject>,Void,String> {
+public class ImageGrabUtil {
 
     private Context ctxt;
     private List<Bitmap> lessonImages = new ArrayList<Bitmap>();
+    private byte[] iBytes = null;
+    private OkHttpClient httpClient = new OkHttpClient();
 
-    public AsyncImageGrab(Context context) {
+    public ImageGrabUtil(Context context) {
         this.ctxt = context;
     }
 
 
-    @Override
-    public void onPreExecute() {
-
-    }
-
-    @Override
-    public String doInBackground(List<JSONObject>... lessonInfo) {
+    public String doInBackground(List<JSONObject> lessonInfo) {
         //use url to grab image from sever, use php to grab it and recieve a base64 string.
         //base64->byte[]->bitmap
         //Loop over all strings passed
         //To get imageURL use : imageURL[0]
 
-        List<JSONObject> lessons = lessonInfo[0];
 
-        for (JSONObject currentObj : lessons) {
+        for (JSONObject currentObj : lessonInfo) {
             try {
                 String imageURL = currentObj.getString("imageURL");
                 Bitmap currentImage = getCurrentImage(imageURL);
+                lessonImages.add(currentImage);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
         }
 
         return "hey";
-    }
-
-    @Override
-    public void onPostExecute(String s) {
-        //Call LessonListAdpater Callback method and give it the Bitmap
-        //LessonList.asyncCallback(bitmaps);
     }
 
     public Bitmap getCurrentImage(String url) {
@@ -85,8 +85,47 @@ public class AsyncImageGrab extends AsyncTask<List<JSONObject>,Void,String> {
         } else {
             //Make http request with URL to grab bitmap
             //assign to bitmap
+            byte[] bteArray = imageRequest(url);
+            bitmap = BitmapFactory.decodeByteArray(bteArray,0,bteArray.length);
         }
         return bitmap;
+    }
+
+    public byte[] imageRequest(String url) {
+
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("url");
+        value.add(url);
+
+        String jsonBody = null;
+
+        try {
+            jsonBody = CommunicationUtil.toJSONString(key, value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),jsonBody);
+        Request.Builder builder = new Request.Builder();
+        builder.url("http://codeyourweb.net/httpTest/index.php/getImageFromURL");
+        builder.post(body);
+        Request request = builder.build();
+        Call call = httpClient.newCall(request);
+
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Response response) throws IOException {
+                iBytes = Base64.decode(response.body().string(),Base64.DEFAULT);
+            }
+
+            @Override
+            public void onFailure(Request request, IOException e) {
+
+            }
+        });
+        throw new RuntimeException();
     }
 
 }

@@ -39,7 +39,7 @@ public class LessonList extends ActionBarActivity{
     //Testing
     private Handler handler = new Handler();
     private OkHttpClient httpClient = new OkHttpClient();
-    private AsyncImageGrab aSyncImageGrab = new AsyncImageGrab();
+    private AsyncImageGrab aSyncImageGrab = new AsyncImageGrab(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -227,19 +227,6 @@ public class LessonList extends ActionBarActivity{
         aSyncImageGrab.execute(lessonInfo);
 
 
-
-
-        final ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
-        //final LessonListAdapter adapter = new LessonListAdapter(this,lessonInfo);
-
-/*
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                lessonListView.setAdapter(adapter);
-            }
-        });
-*/
     }
 
     public static void asyncCallback(List<Bitmap> lessonImages) {
