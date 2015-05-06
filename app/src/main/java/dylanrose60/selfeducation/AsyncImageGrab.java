@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -72,6 +74,19 @@ public class AsyncImageGrab extends AsyncTask<List<JSONObject>,Void,String> {
 
         //Else, make a request to server with the URL and get the base64 string back,
         //base64->byte[]->Bitmap
+
+        Bitmap bitmap = null;
+
+        if (url.contains("stock")) {
+            int id = ctxt.getResources().getIdentifier(url,"drawable",ctxt.getPackageName());
+            Drawable d = ctxt.getResources().getDrawable(id);
+            //cast Drawable to BitmapDrawable and call getBitmap from it, to get bitmap
+            bitmap = ((BitmapDrawable)d).getBitmap();
+        } else {
+            //Make http request with URL to grab bitmap
+            //assign to bitmap
+        }
+        return bitmap;
     }
 
 }
