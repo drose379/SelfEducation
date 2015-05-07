@@ -30,16 +30,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LessonList extends ActionBarActivity{
+public class LessonList extends ActionBarActivity implements ImageGrabUtil.imageCallback {
 
     private String subject;
     private String ownerID;
     private String type;
 
+    private List<JSONObject> lessonInfo;
+
     //Testing
     private Handler handler = new Handler();
     private OkHttpClient httpClient = new OkHttpClient();
-    private AsyncImageGrab aSyncImageGrab = new AsyncImageGrab(this);
+    private ImageGrabUtil imageGrab = new ImageGrabUtil(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -103,9 +105,9 @@ public class LessonList extends ActionBarActivity{
                     respObject = new JSONObject(responseString);
                     String bookmarks = respObject.getString(subject);
 
-                    JSONArray bookmarkLessons = new JSONArray(bookmarks);
+                    JSONArray currentLessons = new JSONArray(bookmarks);
 
-                    buildList(bookmarkLessons,1);
+                    buildList(currentLessons,1);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -147,9 +149,9 @@ public class LessonList extends ActionBarActivity{
                 String responseString = response.body().string();
                 Log.i("localLessons",responseString);
                 try {
-                    JSONArray allLocalLessons = new JSONArray(responseString);
-                    Log.i("locLessonCount",String.valueOf(allLocalLessons.length()));
-                    buildList(allLocalLessons,0);
+                    JSONArray currentLessons = new JSONArray(responseString);
+                    Log.i("locLessonCount",String.valueOf(currentLessons.length()));
+                    buildList(currentLessons,0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -188,7 +190,7 @@ public class LessonList extends ActionBarActivity{
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
-                Log.i("publicLessons",responseString);
+                Log.i("publicLessons", responseString);
             }
         });
     }
@@ -223,17 +225,26 @@ public class LessonList extends ActionBarActivity{
             JSONObject currentObj = (JSONObject) lessons.get(i);
             lessonInfo.add(currentObj);
         }
-
-        aSyncImageGrab.execute(lessonInfo);
+        this.lessonInfo = lessonInfo;
+        imageGrab.doInBackground(lessonInfo);
 
 
     }
 
-    public static void asyncCallback(List<Bitmap> lessonImages) {
-        Log.i("asCallback","Callback called");
-        /*
-            * Get ref to listview and listview adapter here, assign listview adapter to listview, making sure all data is grabbed
-         */
+    @Override
+    public void onImageCallback(List<Bitmap> lessonImages) {
+        final ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
+        final LessonListAdapter adapter = new LessonListAdapter(this,lessonInfo,lessonImages);
+        //need to post back to UI thread
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                lessonListView.setAdapter(adapter);
+            }
+        });
+
+        Log.i("adapterSet", "Adapter set");
     }
+
 
 }

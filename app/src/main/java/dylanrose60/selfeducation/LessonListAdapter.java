@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +28,7 @@ public class LessonListAdapter extends BaseAdapter {
     public LessonListAdapter(Context context,List<JSONObject> lessons,List<Bitmap> lessonImages) {
         inflater = LayoutInflater.from(context);
         this.lessons = lessons;
+        this.lessonImages = lessonImages;
 
         Log.i("lessonSize",String.valueOf(lessons.size()));
 
@@ -82,7 +84,12 @@ public class LessonListAdapter extends BaseAdapter {
 
         JSONObject currentInfo = lessons.get(position);
 
-
+        ImageView headImage = (ImageView) v.findViewById(R.id.lCardImage);
+        Bitmap bitmap = lessonImages.get(position);
+        if (bitmap == null) {
+            Log.i("bitNull","Bitmap is null" + String.valueOf(position));
+        }
+        headImage.setImageBitmap(bitmap);
         return v;
     }
 
