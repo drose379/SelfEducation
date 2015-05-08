@@ -10,6 +10,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.joooonho.SelectableRoundedImageView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -83,11 +86,18 @@ public class LessonListAdapter extends BaseAdapter {
         //Base64->byteArray->Bitmap
 
         JSONObject currentInfo = lessons.get(position);
+        Log.i("currentInfo",currentInfo.toString());
 
-        ImageView headImage = (ImageView) v.findViewById(R.id.lCardImage);
+        SelectableRoundedImageView headImage = (SelectableRoundedImageView) v.findViewById(R.id.headImage);
+        TextView titleText = (TextView) v.findViewById(R.id.headText);
+        headImage.setCornerRadiiDP(3,3,0,0);
+
         Bitmap bitmap = lessonImages.get(position);
-        if (bitmap == null) {
-            Log.i("bitNull","Bitmap is null" + String.valueOf(position));
+        try {
+            String lessonName = currentInfo.getString("lesson_name");
+            titleText.setText(lessonName);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
         headImage.setImageBitmap(bitmap);
         return v;

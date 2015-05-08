@@ -123,10 +123,9 @@ public class ImageGrabUtil {
                 Log.i("currentBytes",(String)base64Images.get(i));
             }
             Bitmap currentBitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
-            if (currentBitmap == null) {
-                Log.i("currentBitmap", "This bitmap is null!");
-            }
-            lessonImages.add(currentBitmap);
+            Bitmap scaledBitmap = Bitmap.createScaledBitmap(currentBitmap,500,250,false);
+
+            lessonImages.add(scaledBitmap);
         }
         listener.onImageCallback(lessonImages);
     }

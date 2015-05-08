@@ -129,6 +129,9 @@ public class LCreateDialog4 extends DialogFragment {
         try {
             InputStream input = getActivity().getContentResolver().openInputStream(imgUri);
             imgBitmap = BitmapFactory.decodeStream(input);
+            //Need to resize bitmap before setting it (use createScaledBitmap)
+            //needs to get bigger
+            imgBitmap = Bitmap.createScaledBitmap(imgBitmap,600,400,false);
             testImg.setImageBitmap(imgBitmap);
         } catch (IOException e) {
             e.printStackTrace();
