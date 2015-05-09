@@ -21,19 +21,17 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 public class LessonListAdapter extends BaseAdapter {
 
-    private List<JSONObject> lessons;
     private LayoutInflater inflater;
-    static List<Bitmap> lessonImages = new ArrayList<Bitmap>();
+    private List<LessonPackage> lessonPacks;
 
-    public LessonListAdapter(Context context,List<JSONObject> lessons,List<Bitmap> lessonImages) {
+    public LessonListAdapter(Context context,List<LessonPackage> lessonPacks) {
         inflater = LayoutInflater.from(context);
-        this.lessons = lessons;
-        this.lessonImages = lessonImages;
-
-        Log.i("lessonSize",String.valueOf(lessons.size()));
+        this.lessonPacks = lessonPacks;
+        Log.i("lessonSize",String.valueOf(lessonPacks.size()));
 
         /*
             * Loop over each JSONObject in lessons
@@ -47,12 +45,12 @@ public class LessonListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return lessons.size();
+        return lessonPacks.size();
     }
 
     @Override
-    public JSONObject getItem(int position) {
-        return lessons.get(position);
+    public LessonPackage getItem(int position) {
+        return lessonPacks.get(position);
     }
 
     @Override
@@ -85,21 +83,19 @@ public class LessonListAdapter extends BaseAdapter {
 
         //Base64->byteArray->Bitmap
 
-        JSONObject currentInfo = lessons.get(position);
-        Log.i("currentInfo",currentInfo.toString());
+
 
         SelectableRoundedImageView headImage = (SelectableRoundedImageView) v.findViewById(R.id.headImage);
         TextView titleText = (TextView) v.findViewById(R.id.headText);
         headImage.setCornerRadiiDP(3,3,0,0);
 
-        Bitmap bitmap = lessonImages.get(position);
-        try {
-            String lessonName = currentInfo.getString("lesson_name");
-            titleText.setText(lessonName);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        LessonPackage currentLesson = lessonPacks.get(position);
+        Bitmap bitmap = currentLesson.getImage();
+        String lessonName = currentLesson.getName();
+
+        titleText.setText(lessonName);
         headImage.setImageBitmap(bitmap);
+
         return v;
     }
 

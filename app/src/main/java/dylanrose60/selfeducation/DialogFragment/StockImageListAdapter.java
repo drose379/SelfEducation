@@ -72,6 +72,25 @@ public class StockImageListAdapter extends ArrayAdapter<Drawable> {
                         drawableURI = "stock_4";
                         StockImageListAdapter.this.parentDialog.setStockDrawable(stockImage,drawableURI);
                         break;
+                    case 4:
+                        drawableURI = "stock_5";
+                        StockImageListAdapter.this.parentDialog.setStockDrawable(stockImage,drawableURI);
+                        break;
+                    case 5:
+                        drawableURI = "stock_6";
+                        StockImageListAdapter.this.parentDialog.setStockDrawable(stockImage,drawableURI);
+                        break;
+                    case 6:
+                        drawableURI = "stock_7";
+                        StockImageListAdapter.this.parentDialog.setStockDrawable(stockImage,drawableURI);
+                        break;
+                    case 7:
+                        drawableURI = "stock_8";
+                        StockImageListAdapter.this.parentDialog.setStockDrawable(stockImage,drawableURI);
+                        break;
+                    case 8:
+                        drawableURI = "stock_9";
+                        StockImageListAdapter.this.parentDialog.setStockDrawable(stockImage,drawableURI);
                 }
 
             }

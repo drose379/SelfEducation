@@ -177,7 +177,7 @@ public class LCreateDialog4 extends DialogFragment {
 
                         List<Drawable> stockImages = new ArrayList<Drawable>();
 
-                        for(int i = 1;i<5;i++) {
+                        for(int i = 1;i<10;i++) {
                             /*
                             //Need to get smaller version of drawable to solve OutOfMemoryError
                             Drawable currentImage = getActivity().getResources()

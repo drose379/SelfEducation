@@ -7,6 +7,7 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -39,7 +40,7 @@ public class LCreateDialog2 extends DialogFragment {
 
         final LinearLayout dialogLayout = (LinearLayout) LayoutInflater.from(getActivity()).inflate(R.layout.new_lesson_layout, null);
 
-        EditText editText1 = new EditText(getActivity());
+        final EditText editText1 = new EditText(getActivity());
         dialogLayout.addView(editText1);
 
         MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity())
@@ -57,8 +58,12 @@ public class LCreateDialog2 extends DialogFragment {
                     public void onPositive(MaterialDialog dialog) {
                         //Send dialog (View) to method inside frag to pull EditText data
                         List<String> objectives = getObjectiveValues((ViewGroup)dialog.getCustomView());
-                        listener.getObjectives(objectives);
-                        LCreateDialog2.this.dismiss();
+                        if (objectives.size() == 0) {
+                            editText1.setError("Please add at least one objective!");
+                        } else {
+                            listener.getObjectives(objectives);
+                            LCreateDialog2.this.dismiss();
+                        }
                     }
 
                     @Override

@@ -28,6 +28,7 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class LessonList extends ActionBarActivity implements ImageGrabUtil.imageCallback {
@@ -83,7 +84,7 @@ public class LessonList extends ActionBarActivity implements ImageGrabUtil.image
             e.printStackTrace();
         }
 
-        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),ownerIDJSON);
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"), ownerIDJSON);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
         builder.url("http://codeyourweb.net/httpTest/index.php/getBookmarkLessons");
@@ -227,15 +228,16 @@ public class LessonList extends ActionBarActivity implements ImageGrabUtil.image
         }
         this.lessonInfo = lessonInfo;
         imageGrab.doInBackground(lessonInfo);
-
-
     }
 
     @Override
-    public void onImageCallback(List<Bitmap> lessonImages) {
+    public void onImageCallback(List<LessonPackage> lessonPacks) {
+        getLessonObjectives(lessonPacks);
         final ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
-        final LessonListAdapter adapter = new LessonListAdapter(this,lessonInfo,lessonImages);
+        final LessonListAdapter adapter = new LessonListAdapter(this,lessonPacks);
+
         //need to post back to UI thread
+        //Move this to onResponse of getLessonObjectives method
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -243,7 +245,49 @@ public class LessonList extends ActionBarActivity implements ImageGrabUtil.image
             }
         });
 
-        Log.i("adapterSet", "Adapter set");
+    }
+
+    public void getLessonObjectives(List<LessonPackage> lessonPacks) {
+        JSONArray jsonNames = new JSONArray();
+        for(LessonPackage pack : lessonPacks) {
+            String lessonName = pack.getName();
+            jsonNames.put(lessonName);
+        }
+
+        List<String> key = new ArrayList<String>();
+        List<String> value = new ArrayList<String>();
+
+        key.add("lessons");
+        value.add(jsonNames.toString());
+
+        String jsonString = null;
+
+        try {
+            jsonString = CommunicationUtil.toJSONString(key, value);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+        RequestBody body = RequestBody.create(MediaType.parse("application/json;charset=utf-8"),jsonString);
+        Request.Builder builder = new Request.Builder()
+                .post(body)
+                .url();
+        Request request = builder.build();
+        Call call = httpClient.newCall(request);
+        call.enqueue(new Callback() {
+            @Override
+            public void onResponse(Response response) throws IOException {
+                //API script will return arrays of lesson names and chosen objective
+                //Match up lesson names to each item already inside of lessonPacks
+                //Use lessonPacks .setObjective() method to set new objective
+                //add the adapter here instead of in callback above
+            }
+            @Override
+            public void onFailure(Request request,IOException e) {
+
+            }
+        });
     }
 
 

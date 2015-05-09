@@ -10,12 +10,19 @@
         >
     </include>
 
-    <ListView
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@color/ColorMenuAccent">
+
+
+        <ListView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/lessonListView"
         >
-    </ListView>
+        </ListView>
 
+    </LinearLayout>
 
 </LinearLayout>
