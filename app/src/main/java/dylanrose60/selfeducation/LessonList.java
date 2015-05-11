@@ -96,7 +96,7 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
                 Log.i("bookmarkLessons",responseString);
                 try {
                     JSONArray currentLessons = new JSONArray(responseString);
-                    buildList(currentLessons,1);
+                    buildList(currentLessons,null,1);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -137,8 +137,10 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
                 String responseString = response.body().string();
                 Log.i("localLessons",responseString);
                 try {
-                    JSONArray currentLessons = new JSONArray(responseString);
-                    buildList(currentLessons, 0);
+                    JSONObject master = new JSONObject(responseString);
+                    JSONArray currentLessons = master.getJSONArray("lessonInfo");
+                    JSONArray objectives = master.getJSONArray("objectives");
+                    buildList(currentLessons,objectives, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -182,7 +184,7 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
         });
     }
 
-    public void buildList(JSONArray lessons,int type) throws JSONException {
+    public void buildList(JSONArray lessons,JSONArray objectives,int type) throws JSONException {
 
         /*
             * Type key:
@@ -202,6 +204,7 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
         */
 
         List<JSONObject> lessonInfo = new ArrayList<JSONObject>();
+        List<JSONObject> lessonObjectives = new ArrayList<JSONObject>();
 
         /*
             * Need to use AsyncImageGrabber to grab all images for each lesson
@@ -212,7 +215,14 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
             JSONObject currentObj = (JSONObject) lessons.get(i);
             lessonInfo.add(currentObj);
         }
-        imageGrab.getLocalImages(lessonInfo);
+
+        //loop over objectives JSONArray to get objects and add them to list, see code above
+        for (int i = 0;i<objectives.length();i++) {
+            JSONObject currentObject = objectives.getJSONObject(i);
+            lessonObjectives.add(currentObject);
+        }
+
+        imageGrab.getImages(lessonInfo,lessonObjectives);
     }
 
     @Override

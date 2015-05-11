@@ -87,13 +87,16 @@ public class LessonListAdapter extends BaseAdapter {
 
         SelectableRoundedImageView headImage = (SelectableRoundedImageView) v.findViewById(R.id.headImage);
         TextView titleText = (TextView) v.findViewById(R.id.headText);
+        TextView objectiveText = (TextView) v.findViewById(R.id.objectiveText);
         headImage.setCornerRadiiDP(3,3,0,0);
 
         LessonPackage currentLesson = lessonPacks.get(position);
         Bitmap bitmap = currentLesson.getImage();
         String lessonName = currentLesson.getName();
+        String objective = currentLesson.getObjective();
 
         titleText.setText(lessonName);
+        objectiveText.setText(objective);
         headImage.setImageBitmap(bitmap);
 
         return v;

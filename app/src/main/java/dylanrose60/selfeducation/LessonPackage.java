@@ -8,8 +8,9 @@ public class LessonPackage {
     private Bitmap lessonImage;
     private String objective;
 
-    public LessonPackage(String lessonName,Bitmap lessonImage) {
+    public LessonPackage(String lessonName,String objective,Bitmap lessonImage) {
         this.lessonName = lessonName;
+        this.objective = objective;
         this.lessonImage = lessonImage;
     }
 
@@ -19,9 +20,7 @@ public class LessonPackage {
     public Bitmap getImage() {
         return this.lessonImage;
     }
-    public void setObjective(String objective) {
-        this.objective = objective;
-    }
+
     public String getObjective() {
         return this.objective;
     }

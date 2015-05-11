@@ -23,13 +23,13 @@
 
             <com.joooonho.SelectableRoundedImageView
                 android:layout_width="fill_parent"
-                android:layout_height="150dp"
+                android:layout_height="120dp"
                 android:scaleType="fitXY"
                 android:id="@+id/headImage"/>
 
             <RelativeLayout
                 android:layout_width="fill_parent"
-                android:layout_height="150dp"
+                android:layout_height="120dp"
                 android:background="#B3000000"
                 >
 
@@ -44,12 +44,13 @@
                 android:text="Testing"/>
 
             <TextView
+                android:id="@+id/objectiveText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/ColorMenuAccent"
                 android:layout_alignParentBottom="true"
                 android:gravity="center_horizontal"
-                android:layout_marginBottom="30dp"
+                android:layout_marginBottom="5dp"
                 android:textStyle="italic"
                 android:text="One of the lessons objectives will be pulled from DB table and placed here"
                 />

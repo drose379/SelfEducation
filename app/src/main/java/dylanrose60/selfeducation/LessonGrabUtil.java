@@ -49,7 +49,8 @@ public class LessonGrabUtil {
     }
 
 
-    public void getLocalImages(List<JSONObject> lessonInfo) {
+    public void getImages(List<JSONObject> lessonInfo,List<JSONObject> objectives) {
+
         //use url to grab image from sever, use php to grab it and recieve a base64 string.
         //base64->byte[]->bitmap
 
@@ -60,6 +61,7 @@ public class LessonGrabUtil {
             try {
                 String imageURL = currentObj.getString("imageURL");
                 String lessonName = currentObj.getString("lesson_name");
+                String objective = null;
 
                 if (imageURL.contains("stock")) {
                     int id = ctxt.getResources().getIdentifier(imageURL,"drawable",ctxt.getPackageName());
@@ -68,7 +70,14 @@ public class LessonGrabUtil {
 
                     Bitmap bitmap = ((BitmapDrawable)d).getBitmap();
 
-                    lessonPackages.add(new LessonPackage(lessonName,bitmap));
+                    for(JSONObject currentObjective : objectives) {
+                        if (currentObjective.getString("lesson").equals(lessonName)) {
+                            objective = currentObjective.getString("objective");
+                            objectives.remove(objective);
+                        }
+                    }
+
+                    lessonPackages.add(new LessonPackage(lessonName,objective,bitmap));
 
                 } else {
 
@@ -92,14 +101,10 @@ public class LessonGrabUtil {
                 e.printStackTrace();
             }
         }
-        getRemoteImages(realUrl);
+        getRemoteImages(realUrl,objectives);
     }
 
-    public void getBookmarkImages(List<String> lessons) {
-
-    }
-
-    public void getRemoteImages(final List<List<String>> urls) {
+    public void getRemoteImages(final List<List<String>> urls, final List<JSONObject> objectives) {
 
         Log.i("urls",urls.toString());
 
@@ -131,7 +136,7 @@ public class LessonGrabUtil {
                 try {
                     JSONArray base64Images = new JSONArray(resString);
                     Log.i("jsonA",base64Images.toString());
-                    base64toBitmap(base64Images, urls);
+                    base64toBitmap(base64Images, urls,objectives);
 
                 } catch (JSONException e) {
                     //e.printStackTrace();
@@ -146,7 +151,7 @@ public class LessonGrabUtil {
         });
     }
 
-    public void base64toBitmap(JSONArray base64Images,List<List<String>> lessonData) throws JSONException {
+    public void base64toBitmap(JSONArray base64Images,List<List<String>> lessonData,List<JSONObject> objectives) throws JSONException {
 
         /*
             * Need to loop over JSONArray to get JSONObjects
@@ -169,16 +174,23 @@ public class LessonGrabUtil {
 
             for(List<String> oneLesson : lessonData) {
                 if (oneLesson.contains(imageURL)) {
-                    //add bitmap to hashmap with lesson name as key
                     String lessonName = oneLesson.get(0);
-                    lessonPackages.add(new LessonPackage(lessonName, scaledBitmap));
+                    for(JSONObject objective : objectives) {
+                        String lesson = objective.getString("lesson");
+                        if (lessonName.equals(lesson)) {
+                            String currentObjective = objective.getString("objective");
+                            lessonPackages.add(new LessonPackage(lessonName,currentObjective,scaledBitmap));
+                        }
+                    }
+
+
                     Log.i("lessonPlaced",lessonName + " was matched");
                 }
             }
 
             //lessonImages.add(scaledBitmap);
         }
-
+        Log.i("lessonpacks",String.valueOf(lessonPackages.size()));
         listener.onImageCallback(lessonPackages);
     }
 
