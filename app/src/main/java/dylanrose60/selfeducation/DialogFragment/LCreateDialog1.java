@@ -6,6 +6,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -48,7 +50,8 @@ public class LCreateDialog1 extends DialogFragment {
                             callListener(lessonName);
                             LCreateDialog1.this.dismiss();
                         } else {
-                            editText1.setError("Enter a valid lesson name");
+                            Animation wiggle = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),R.anim.wiggle);
+                            editText1.setAnimation(wiggle);
                         }
                     }
                     @Override

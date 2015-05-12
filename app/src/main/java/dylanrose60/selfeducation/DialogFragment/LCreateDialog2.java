@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -59,7 +61,8 @@ public class LCreateDialog2 extends DialogFragment {
                         //Send dialog (View) to method inside frag to pull EditText data
                         List<String> objectives = getObjectiveValues((ViewGroup)dialog.getCustomView());
                         if (objectives.size() == 0) {
-                            editText1.setError("Please add at least one objective!");
+                            Animation wiggle = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),R.anim.wiggle);
+                            editText1.setAnimation(wiggle);
                         } else {
                             listener.getObjectives(objectives);
                             LCreateDialog2.this.dismiss();

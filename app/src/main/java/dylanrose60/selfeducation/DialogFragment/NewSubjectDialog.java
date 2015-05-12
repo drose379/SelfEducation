@@ -9,8 +9,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -107,7 +110,9 @@ public class NewSubjectDialog extends DialogFragment {
                             getOwnerID();
                             //addToRemote(subjectInfo);
                         } else {
-                            editText1.setError("Please enter a subject");
+                            //instantiate shake animation here
+                            Animation wiggle = AnimationUtils.loadAnimation(getActivity().getApplicationContext(),R.anim.wiggle);
+                            editText1.startAnimation(wiggle);
                         }
 
                     }
@@ -115,6 +120,7 @@ public class NewSubjectDialog extends DialogFragment {
         MaterialDialog dialog = builder.build();
         return dialog;
     }
+
 
 
     public void getOwnerID() {
