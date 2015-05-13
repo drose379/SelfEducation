@@ -5,8 +5,10 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.widget.GridView;
 import android.widget.ListView;
 
+import com.etsy.android.grid.StaggeredGridView;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
@@ -23,7 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LessonList extends ActionBarActivity implements LessonGrabUtil.imageCallback {
+public class LessonList extends ActionBarActivity {
 
     private String subject;
     private String ownerID;
@@ -33,7 +35,7 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
     //Testing
     private Handler handler = new Handler();
     private OkHttpClient httpClient = new OkHttpClient();
-    private LessonGrabUtil imageGrab = new LessonGrabUtil(this);
+    //private LessonGrabUtil imageGrab = new LessonGrabUtil(this);
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -135,12 +137,12 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
-                Log.i("localLessons",responseString);
+                Log.i("localLessons", responseString);
                 try {
                     JSONObject master = new JSONObject(responseString);
                     JSONArray currentLessons = master.getJSONArray("lessonInfo");
                     JSONArray objectives = master.getJSONArray("objectives");
-                    buildList(currentLessons,objectives, 0);
+                    buildList(currentLessons, objectives, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -203,46 +205,37 @@ public class LessonList extends ActionBarActivity implements LessonGrabUtil.imag
             * Need to create List<JSONObject> instead of passing JSONArray to adapter
         */
 
-        List<JSONObject> lessonInfo = new ArrayList<JSONObject>();
-        List<JSONObject> lessonObjectives = new ArrayList<JSONObject>();
+        List<LessonPackage> lessonInfo = new ArrayList<LessonPackage>();
 
-        /*
-            * Need to use AsyncImageGrabber to grab all images for each lesson
-            * Add the bitmap to the List, send to adapter with regular info
-         */
 
         for (int i = 0; i<lessons.length();i++) {
             JSONObject currentObj = (JSONObject) lessons.get(i);
-            lessonInfo.add(currentObj);
-        }
+            JSONObject objectiveObj = objectives.getJSONObject(i);
 
-        //loop over objectives JSONArray to get objects and add them to list, see code above
-        for (int i = 0;i<objectives.length();i++) {
-            JSONObject currentObject = objectives.getJSONObject(i);
-            lessonObjectives.add(currentObject);
-        }
+            //Make sure lesson names from both objects match, then create the LessonPackage
+            String lessonName1 = currentObj.getString("lesson_name");
+            String lessonName2 = objectiveObj.getString("lesson");
 
-        imageGrab.getImages(lessonInfo,lessonObjectives);
+            if (lessonName1.equals(lessonName2)) {
+                lessonInfo.add(new LessonPackage(lessonName1,objectiveObj.getString("objective")));
+            }
+
+        }
+        buildLayout(lessonInfo);
+
     }
 
-    @Override
-    public void onImageCallback(List<LessonPackage> lessonPacks) {
-        //getLessonObjectives(lessonPacks);
-        final ListView lessonListView = (ListView) findViewById(R.id.lessonListView);
+    public void buildLayout(List<LessonPackage> lessonPacks) {
+        final StaggeredGridView lessonGrid = (StaggeredGridView) findViewById(R.id.lessonGrid);
         final LessonListAdapter adapter = new LessonListAdapter(this,lessonPacks);
-
-        //need to post back to UI thread
-        //Move this to onResponse of getLessonObjectives method
         handler.post(new Runnable() {
             @Override
             public void run() {
-                lessonListView.setAdapter(adapter);
+                lessonGrid.setAdapter(adapter);
             }
         });
 
     }
-
-
 
 
 }

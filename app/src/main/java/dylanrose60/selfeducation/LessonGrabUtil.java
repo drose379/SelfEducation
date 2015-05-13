@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
+/*
 public class LessonGrabUtil {
 
     public interface imageCallback {
@@ -81,14 +81,14 @@ public class LessonGrabUtil {
 
                 } else {
 
-                    /*
+
                         * need to save reg URLS in a List
                         * Create a JSONArray out of them
                         * Convert JSONArray to string
                         * Pass that to get base64 strings for each image given by URL
                         * in onResponse, loop over each base64 string, create a Bitmap out of it, then add it to List<bitmap> lessonImages
                         * Give that list to the callback to LessonList
-                    */
+
 
                     List<String> currentInfo = new ArrayList<String>();
 
@@ -108,10 +108,10 @@ public class LessonGrabUtil {
 
         Log.i("urls",urls.toString());
 
-        /*
+
             * Need to create some logic to match the returned bitmap up with its lesson name passed in by _urls_ parameter to this method
                 * Need to loop over response and match returned url to a url in _urls_ , then match name to bitmap
-         */
+
 
         JSONArray urlJSON = new JSONArray();
 
@@ -153,11 +153,11 @@ public class LessonGrabUtil {
 
     public void base64toBitmap(JSONArray base64Images,List<List<String>> lessonData,List<JSONObject> objectives) throws JSONException {
 
-        /*
+
             * Need to loop over JSONArray to get JSONObjects
              * For each JSONObject, look in lesson data to match the returned URL to a url in the array
              * Get the lesson name, add to hashmap
-         */
+
 
         for(int i=0;i<base64Images.length();i++) {
             JSONObject currentObj = (JSONObject) base64Images.get(i);
@@ -196,3 +196,4 @@ public class LessonGrabUtil {
 
 
 }
+*/
