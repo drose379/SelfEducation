@@ -6,4 +6,8 @@
     <color name="ColorSubText">#01579b</color>
     <color name="ColorMenuAccent">#e1f5fe</color>
     <color name="ColorBlack">#000000</color>
+
+    <color name="tileHigh">#69f0ae</color>
+    <color name="tileMed">#fff59d</color>
+    <color name="tileLow">#ef9a9a</color>
 </resources>

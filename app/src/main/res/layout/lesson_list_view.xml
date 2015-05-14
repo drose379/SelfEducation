@@ -22,7 +22,7 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         app:column_count="2"
-        app:item_margin="0dp"
+        app:item_margin="0.5dp"
         android:background="@color/ColorPrimary"
         />
 

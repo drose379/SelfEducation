@@ -3,6 +3,8 @@ package dylanrose60.selfeducation;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -76,6 +78,16 @@ public class LessonListAdapter extends BaseAdapter {
 
         String[] splitLesson = lessonName.split("\\s");
 
+        StringBuilder modLesson = new StringBuilder();
+
+        for (String lesson : splitLesson) {
+            String moddedLesson = lesson + "\n";
+            modLesson.append(moddedLesson);
+        }
+
+        Log.i("newL",modLesson.toString());
+
+/*
         int largestLength = 0;
         for(String lesson: splitLesson) {
             int length = lesson.length();
@@ -92,7 +104,9 @@ public class LessonListAdapter extends BaseAdapter {
         int tileFullWidthDP = dp/2;
         int tileFullWidthPX = parent.getWidth()/2;
 
-        int viewWidth = 0;
+        int viewWidth = tileFullWidthPX;
+
+*/
 
         /*
             * Use Math.floor to evaluate which percentile to set the textview width to
@@ -102,9 +116,23 @@ public class LessonListAdapter extends BaseAdapter {
          */
 
         TextView test = (TextView) v.findViewById(R.id.testText);
-        test.setLayoutParams(new LinearLayout.LayoutParams(viewWidth,LinearLayout.LayoutParams.WRAP_CONTENT));
-        test.setText(lessonName);
 
+        GradientDrawable tileDrawable = (GradientDrawable) context.getResources().getDrawable(R.drawable.black_border);
+
+        //just for testing
+        if (position < 3) {
+            v.setBackgroundColor(context.getResources().getColor(R.color.tileHigh));
+            //tileDrawable.setColor(context.getResources().getColor(R.color.tileHigh));
+        } else if (position < 5) {
+            v.setBackgroundColor(context.getResources().getColor(R.color.tileMed));
+            //tileDrawable.setColor(context.getResources().getColor(R.color.tileMed));
+        } else {
+            v.setBackgroundColor(context.getResources().getColor(R.color.tileLow));
+            //tileDrawable.setColor(context.getResources().getColor(R.color.tileLow));
+        }
+
+
+        test.setText(lessonName);
         return v;
     }
 
