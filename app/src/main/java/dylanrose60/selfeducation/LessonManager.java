@@ -85,133 +85,23 @@ public class LessonManager {
     }
 
     public void setTags(List<String> selectedTags) {
+        tags.clear();
         int tagsSize = selectedTags.size();
         for (int i = 0;i < tagsSize; i++) {
             String currentTag = selectedTags.get(i);
             tags.add(currentTag);
         }
+        Log.i("lessonTags",tags.toString());
     }
 
     public void setListener(Listener listener) {
         this.listener = listener;
     }
 
-    public void setImgFile(Bitmap imageBitmap,String stockName,boolean isStockImage) {
-        this.imageBitmap = imageBitmap;
-        this.isStockImage = isStockImage;
-        this.stockName = stockName;
-        //Need to get stock image name, pass null to it if no stock image used
-        //this.stockImageName = stockName;
-    }
-
-    public void setImageURL(String url) {
-        imageSavedURL = url;
-    }
-
-    //For getting subject tags from DB
-
-/*
-    public void getTags(final boolean newTag){
-        Request.Builder builder = new Request.Builder();
-        builder.url("http://codeyourweb.net/httpTest/index.php/getTags");
-        Request ready = builder.build();
-        Call call = client.newCall(ready);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                final String responseBody = response.body().string();
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.getAllTags(LessonManager.this,responseBody,newTag);
-                    }
-                });
-
-            }
-        });
-    }
-*/
-    //Methods for creating new lesson
-
-    //Testing uploading lesson image file to server, real method is below
 
     public void buildLesson() {
-
-        if (isStockImage) {
-            addFullLessonInfo(true);
-            showLoadingDialog();
-            //Working
-            Log.i("stockName",stockName);
-        } else {
-
-            showLoadingDialog();
-
-            String base64Image = toBase64();
-
-        /*
-            * Upload base64 string to script
-            * Decode base64 into image (base64_decode) in the PHP
-            * Place file on server
-            * Get URI to the image and save to DB with rest of lesson data
-         */
-
-            List<String> key = new ArrayList<String>();
-            List<String> value = new ArrayList<String>();
-
-            key.add("base64Image");
-            value.add(base64Image);
-
-            String jsonReady = null;
-
-            try {
-                jsonReady = CommunicationUtil.toJSONString(key, value);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            RequestBody body = RequestBody.create(mediaType, jsonReady);
-            Request.Builder builder = new Request.Builder();
-            builder.url("http://codeyourweb.net/httpTest/index.php/setDefaultImage");
-            builder.post(body);
-            Request request = builder.build();
-            Call call = client.newCall(request);
-            call.enqueue(new Callback() {
-                @Override
-                public void onFailure(Request request, IOException e) {
-
-                }
-
-                @Override
-                public void onResponse(Response response) throws IOException {
-                    imageSavedURL = response.body().string();
-                    Log.i("serverResp", imageSavedURL);
-                    addFullLessonInfo(false);
-                }
-            });
-
-        }
-    }
-
-    public void addFullLessonInfo(boolean stockImage) {
-
-        /*
-            * Need to make tags and objectives into JSONArray before adding it to List
-            * Is it bad to not have <String> identifier for the List
-         */
-
-        /*
-            * !!!
-            * Need to act upon the stockImage boolean, if image is stock, replace imageURL with stock image name (stock_2) stockName property
-            * !!!
-         */
-
+        showLoadingDialog();
         String finalJSON = completeJSONBuilder();
-
         RequestBody body = RequestBody.create(mediaType,finalJSON);
         Request.Builder builder = new Request.Builder();
         builder.post(body);
@@ -227,94 +117,14 @@ public class LessonManager {
             @Override
             public void onResponse(Response response) throws IOException {
                 loadingDialog.dismiss();
-                Log.i("newLesson","Lesson added");
+                Log.i("newLesson", "Lesson added");
             }
         });
-
     }
-
-/*
-    public void buildLesson(Bundle bookmarkInfo) {
-
-            * This method needs to add bookmark image and call a method that adds rest of lesson data after image URL is returned
-
-        String lessonData = bookmarkJSONBuilder(bookmarkInfo);
-        Log.i("bookmarkLesson","Bookmark Lesson Method Called");
-
-        RequestBody body = RequestBody.create(mediaType,lessonData);
-        Request.Builder rBuilder = new Request.Builder();
-        rBuilder.post(body);
-        rBuilder.url("http://codeyourweb.net/httpTest/index.php/newBookmarkLesson");
-        Request request = rBuilder.build();
-        Call newCall = client.newCall(request);
-        newCall.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                handler.post(new Runnable() {
-                    public void run() {
-                        listener.onSuccess();
-                    }
-                });
-            }
-        });
-
-    }
-*/
 
     public void buildLesson(final Bundle bookmarkInfo) {
-
-        /*
-            * Create material dialog with loader in it, must be a private field
-            * Dismiss it once addFullBookmarkLessonInfo is done (onResponse)
-         */
-
         showLoadingDialog();
-
-        String base64Image = toBase64();
-
-        List<String> key = new ArrayList<String>();
-        List<String> value = new ArrayList<String>();
-
-        key.add("base64Image");
-        value.add(base64Image);
-
-        String jsonReady = null;
-
-        try {
-            jsonReady = CommunicationUtil.toJSONString(key,value);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        RequestBody body = RequestBody.create(mediaType,jsonReady);
-        Request.Builder builder = new Request.Builder();
-        builder.url("http://codeyourweb.net/httpTest/index.php/setDefaultImage");
-        builder.post(body);
-        Request request = builder.build();
-        Call call = client.newCall(request);
-        call.enqueue(new Callback() {
-            @Override
-            public void onFailure(Request request, IOException e) {
-
-            }
-
-            @Override
-            public void onResponse(Response response) throws IOException {
-                imageSavedURL = response.body().string();
-                Log.i("serverResp",imageSavedURL);
-                addFullBookmarkLesson(bookmarkInfo);
-            }
-        });
-    }
-
-    public void addFullBookmarkLesson(Bundle bookmarkInfo) {
         String lessonData = bookmarkJSONBuilder(bookmarkInfo);
-        Log.i("newBookmarkLesson","Bookmark lesson being created" + imageSavedURL);
         RequestBody body = RequestBody.create(mediaType,lessonData);
         Request.Builder rBuilder = new Request.Builder();
         rBuilder.post(body);
@@ -341,14 +151,6 @@ public class LessonManager {
         });
     }
 
-    public String toBase64() {
-        ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-        imageBitmap.compress(Bitmap.CompressFormat.JPEG,75,byteOutput);
-        byte[] imageBytes = byteOutput.toByteArray();
-        String base64Image = Base64.encodeToString(imageBytes,Base64.DEFAULT);
-
-        return base64Image;
-    }
 
     public void showLoadingDialog() {
         Activity activity = (Activity) context;
@@ -418,13 +220,7 @@ public class LessonManager {
             builder.key("objectives");
             builder.value(objectivesJSON);
             builder.key("tags");
-            builder.value(tagsJSON); //Remove toArray()
-            builder.key("imgUri");
-            if (isStockImage) {
-                builder.value(stockName);
-            } else {
-                builder.value(imageSavedURL);
-            }
+            builder.value(tagsJSON);
             builder.endObject();
             return builder.toString();
         } catch (JSONException e) {
@@ -453,8 +249,6 @@ public class LessonManager {
             builder.value(bookmarkData.getInt("subscribed"));
             builder.key("bookmarkID");
             builder.value(bookmarkData.getInt("bookmarkID"));
-            builder.key("imgURL");
-            builder.value(imageSavedURL);
             builder.endObject();
             return builder.toString();
         } catch (JSONException e) {

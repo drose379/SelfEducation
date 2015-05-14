@@ -116,6 +116,7 @@ public class LessonListAdapter extends BaseAdapter {
          */
 
         TextView test = (TextView) v.findViewById(R.id.testText);
+        TextView tags = (TextView) v.findViewById(R.id.tagsText);
 
         GradientDrawable tileDrawable = (GradientDrawable) context.getResources().getDrawable(R.drawable.black_border);
 
@@ -133,6 +134,7 @@ public class LessonListAdapter extends BaseAdapter {
 
 
         test.setText(lessonName);
+        tags.setText(currentLesson.getTags());
         return v;
     }
 

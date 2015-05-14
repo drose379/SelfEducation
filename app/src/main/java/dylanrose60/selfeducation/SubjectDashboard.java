@@ -57,7 +57,6 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         LCreateDialog1.Listener,
         LCreateDialog2.Listener,
         LCreateDialog3.Listener,
-        LCreateDialog4.Listener,
         NewTagDialog.Listener
 {
         //category is only needed when infalting a public subject dash layout, incase user creates new bookmark
@@ -279,14 +278,6 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     public void getSelectedTags(List<String> selectedTags) {
         manager.setTags(selectedTags);
         //Need to call to new dialog that asks for default image for the lesson
-        //buildLesson();
-        LCreateDialog4 dialog4 = new LCreateDialog4();
-        dialog4.show(fragmentManager,"dialog4");
-    }
-
-    @Override
-    public void getDefaultImage(Bitmap image,String stockName,boolean isStockImage) {
-        manager.setImgFile(image,stockName,isStockImage);
         buildLesson();
     }
 

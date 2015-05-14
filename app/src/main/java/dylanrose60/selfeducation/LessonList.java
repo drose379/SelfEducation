@@ -95,10 +95,10 @@ public class LessonList extends ActionBarActivity {
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
-                Log.i("bookmarkLessons",responseString);
+                Log.i("bookmarkLessons", responseString);
                 try {
                     JSONArray currentLessons = new JSONArray(responseString);
-                    buildList(currentLessons,null,1);
+                    buildList(currentLessons, null, 1);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -141,8 +141,8 @@ public class LessonList extends ActionBarActivity {
                 try {
                     JSONObject master = new JSONObject(responseString);
                     JSONArray currentLessons = master.getJSONArray("lessonInfo");
-                    JSONArray objectives = master.getJSONArray("objectives");
-                    buildList(currentLessons, objectives, 0);
+                    JSONArray tags = master.getJSONArray("tags");
+                    buildList(currentLessons, tags, 0);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -186,7 +186,7 @@ public class LessonList extends ActionBarActivity {
         });
     }
 
-    public void buildList(JSONArray lessons,JSONArray objectives,int type) throws JSONException {
+    public void buildList(JSONArray lessons,JSONArray tags,int type) throws JSONException {
 
         /*
             * Type key:
@@ -209,21 +209,27 @@ public class LessonList extends ActionBarActivity {
 
 
         for (int i = 0; i<lessons.length();i++) {
-            JSONObject currentObj = (JSONObject) lessons.get(i);
-            JSONObject objectiveObj = objectives.getJSONObject(i);
+            String currentLesson = (String) lessons.get(i);
+
+            List<String> currentTags = new ArrayList<String>();
 
             //Make sure lesson names from both objects match, then create the LessonPackage
-            String lessonName1 = currentObj.getString("lesson_name");
-            String lessonName2 = objectiveObj.getString("lesson");
 
-            if (lessonName1.equals(lessonName2)) {
-                lessonInfo.add(new LessonPackage(lessonName1,objectiveObj.getString("objective")));
+            for(int t = 0;t<tags.length();t++) {
+                JSONObject currentTagObj = tags.getJSONObject(t);
+                String tagLesson = currentTagObj.getString("lesson");
+                if (currentLesson.equals(tagLesson)) {
+                    currentTags.add(currentTagObj.getString("tag"));
+                }
             }
 
+            lessonInfo.add(new LessonPackage(currentLesson,currentTags));
         }
         buildLayout(lessonInfo);
 
     }
+
+
 
     public void buildLayout(List<LessonPackage> lessonPacks) {
         final StaggeredGridView lessonGrid = (StaggeredGridView) findViewById(R.id.lessonGrid);

@@ -2,27 +2,28 @@ package dylanrose60.selfeducation;
 
 import android.graphics.Bitmap;
 
+import java.util.List;
+
 public class LessonPackage {
 
     private String lessonName;
-    private Bitmap lessonImage;
-    private String objective;
+    private List<String> tags;
 
-    public LessonPackage(String lessonName,String objective) {
+    public LessonPackage(String lessonName,List<String> tags) {
         this.lessonName = lessonName;
-        this.objective = objective;
-        this.lessonImage = lessonImage;
+        this.tags = tags;
     }
 
     public String getName() {
         return this.lessonName;
     }
-    public Bitmap getImage() {
-        return this.lessonImage;
+
+    public String getTags() {
+        String tagsString = tags.toString();
+        String test = tagsString.replace("[","");
+        String finalString = test.replace("]","");
+        return finalString;
     }
 
-    public String getObjective() {
-        return this.objective;
-    }
 
 }
