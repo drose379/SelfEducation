@@ -7,7 +7,7 @@
     <color name="ColorMenuAccent">#e1f5fe</color>
     <color name="ColorBlack">#000000</color>
 
-    <color name="tileHigh">#1de9b6</color>
-    <color name="tileMed">#eeff41</color>
-    <color name="tileLow">#f44336</color>
+    <color name="tileHigh">#90a4ae</color>
+    <color name="tileMed">#B0BEC5</color>
+    <color name="tileLow">#CFD8DC</color>
 </resources>

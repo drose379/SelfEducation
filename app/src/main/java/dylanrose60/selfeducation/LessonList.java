@@ -95,10 +95,11 @@ public class LessonList extends ActionBarActivity {
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
-                Log.i("bookmarkLessons", responseString);
                 try {
-                    JSONArray currentLessons = new JSONArray(responseString);
-                    buildList(currentLessons, null, 1);
+                    JSONObject master = new JSONObject(responseString);
+                    JSONArray lessons = master.getJSONArray("lessons");
+                    JSONArray tags = master.getJSONArray("tags");
+                    buildList(lessons,tags,2);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
