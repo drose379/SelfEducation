@@ -143,18 +143,19 @@ public class BookmarkSubjectsFragment extends Fragment {
                     String categories = responseObject.getString("categories");
                     String subjects = responseObject.getString("bookmarks");
 
+                    Log.i("categories",categories);
+                    Log.i("bookmarkSubs",subjects);
 
                     List<String> catList = fragUtil.catToList(categories);
-                    List<Subject> subjectsList = fragUtil.subToList(subjects,true);
-                    HashMap<String, List<String>> map = fragUtil.mapData(catList,subjectsList,true);
+                    List<Subject> subInfo = fragUtil.subToList(subjects,true);
+                    List<Category> fullCatInfo = fragUtil.fullCatBuilder(categories);
 
-                    List<Category> fullCatList = fragUtil.fullCatBuilder(categories);
+                    HashMap<String,List<String>> map = fragUtil.mapData(catList,subInfo,false);
 
-                    List<String> finalCatList = fragUtil.trimCategories(catList,map);
+                    //Need to look into each keys List of subjects, programming category being added to final list twice
+                    Log.i("allCats2",map.keySet().toString());
 
-                    buildList(map, finalCatList, fullCatList);
-                    Log.i("finalCats",finalCatList.toString());
-                    Log.i("mapped",map.toString());
+                    buildList(map,catList,fullCatInfo);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -164,7 +165,6 @@ public class BookmarkSubjectsFragment extends Fragment {
     }
 
     public void buildList(final HashMap<String, List<String>> map, final List<String> categories, final List<Category> catFullInfo) {
-
         final ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.bookmarkSubjectList);
         final ExpListAdapter adapter = new ExpListAdapter(getActivity(), map, categories, catFullInfo);
         handler.post(new Runnable() {

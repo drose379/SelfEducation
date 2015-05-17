@@ -5,8 +5,12 @@ import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.etsy.android.grid.StaggeredGridView;
 import com.squareup.okhttp.Call;
@@ -95,6 +99,7 @@ public class LessonList extends ActionBarActivity {
             @Override
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
+                Log.i("bookmarkLesson",responseString);
                 try {
                     JSONObject master = new JSONObject(responseString);
                     JSONArray lessons = master.getJSONArray("lessons");
@@ -183,6 +188,14 @@ public class LessonList extends ActionBarActivity {
             public void onResponse(Response response) throws IOException {
                 String responseString = response.body().string();
                 Log.i("publicLessons", responseString);
+                try {
+                    JSONObject master = new JSONObject(responseString);
+                    JSONArray currentLessons = master.getJSONArray("lessonInfo");
+                    JSONArray tags = master.getJSONArray("tags");
+                    buildList(currentLessons, tags, 0);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -206,41 +219,65 @@ public class LessonList extends ActionBarActivity {
             * Need to create List<JSONObject> instead of passing JSONArray to adapter
         */
 
-        List<LessonPackage> lessonInfo = new ArrayList<LessonPackage>();
+        if (lessons.length() < 1) {
+            buildLayout(null,true);
+        } else {
+            List<LessonPackage> lessonInfo = new ArrayList<LessonPackage>();
 
+            for (int i = 0; i < lessons.length(); i++) {
+                String currentLesson = (String) lessons.get(i);
 
-        for (int i = 0; i<lessons.length();i++) {
-            String currentLesson = (String) lessons.get(i);
+                List<String> currentTags = new ArrayList<String>();
 
-            List<String> currentTags = new ArrayList<String>();
+                //Make sure lesson names from both objects match, then create the LessonPackage
 
-            //Make sure lesson names from both objects match, then create the LessonPackage
-
-            for(int t = 0;t<tags.length();t++) {
-                JSONObject currentTagObj = tags.getJSONObject(t);
-                String tagLesson = currentTagObj.getString("lesson");
-                if (currentLesson.equals(tagLesson)) {
-                    currentTags.add(currentTagObj.getString("tag"));
+                for (int t = 0; t < tags.length(); t++) {
+                    JSONObject currentTagObj = tags.getJSONObject(t);
+                    String tagLesson = currentTagObj.getString("lesson");
+                    if (currentLesson.equals(tagLesson)) {
+                        currentTags.add(currentTagObj.getString("tag"));
+                    }
                 }
+
+                lessonInfo.add(new LessonPackage(currentLesson, currentTags));
             }
-
-            lessonInfo.add(new LessonPackage(currentLesson,currentTags));
+            buildLayout(lessonInfo, false);
         }
-        buildLayout(lessonInfo);
-
     }
 
 
 
-    public void buildLayout(List<LessonPackage> lessonPacks) {
-        final StaggeredGridView lessonGrid = (StaggeredGridView) findViewById(R.id.lessonGrid);
-        final LessonListAdapter adapter = new LessonListAdapter(this,lessonPacks);
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                lessonGrid.setAdapter(adapter);
-            }
-        });
+    public void buildLayout(List<LessonPackage> lessonPacks,boolean isEmpty) {
+        if (isEmpty) {
+            final StaggeredGridView lessonGrid = (StaggeredGridView) findViewById(R.id.lessonGrid);
+            final TextView notFound = (TextView) findViewById(R.id.notFound);
+            final ImageView icon = (ImageView) findViewById(R.id.notFoundIcon);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    lessonGrid.setVisibility(View.GONE);
+                    notFound.setVisibility(View.VISIBLE);
+                    icon.setVisibility(View.VISIBLE);
+                }
+            });
+
+        } else {
+            final StaggeredGridView lessonGrid = (StaggeredGridView) findViewById(R.id.lessonGrid);
+            lessonGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    //Grab item from lessonPacks using position, open lesson dash
+                }
+            });
+
+            final LessonListAdapter adapter = new LessonListAdapter(this, lessonPacks);
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    lessonGrid.setAdapter(adapter);
+                }
+            });
+        }
 
     }
 

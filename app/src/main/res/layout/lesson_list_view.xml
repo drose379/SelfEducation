@@ -14,7 +14,8 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/ColorMenuAccent">
+        android:background="@color/ColorMenuAccent"
+        android:orientation="horizontal">
 
 
     <com.etsy.android.grid.StaggeredGridView
@@ -25,6 +26,29 @@
         app:item_margin="0.5dp"
         android:background="@color/ColorPrimary"
         />
+
+        <ImageView
+            android:id="@+id/notFoundIcon"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:padding="10dp"
+            android:src="@drawable/no_lessons"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:id="@+id/notFound"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textColor="#000000"
+            android:padding="10dp"
+            android:gravity="center_horizontal"
+            android:layout_gravity="center_vertical"
+            android:text="No lessons found for this subject yet, be the first to create one!"
+            android:visibility="gone"
+            />
 
     </LinearLayout>
 
