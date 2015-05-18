@@ -247,7 +247,7 @@ public class LessonList extends ActionBarActivity {
 
 
 
-    public void buildLayout(List<LessonPackage> lessonPacks,boolean isEmpty) {
+    public void buildLayout(final List<LessonPackage> lessonPacks,boolean isEmpty) {
         if (isEmpty) {
             final StaggeredGridView lessonGrid = (StaggeredGridView) findViewById(R.id.lessonGrid);
             final TextView notFound = (TextView) findViewById(R.id.notFound);
@@ -267,6 +267,8 @@ public class LessonList extends ActionBarActivity {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     //Grab item from lessonPacks using position, open lesson dash
+                    Log.i("lessonClick",lessonPacks.get(position).getName());
+                    //Start lesson dashboard activity
                 }
             });
 

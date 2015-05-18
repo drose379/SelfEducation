@@ -121,8 +121,6 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         //Set the value of the activity title bar to the title of the subject with: setTitle(title)
         setTitle(subject);
 
-        manager = new LessonManager(this,subject);
-
         LinearLayout parentLayout = (LinearLayout) findViewById(R.id.parentLayout);
         parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -210,7 +208,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater mInflater = new MenuInflater(getApplicationContext());
-        mInflater.inflate(R.menu.subject_dashboard_menu,menu);
+        mInflater.inflate(R.menu.subject_dashboard_menu, menu);
         return true;
     }
 
@@ -226,6 +224,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
                         String itemSelected = items[selected];
                         switch (itemSelected) {
                             case "Lesson":
+                                manager = new LessonManager(SubjectDashboard.this,subject);
                                 manager.setListener(SubjectDashboard.this);
                                 newLesson1Test();
                                 break;
@@ -246,7 +245,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
     public void newLesson1Test() {
         LCreateDialog1 dialog1 = new LCreateDialog1();
-        dialog1.show(fragmentManager,"Dialog1");
+        dialog1.show(fragmentManager, "Dialog1");
     }
 
     @Override
@@ -257,7 +256,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
 
     public void newLesson2Test() {
         LCreateDialog2 dialog2 = new LCreateDialog2();
-        dialog2.show(fragmentManager,"Dialog2");
+        dialog2.show(fragmentManager, "Dialog2");
     }
 
     @Override

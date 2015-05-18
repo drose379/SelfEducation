@@ -17,11 +17,10 @@ public class ExpListAdapter extends BaseExpandableListAdapter {
 
     private Context ctxt;
     private HashMap<String,List<String>> map;
-    //private List<String> categories;
     private List<Category> catFull;
-    private String[] testCategories = null;
+    private String[] categories = null;
 
-    public ExpListAdapter(Context ctxt,HashMap<String,List<String>> map,List<String> categories,List<Category> catFullInfo) {
+    public ExpListAdapter(Context ctxt,HashMap<String,List<String>> map,List<Category> catFullInfo) {
         this.ctxt = ctxt;
         this.map = map;
 
@@ -29,7 +28,7 @@ public class ExpListAdapter extends BaseExpandableListAdapter {
 
         //Completely replace List<String> categories with testCategories (rename it to categories), make this adapter constructor not accept List<String> of categories
 
-        testCategories = Arrays.copyOf(test,test.length,String[].class);
+        categories = Arrays.copyOf(test,test.length,String[].class);
 
         //this.categories = categories;
         this.catFull = catFullInfo;
@@ -43,18 +42,17 @@ public class ExpListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return map.get(testCategories[groupPosition]).size();
+        return map.get(categories[groupPosition]).size();
     }
 
     @Override
     public Object getGroup(int groupPosition) {
-        //problem: only 2 items in array and 2 items with programming cat, programming being grabbed twice
-        return testCategories[groupPosition];
+        return categories[groupPosition];
     }
 
     @Override
     public Object getChild(int parent, int child) {
-        return map.get(testCategories[parent]).get(child);
+        return map.get(categories[parent]).get(child);
     }
 
     @Override

@@ -43,6 +43,7 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -171,15 +172,12 @@ public class MySubjectsFragment extends Fragment {
                      */
 
                     List<String> catList = fragUtil.catToList(categories);
-                    List<Subject> subFullList = fragUtil.subToList(subFullInfo,false);
+                    List<Subject> subFullList = fragUtil.subToList(subFullInfo, false);
                     HashMap<String,List<String>> subInfoMap = fragUtil.mapData(catList,subFullList,false);
-
-                    List<String> finalCatList = new ArrayList<String>(subInfoMap.keySet());
 
                     List<Category> catFullInfo = fragUtil.fullCatBuilder(categories);
 
-                    buildList(subInfoMap, finalCatList, catFullInfo);
-                    //Waht is difference between finalCatList and catList? (catList does not funcion w/ adapter)
+                    buildList(subInfoMap,catFullInfo);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
@@ -188,10 +186,7 @@ public class MySubjectsFragment extends Fragment {
     }
 
 
-
-
-
-    public void buildList(final HashMap<String,List<String>> map,final List<String> categories,final List<Category> catFullInfo) {
+    public void buildList(final HashMap<String,List<String>> map,final List<Category> catFullInfo) {
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -200,28 +195,31 @@ public class MySubjectsFragment extends Fragment {
                 TextView welcomeText1 = (TextView) getView().findViewById(R.id.welcomeText1);
                 TextView welcomeText2 = (TextView) getView().findViewById(R.id.welcomeText2);
 
-                if (categories.size() > 0) {
+                if (map.size() > 0) {
                     logoText.setVisibility(View.GONE);
                     loader.setVisibility(View.GONE);
                     welcomeText1.setVisibility(View.GONE);
                     welcomeText2.setVisibility(View.GONE);
 
                     ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.expSubList);
-                    ExpListAdapter adapter = new ExpListAdapter(getActivity(), map, categories, catFullInfo);
+                    ExpListAdapter adapter = new ExpListAdapter(getActivity(), map,catFullInfo);
                     expList.setAdapter(adapter);
                     expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                         @Override
-                        public boolean onChildClick(ExpandableListView parent,View v,int groupPosition,int childPosition,long id) {
-                            List<String> group = map.get(categories.get(groupPosition));
+                        public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                            String[] categories = Arrays.copyOf(map.keySet().toArray(),map.keySet().toArray().length,String[].class);
+
+                            List<String> group = map.get(categories[groupPosition]);
                             String child = group.get(childPosition);
 
-                            Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
+                            Intent newAct = new Intent(getActivity(), SubjectDashboard.class);
                             Bundle selectedSubInfo = new Bundle();
-                            selectedSubInfo.putString("subName",child);
-                            selectedSubInfo.putInt("subType",0);
+                            selectedSubInfo.putString("subName", child);
+                            selectedSubInfo.putInt("subType", 0);
                             //need to add values to tell which tab was selected
 
-                            newAct.putExtra("selectedInfo",selectedSubInfo);
+                            newAct.putExtra("selectedInfo", selectedSubInfo);
                             startActivity(newAct);
 
                             return true;

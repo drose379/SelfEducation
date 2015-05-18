@@ -36,6 +36,7 @@ import org.json.JSONStringer;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -144,18 +145,16 @@ public class BookmarkSubjectsFragment extends Fragment {
                     String subjects = responseObject.getString("bookmarks");
 
                     Log.i("categories",categories);
-                    Log.i("bookmarkSubs",subjects);
+                    Log.i("bookmarkSubs", subjects);
 
                     List<String> catList = fragUtil.catToList(categories);
-                    List<Subject> subInfo = fragUtil.subToList(subjects,true);
+                    List<Subject> subInfo = fragUtil.subToList(subjects, true);
                     List<Category> fullCatInfo = fragUtil.fullCatBuilder(categories);
 
                     HashMap<String,List<String>> map = fragUtil.mapData(catList,subInfo,false);
 
-                    //Need to look into each keys List of subjects, programming category being added to final list twice
-                    Log.i("allCats2",map.keySet().toString());
 
-                    buildList(map,catList,fullCatInfo);
+                    buildList(map,fullCatInfo);
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -164,9 +163,9 @@ public class BookmarkSubjectsFragment extends Fragment {
         });
     }
 
-    public void buildList(final HashMap<String, List<String>> map, final List<String> categories, final List<Category> catFullInfo) {
+    public void buildList(final HashMap<String, List<String>> map,final List<Category> catFullInfo) {
         final ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.bookmarkSubjectList);
-        final ExpListAdapter adapter = new ExpListAdapter(getActivity(), map, categories, catFullInfo);
+        final ExpListAdapter adapter = new ExpListAdapter(getActivity(), map,catFullInfo);
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -185,8 +184,11 @@ public class BookmarkSubjectsFragment extends Fragment {
                 expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                     @Override
                     public boolean onChildClick(ExpandableListView view, View v, int group, int child, long id) {
-                        List<String> groupList = map.get(categories.get(group));
-                        String subject = groupList.get(child);
+
+                        String[] categories = Arrays.copyOf(map.keySet().toArray(),map.keySet().toArray().length,String[].class);
+
+                        List<String> subjects = map.get(categories[group]);
+                        String subject = subjects.get(child);
 
                         Intent newAct = new Intent(getActivity(), SubjectDashboard.class);
                         Bundle selectedInfo = new Bundle();
@@ -198,7 +200,9 @@ public class BookmarkSubjectsFragment extends Fragment {
 
                         return true;
                     }
+
                 });
+
             }
         });
 

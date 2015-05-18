@@ -229,11 +229,11 @@ public class PublicSubjectsFragment extends Fragment {
                     List<Subject> fullSubList = fragUtil.subToList(subInfo,false);
                     HashMap<String,List<String>> map = fragUtil.mapData(catList, fullSubList,false);
                     //Need to set map to field so context menu has access to it
-                    setContextMenuData(map,catList);
+                    //setContextMenuData(map,catList);
 
                     List<Category> fullCatInfo = fragUtil.fullCatBuilder(categories);
 
-                    buildList(map,catList,fullCatInfo);
+                    buildList(map,fullCatInfo);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -279,72 +279,27 @@ public class PublicSubjectsFragment extends Fragment {
         return hiddenSubs;
     }
 
-    public void buildList(final HashMap<String,List<String>> map,final List<String> categories,final List<Category> catFullInfo) {
+    public void buildList(final HashMap<String,List<String>> map,final List<Category> catFullInfo) {
         swipeRefresh = (SwipeRefreshLayout) getView().findViewById(R.id.publicSwipeView);
         swipeRefresh.setColorSchemeResources(R.color.ColorPrimary, R.color.ColorMenuAccent, R.color.ColorSubText);
 
         final ExpandableListView expList = (ExpandableListView) getView().findViewById(R.id.expSubList);
-        final ExpListAdapter adapter = new ExpListAdapter(getActivity(),map,categories,catFullInfo);
+        final ExpListAdapter adapter = new ExpListAdapter(getActivity(),map,catFullInfo);
         handler.post(new Runnable() {
             @Override
             public void run() {
                 expList.setAdapter(adapter);
 
-        /*
-                expList.setOnItemLongClickListener(new ExpandableListView.OnItemLongClickListener() {
-                    @Override
-                    public boolean onItemLongClick(AdapterView parent,View v,int position,long id) {
-                        ExpandableListView expListInside = (ExpandableListView) parent;
-
-                        //Get type that was selected (Parent or child)
-                        long pos = expListInside.getExpandableListPosition(position);
-                        int type = expListInside.getPackedPositionType(pos);
-
-                        //Only fire if child was long pressed
-                        if (type == ExpandableListView.PACKED_POSITION_TYPE_CHILD) {
-                            //Get position of parent and child in order to grab value from HashMap
-                            int parentPos = expListInside.getPackedPositionGroup(pos);
-                            int childPos = expListInside.getPackedPositionChild(pos);
-
-                            final String selectedSub = map.get(categories.get(parentPos)).get(childPos);
-                            final String selectedCat = categories.get(parentPos);
-
-                            //Inflate the menu
-                            String[] menuOptions = {"Move To Bookmarks","Hide"};
-                            MaterialDialog.Builder builder = new MaterialDialog.Builder(getActivity());
-                            builder.items(menuOptions);
-                            builder.itemsCallback(new MaterialDialog.ListCallback() {
-                                @Override
-                                public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
-                                    if (i == 0) {
-                                        //need to pass category too
-                                        addBookmark(selectedSub,selectedCat);
-                                    } else {
-                                        hideSubject(selectedSub);
-                                    }
-                                }
-                            });
-                            MaterialDialog menu = builder.build();
-                            menu.show();
-                        } else {
-                            Log.i("childLong","Parent long pressed");
-                        }
-                        return true;
-                    }
-                });
-
-        */
-
                 expList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
                     @Override
                     public boolean onChildClick(ExpandableListView view,View v,int group,int child,long id) {
-                        List<String> groupList = map.get(categories.get(group));
-                        //List<String> allCategories = new ArrayList<String>(map.keySet());
+                        //List<String> groupList = map.get(categories.get(group));
+                        List<String> allCategories = new ArrayList<String>(map.keySet());
 
                         //Need to use the same map list as the one being displayed on the fragment list
 
-                        String category = categories.get(group);
-                        String subject = groupList.get(child);
+                        String category = allCategories.get(group);
+                        String subject = map.get(allCategories.get(group)).get(child);
 
                         Intent newAct = new Intent(getActivity(),SubjectDashboard.class);
                         Bundle selectedInfo = new Bundle();
