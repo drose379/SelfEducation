@@ -14,7 +14,6 @@ import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.joooonho.SelectableRoundedImageView;
 
 import java.util.List;
 

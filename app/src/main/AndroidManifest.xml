@@ -40,6 +40,10 @@
             android:label="Tag Manager">
         </activity>
 
+        <activity android:name=".LessonDashboard"
+            android:label="LessonDashboard">
+        </activity>
+
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />

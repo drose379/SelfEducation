@@ -10,13 +10,12 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:background="@color/ColorAccent"
+        android:gravity="center_horizontal"
         >
 
       <com.pnikosis.materialishprogress.ProgressWheel
           android:layout_width="50dp"
           android:layout_height="50dp"
-          android:layout_gravity="center_horizontal"
           wheel:matProg_progressIndeterminate="true"
           wheel:matProg_barColor="@color/ColorPrimary"
           android:id="@+id/loadWheel"

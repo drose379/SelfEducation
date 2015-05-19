@@ -1,5 +1,6 @@
 package dylanrose60.selfeducation;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.etsy.android.grid.StaggeredGridView;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
@@ -39,7 +41,8 @@ public class LessonList extends ActionBarActivity {
     //Testing
     private Handler handler = new Handler();
     private OkHttpClient httpClient = new OkHttpClient();
-    //private LessonGrabUtil imageGrab = new LessonGrabUtil(this);
+
+    private MaterialDialog loadingDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +51,7 @@ public class LessonList extends ActionBarActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
-
+        showLoadingDialog();
         Bundle intentBundle = getIntent().getExtras();
         Bundle listParams = intentBundle.getBundle("listParams");
         type = listParams.getString("type");
@@ -66,6 +69,18 @@ public class LessonList extends ActionBarActivity {
             getPublicLessons();
         }
 
+    }
+
+    public void showLoadingDialog() {
+        MaterialDialog.Builder builder = new MaterialDialog.Builder(this);
+        builder.title("One Moment please");
+        builder.customView(R.layout.lesson_loader,true);
+        loadingDialog = builder.build();
+        loadingDialog.show();
+    }
+
+    public void dismissLoadingDialog() {
+        loadingDialog.dismiss();
     }
 
     public void getBookmarkLessons() {
@@ -98,6 +113,7 @@ public class LessonList extends ActionBarActivity {
 
             @Override
             public void onResponse(Response response) throws IOException {
+                dismissLoadingDialog();
                 String responseString = response.body().string();
                 Log.i("bookmarkLesson",responseString);
                 try {
@@ -142,6 +158,7 @@ public class LessonList extends ActionBarActivity {
 
             @Override
             public void onResponse(Response response) throws IOException {
+                dismissLoadingDialog();
                 String responseString = response.body().string();
                 Log.i("localLessons", responseString);
                 try {
@@ -186,6 +203,7 @@ public class LessonList extends ActionBarActivity {
 
             @Override
             public void onResponse(Response response) throws IOException {
+                dismissLoadingDialog();
                 String responseString = response.body().string();
                 Log.i("publicLessons", responseString);
                 try {
@@ -269,6 +287,13 @@ public class LessonList extends ActionBarActivity {
                     //Grab item from lessonPacks using position, open lesson dash
                     Log.i("lessonClick",lessonPacks.get(position).getName());
                     //Start lesson dashboard activity
+                    Intent intent = new Intent(getApplicationContext(),LessonDashboard.class);
+                    Bundle lessonInfo = new Bundle();
+                    lessonInfo.putString("subject",subject);
+                    lessonInfo.putString("lesson",lessonPacks.get(position).getName());
+                    intent.putExtra("lessonInfo",lessonInfo);
+                    startActivity(intent);
+
                 }
             });
 
