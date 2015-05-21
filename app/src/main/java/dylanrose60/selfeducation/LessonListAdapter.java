@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -130,7 +131,6 @@ public class LessonListAdapter extends BaseAdapter {
             v.setBackgroundColor(context.getResources().getColor(R.color.tileLow));
             //tileDrawable.setColor(context.getResources().getColor(R.color.tileLow));
         }
-
 
         test.setText(lessonName);
         tags.setText(currentLesson.getTags());

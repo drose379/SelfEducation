@@ -65,8 +65,7 @@ public class MainActivity extends ActionBarActivity implements
         setContentView(R.layout.subject_listview);
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
-        setTitle("Select a Subject");
-
+        setTitle("Kairos");
         //Tabs
         ViewPagerAdapter tabAdapter = new ViewPagerAdapter(getSupportFragmentManager());
 
