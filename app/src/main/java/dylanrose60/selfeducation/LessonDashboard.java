@@ -23,8 +23,9 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-public class LessonDashboard extends ActionBarActivity {
+public class LessonDashboard extends ActionBarActivity implements SlidingUpPanelLayout.PanelSlideListener {
 
     /*
         * Add guide icon to dashboard by default, if no other items, show no items added to lesson yet dialot
@@ -34,7 +35,12 @@ public class LessonDashboard extends ActionBarActivity {
     private String subjectName;
     private String lessonName;
 
+
+    //Need to set guideCaret to a private property to gain access to it in SlidingLayout interface
+    //Need to set FAB to private prop to gain access to it when it is clicked
     private FloatingActionButton actionButton;
+    private ImageView guideCaret;
+
 
     @Override
     public void onCreate(Bundle savedInstance) {
@@ -46,19 +52,18 @@ public class LessonDashboard extends ActionBarActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
         setSupportActionBar(toolbar);
 
-        ImageView downCaret = (ImageView) findViewById(R.id.downCaret);
+        guideCaret = (ImageView) findViewById(R.id.downCaret);
+        SlidingUpPanelLayout slidingLayout = (SlidingUpPanelLayout) findViewById(R.id.lessonDashMain);
+        slidingLayout.setPanelSlideListener(this);
 
-        Animation slideDown = AnimationUtils.loadAnimation(this,R.anim.slide_down);
+        Animation slideDown = AnimationUtils.loadAnimation(this,R.anim.slide_up);
         Animation fadeOut = AnimationUtils.loadAnimation(this,R.anim.fade_out);
         AnimationSet set = new AnimationSet(false);
         set.addAnimation(slideDown);
         set.addAnimation(fadeOut);
 
-        downCaret.setAnimation(set);
-
-        /*
-            * Create TextView subclass so no more need to set typeface for each view
-         */
+        guideCaret.setRotation(180f);
+        guideCaret.setAnimation(set);
 
         Bundle lessonInfo = getIntent().getBundleExtra("lessonInfo");
         lessonName = lessonInfo.getString("lesson");
@@ -73,6 +78,41 @@ public class LessonDashboard extends ActionBarActivity {
         });
 
         setTitle(lessonName);
+
+    }
+
+    @Override
+    public void onPanelSlide(View panel,float slideOffset) {
+
+    }
+    @Override
+    public void onPanelCollapsed(View panel) {
+        Animation slideDown = AnimationUtils.loadAnimation(this,R.anim.slide_up);
+        Animation fadeOut = AnimationUtils.loadAnimation(this,R.anim.fade_out);
+        AnimationSet set = new AnimationSet(false);
+        set.addAnimation(slideDown);
+        set.addAnimation(fadeOut);
+
+        guideCaret.setRotation(180f);
+        guideCaret.setAnimation(set);
+    }
+    @Override
+    public void onPanelExpanded(View panel) {
+        AnimationSet animSet = new AnimationSet(false);
+        Animation slideDown = AnimationUtils.loadAnimation(this,R.anim.slide_down);
+        Animation fadeOut = AnimationUtils.loadAnimation(this,R.anim.fade_out);
+        animSet.addAnimation(slideDown);
+        animSet.addAnimation(fadeOut);
+
+        guideCaret.setAnimation(animSet);
+        guideCaret.setRotation(0);
+    }
+    @Override
+    public void onPanelAnchored(View panel) {
+
+    }
+    @Override
+    public void onPanelHidden(View panel) {
 
     }
 
@@ -99,8 +139,9 @@ public class LessonDashboard extends ActionBarActivity {
         dialogView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int selectedID = v.getId();
-                View vi = dialogView.findViewById(selectedID);
+                LinearLayout selectedLayout = (LinearLayout) v;
+                selectedLayout.getChildAt(1);
+
                 //check items in view, need to determine what this view is, could be the linearlayout that image and text are in
             }
         });

@@ -1,16 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.sothree.slidinguppanel.SlidingUpPanelLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:fab="http://schemas.android.com/apk/res-auto"
+    xmlns:sothree="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/lessonDashMain"
+    android:gravity="bottom"
+    sothree:umanoOverlay="true"
+    sothree:umanoPanelHeight="60dp"
+    >
 
 
-    <include
-        layout="@layout/tool_bar">
-    </include>
 
+        <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ColorAccent"
+        >
+
+            <include
+                layout="@layout/tool_bar">
+            </include>
+
+
+            <com.melnykov.fab.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="68dp"
+                android:src="@drawable/plus_2_white"
+                fab:fab_colorNormal="@color/ColorPrimary"
+                fab:fab_colorPressed="@color/ColorStatusBar"
+                fab:fab_colorRipple="@color/ColorMenuAccent"
+                />
+
+
+        </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/ColorAccent"
+        >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="60dp"
+            android:background="@color/ColorMenuAccent"
+            android:gravity="top"
+            >
+
+            <dylanrose60.selfeducation.TitleTextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:textSize="20sp"
+                android:textColor="@color/ColorSubText"
+                android:text="Lesson Guide"
+                app:boldType="true"
+                android:id="@+id/guideText"
+                />
+
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/down_25"
+                android:layout_marginLeft="20dp"
+                android:id="@+id/downCaret"
+                />
+
+        </RelativeLayout>
+
+
+
+    </RelativeLayout>
+
+
+
+
+<!--
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -48,20 +124,14 @@
 
         </RelativeLayout>
 
-        <com.melnykov.fab.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="20dp"
-            android:src="@drawable/plus_2_white"
-            fab:fab_colorNormal="@color/ColorPrimary"
-            fab:fab_colorPressed="@color/ColorStatusBar"
-            fab:fab_colorRipple="@color/ColorMenuAccent"
-            />
+
 
     </RelativeLayout>
 
 
-</LinearLayout>
+-->
+
+
+
+
+</com.sothree.slidinguppanel.SlidingUpPanelLayout>
