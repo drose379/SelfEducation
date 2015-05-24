@@ -1,10 +1,14 @@
 package dylanrose60.selfeducation;
 
 import android.annotation.SuppressLint;
+
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -41,6 +45,9 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
     private FloatingActionButton actionButton;
     private ImageView guideCaret;
 
+    //Material Dialog needs to be property so it can be accessed from onOptionSelected method
+    private MaterialDialog dialog;
+
 
     @Override
     public void onCreate(Bundle savedInstance) {
@@ -49,7 +56,7 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
         //grab from intent
 
         setContentView(R.layout.lesson_dashboard);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.tool_bar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         guideCaret = (ImageView) findViewById(R.id.downCaret);
@@ -131,22 +138,56 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
         });
 
 
-        MaterialDialog dialog = dBuilder.build();
+        dialog = dBuilder.build();
         dialog.show();
+    }
 
-        final View dialogView = dialog.getCustomView();
+    public void onOptionSelected(String option) {
+        switch (option) {
+            case "Photo Album" :
+                dialog.dismiss();
+                //start new album activity
+                //slide in
 
-        dialogView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LinearLayout selectedLayout = (LinearLayout) v;
-                selectedLayout.getChildAt(1);
+                /*
+                    * Needs to be changed to display a Fragment instead of activity
+                    * Remove activity for NewAlbum from manifest
+                    * Remove toolbar from newAlbum view
+                    * Look into sliding out activities current view and sliding in fragment view
+                 */
+                /*
+                Intent intent = new Intent(getApplicationContext(),NewAlbum.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.slide_in,R.anim.slide_out);
+                */
 
-                //check items in view, need to determine what this view is, could be the linearlayout that image and text are in
-            }
-        });
 
+                //Need to have container for fragment in R.layout.lesson_dashboard, add fragment to container
+                //slide out any other containers (Linear or Relative) (for test set to gone)
 
+                FragmentManager fragManager = getSupportFragmentManager();
+                FragmentTransaction fragTrans = fragManager.beginTransaction();
+
+                NewAlbum newAlbum = new NewAlbum();
+                fragTrans.add(R.id.fragmentContainer, newAlbum, "newAlbum");
+                fragTrans.addToBackStack("newAlbum");
+
+                Animation animation1 = AnimationUtils.loadAnimation(this,R.anim.slide_in);
+                Animation animation2 = AnimationUtils.loadAnimation(this,R.anim.slide_out);
+
+                LinearLayout fragContainer = (LinearLayout) findViewById(R.id.fragmentContainer);
+                TextView testText = (TextView) findViewById(R.id.replace);
+
+                testText.setAnimation(animation2);
+                fragContainer.setAnimation(animation1);
+
+                fragTrans.commit();
+
+                break;
+            case "Video" :
+
+                break;
+        }
     }
 
 }

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:padding="20dp">
 
-    <LinearLayout
+    <dylanrose60.selfeducation.LessonOptionsLinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -25,9 +25,9 @@
             android:layout_gravity="center_horizontal"
             android:textColor="@color/ColorSubText"
             android:text="Photo Album"/>
-    </LinearLayout>
+    </dylanrose60.selfeducation.LessonOptionsLinearLayout>
 
-    <LinearLayout
+    <dylanrose60.selfeducation.LessonOptionsLinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -46,6 +46,6 @@
             android:layout_gravity="center_horizontal"
             android:textColor="@color/ColorSubText"
             android:text="Video"/>
-    </LinearLayout>
+    </dylanrose60.selfeducation.LessonOptionsLinearLayout>
 
 </RelativeLayout>
