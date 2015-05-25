@@ -41,13 +41,16 @@
         </activity>
 
         <activity android:name=".LessonDashboard"
-            android:label="LessonDashboard">
+            android:label="LessonDashboard"
+            >
         </activity>
 
     </application>
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <uses-feature android:name="android.hardware.camera" android:required="true"/>
 
     <uses-sdk tools:overrideLibrary="com.etsy.android.grid"/>
 

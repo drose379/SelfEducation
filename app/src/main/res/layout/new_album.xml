@@ -10,6 +10,7 @@
         android:layout_height="match_parent"
         android:background="@color/ColorAccent"
         android:orientation="vertical"
+        android:isScrollContainer="true"
         >
 
         <dylanrose60.selfeducation.TitleTextView

@@ -52,6 +52,7 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
+
         //need to grab toolbar and set title to lesson name also save subject and category for later use
         //grab from intent
 
