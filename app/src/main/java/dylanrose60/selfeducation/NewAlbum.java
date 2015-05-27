@@ -5,8 +5,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 
@@ -21,13 +24,18 @@ import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import java.io.File;
+import java.io.IOError;
+import java.io.IOException;
+import java.util.Random;
+
 
 public class NewAlbum extends Fragment {
 
     private ViewGroup parentLayout;
     private Context context;
 
-    private Bitmap defBitmap;
+    private File imageFile;
 
 
     @Override
@@ -38,26 +46,30 @@ public class NewAlbum extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstance) {
-        Log.i("created","new frag created");
         super.onCreateView(inflater, container, savedInstance);
 
         View view = inflater.inflate(R.layout.new_album,container,false);
-
-        if (savedInstance != null && savedInstance.getParcelable("bitmap") != null) {
-            defBitmap = savedInstance.getParcelable("bitmap");
-            ImageView defImage = (ImageView) view.findViewById(R.id.defaultImage);
-            //defImage.setBackground(null);
-            ViewGroup.LayoutParams params = defImage.getLayoutParams();
-            params.width=LinearLayout.LayoutParams.WRAP_CONTENT;
-            params.height=LinearLayout.LayoutParams.WRAP_CONTENT;
-            defImage.setLayoutParams(params);
-            defImage.setImageBitmap(defBitmap);
-        }
 
         setDefaultImageListener(view);
         setConfirmListener(view);
         this.parentLayout = container;
         return view;
+    }
+
+    public void setConfirmListener(View view) {
+        //Button click listener
+        Button confButton = (Button) view.findViewById(R.id.confButton);
+        confButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*
+                    * Make sure all fields are filled
+                    * Grab all data, including the default image url (must be uploaded first)
+                    * Create new album
+                    * set request code to 0 to decipher difference in onActivityResult
+                 */
+            }
+        });
     }
 
     public void setDefaultImageListener(View view) {
@@ -79,8 +91,8 @@ public class NewAlbum extends Fragment {
                     public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence itemSelected) {
                         switch (String.valueOf(itemSelected)) {
                             case "Camera":
-                                Intent takePhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                                startActivityForResult(takePhoto,1);
+                                Intent startCamera = new Intent(getActivity(),CameraAccess.class);
+                                startActivity(startCamera);
                                 break;
 
                             case "Storage":
@@ -95,51 +107,8 @@ public class NewAlbum extends Fragment {
         });
 
     }
-    public void setConfirmListener(View view) {
-        //Button click listener
-        Button confButton = (Button) view.findViewById(R.id.confButton);
-        confButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*
-                    * Make sure all fields are filled
-                    * Grab all data, including the default image url (must be uploaded first)
-                    * Create new album
-                    * set request code to 0 to decipher difference in onActivityResult
-                 */
-            }
-        });
-    }
 
-    @Override
-    public void onActivityResult(int requestCode,int resultCode,Intent data) {
 
-        /*
-            * Use switch{} on requestcode to tell if intent is coming from camera or from device storage
-         */
-
-        switch (requestCode) {
-            case 0:
-                //from storage
-                break;
-
-            case 1:
-                Bundle imageInfo = data.getExtras();
-                defBitmap = (Bitmap) imageInfo.get("data");
-                if (defBitmap != null) {
-                    View v = LayoutInflater.from(context).inflate(R.layout.new_album, null, false);
-                    ImageView defaultImage = (ImageView) v.findViewById(R.id.defaultImage);
-                    defaultImage.setImageBitmap(defBitmap);
-                }
-                break;
-        }
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelable("bitmap",defBitmap);
-    }
 
     @Override
     public void onDetach() {
