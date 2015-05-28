@@ -1,10 +1,15 @@
 package dylanrose60.selfeducation;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.View;
@@ -48,17 +53,31 @@ public class CameraAccess extends ActionBarActivity {
 
             LinearLayout origControls = (LinearLayout) findViewById(R.id.origionalControls);
             LinearLayout afterControl = (LinearLayout) findViewById(R.id.afterPhotoControls);
+            LinearLayout camSettings = (LinearLayout) findViewById(R.id.cameraSettings);
 
             origControls.setVisibility(View.GONE);
+            camSettings.setVisibility(View.GONE);
             afterControl.setVisibility(View.VISIBLE);
 
+            Button save = (Button) afterControl.findViewById(R.id.save);
             Button discard = (Button) afterControl.findViewById(R.id.discard);
             discard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     mainCamera.stopPreview();
+                    imageFile.delete();
                     init();
                     //mainCamera.startPreview();
+                }
+            });
+
+            save.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent callback = new Intent();
+                    callback.putExtra("imagePath",imageFile.getPath());
+                    setResult(1,callback);
+                    finish();
                 }
             });
         }
@@ -95,10 +114,12 @@ public class CameraAccess extends ActionBarActivity {
         previewWindow.addView(mainPreview);
 
         LinearLayout origControls = (LinearLayout) findViewById(R.id.origionalControls);
+        LinearLayout camSettings = (LinearLayout) findViewById(R.id.cameraSettings);
         if (origControls.getVisibility() != View.VISIBLE) {
             LinearLayout afterControls = (LinearLayout) findViewById(R.id.afterPhotoControls);
             afterControls.setVisibility(View.GONE);
             origControls.setVisibility(View.VISIBLE);
+            camSettings.setVisibility(View.VISIBLE);
         }
 
         Button capture = (Button) findViewById(R.id.capture);

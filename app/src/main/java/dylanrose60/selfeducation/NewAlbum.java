@@ -35,6 +35,8 @@ public class NewAlbum extends Fragment {
     private ViewGroup parentLayout;
     private Context context;
 
+    private String albumName;
+    private String albumDesc;
     private File imageFile;
 
 
@@ -47,7 +49,6 @@ public class NewAlbum extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstance) {
         super.onCreateView(inflater, container, savedInstance);
-
         View view = inflater.inflate(R.layout.new_album,container,false);
 
         setDefaultImageListener(view);
@@ -91,8 +92,8 @@ public class NewAlbum extends Fragment {
                     public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence itemSelected) {
                         switch (String.valueOf(itemSelected)) {
                             case "Camera":
-                                Intent startCamera = new Intent(getActivity(),CameraAccess.class);
-                                startActivity(startCamera);
+                                Intent startCamera = new Intent(getActivity(), CameraAccess.class);
+                                startActivityForResult(startCamera, 1);
                                 break;
 
                             case "Storage":
@@ -108,10 +109,31 @@ public class NewAlbum extends Fragment {
 
     }
 
+    //grab default image path from camera activity
+    @Override
+    public void onActivityResult(int requestCode,int resultCode,Intent data) {
+        switch (resultCode) {
+            case 1:
+                String imagePath = data.getStringExtra("imagePath");
+                imageFile = new File(imagePath);
+                setImagePreview();
+                break;
+        }
+    }
+
+    public void setImagePreview() {
+        ImageView defaultImage = (ImageView) getView().findViewById(R.id.defaultImage);
+        ViewGroup.LayoutParams params = defaultImage.getLayoutParams();
+        params.width = 400;
+        params.height=400;
+        defaultImage.setLayoutParams(params);
+        defaultImage.setImageBitmap(BitmapFactory.decodeFile(imageFile.getPath()));
+    }
 
 
     @Override
     public void onDetach() {
+        Log.i("detach","Detached");
         super.onDetach();
     }
 
