@@ -93,14 +93,11 @@ public class CameraAccess extends ActionBarActivity {
     public void init() {
         if (mainCamera == null) {
             mainCamera = getCamera();
-
-            Camera.Parameters params = mainCamera.getParameters();
-            List<String> flashModes = params.getSupportedFlashModes();
-            List<String> focus = params.getSupportedFocusModes();
-            params.setFlashMode("on");
-            params.setFocusMode("auto");
-            mainCamera.setParameters(params);
-            Log.i("focusModes",focus.toString());
+            Camera.Parameters camParams = mainCamera.getParameters();
+            camParams.setFlashMode("auto");
+            camParams.setFocusMode("auto");
+            camParams.setRotation(0);
+            mainCamera.setParameters(camParams);
         }
         if (mainPreview == null) {
             mainPreview = new CameraPreview(this,mainCamera);

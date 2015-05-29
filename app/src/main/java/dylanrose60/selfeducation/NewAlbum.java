@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.Drawable;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -115,19 +118,40 @@ public class NewAlbum extends Fragment {
         switch (resultCode) {
             case 1:
                 String imagePath = data.getStringExtra("imagePath");
+
                 imageFile = new File(imagePath);
-                setImagePreview();
+
+                try {
+                    ExifInterface jpegInterface = new ExifInterface(imagePath);
+                    jpegInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_ROTATE_90));
+                    jpegInterface.saveAttributes();
+                    setImagePreview();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
                 break;
         }
     }
 
-    public void setImagePreview() {
+    public void setImagePreview() throws IOException {
         ImageView defaultImage = (ImageView) getView().findViewById(R.id.defaultImage);
+        ExifInterface imageParams = new ExifInterface(imageFile.getPath());
+
         ViewGroup.LayoutParams params = defaultImage.getLayoutParams();
-        params.width = 400;
-        params.height=400;
+        params.width = 350;
+        params.height= 350;
         defaultImage.setLayoutParams(params);
-        defaultImage.setImageBitmap(BitmapFactory.decodeFile(imageFile.getPath()));
+
+        if (imageParams.getAttribute(ExifInterface.TAG_ORIENTATION).equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_90))) {
+            defaultImage.setRotation(90f);
+            defaultImage.setImageBitmap(BitmapFactory.decodeFile(imageFile.getPath()));
+        }
+
+
+
+
+        //testing matrix
+
     }
 
 
