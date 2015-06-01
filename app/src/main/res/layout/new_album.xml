@@ -1,38 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:fab="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    >
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/ColorAccent"
         android:orientation="vertical"
-        android:isScrollContainer="true"
         >
 
         <dylanrose60.selfeducation.TitleTextView
             android:layout_width="320dp"
-            android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:textColor="@color/ColorSubText"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/aNameTitle"
             android:textSize="16sp"
             android:text="Album Name:"/>
 
         <EditText
             android:layout_width="320dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_below="@+id/aNameTitle"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:id="@+id/albumName"
             />
 
         <dylanrose60.selfeducation.TitleTextView
             android:layout_width="320dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_below="@+id/albumName"
+            android:id="@+id/descTitle"
             android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:textColor="@color/ColorSubText"
             android:textSize="16sp"
@@ -40,44 +45,50 @@
 
         <EditText
             android:layout_width="320dp"
-            android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/descTitle"
+            android:layout_centerHorizontal="true"
             android:id="@+id/albumDesc"
             />
 
         <dylanrose60.selfeducation.TitleTextView
             android:layout_width="320dp"
-            android:layout_gravity="center_horizontal"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:textColor="@color/ColorSubText"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/albumDesc"
+            android:id="@+id/imageTitle"
             android:textSize="16sp"
             android:text="Cover Photo:"/>
 
         <ImageView
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:layout_gravity="center_horizontal"
             android:layout_marginTop="20dp"
             android:background="@drawable/black_border2"
+            android:layout_below="@+id/imageTitle"
+            android:layout_centerHorizontal="true"
             android:src="@drawable/question_64"
             android:id="@+id/defaultImage"/>
 
-        <Button
+        <com.melnykov.fab.FloatingActionButton
+            android:id="@+id/confButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="120dp"
-            android:paddingLeft="50dp"
-            android:paddingRight="50dp"
-            android:layout_gravity="center_horizontal"
-            android:text="DONE"
-            android:textColor="@color/ColorAccent"
-            android:background="@color/ColorPrimary"
-            android:id="@+id/confButton"/>
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="6dp"
+            android:layout_marginBottom="68dp"
+            android:src="@drawable/check_32"
+            fab:fab_colorNormal="@color/ColorPrimary"
+            fab:fab_colorPressed="@color/ColorStatusBar"
+            fab:fab_colorRipple="@color/ColorMenuAccent"
+            />
 
 
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </LinearLayout>

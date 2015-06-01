@@ -15,19 +15,33 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.provider.MediaStore.Files.FileColumns;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.melnykov.fab.FloatingActionButton;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOError;
 import java.io.IOException;
 import java.util.Random;
@@ -41,6 +55,8 @@ public class NewAlbum extends Fragment {
     private String albumName;
     private String albumDesc;
     private File imageFile;
+
+    private OkHttpClient httpClient = new OkHttpClient();
 
 
     @Override
@@ -62,16 +78,71 @@ public class NewAlbum extends Fragment {
 
     public void setConfirmListener(View view) {
         //Button click listener
-        Button confButton = (Button) view.findViewById(R.id.confButton);
+        final FloatingActionButton confButton = (FloatingActionButton) view.findViewById(R.id.confButton);
         confButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+
                 /*
                     * Make sure all fields are filled
                     * Grab all data, including the default image url (must be uploaded first)
                     * Create new album
                     * set request code to 0 to decipher difference in onActivityResult
                  */
+
+                albumName = null;
+                albumDesc = null;
+
+                EditText albumNameArea = (EditText) getView().findViewById(R.id.albumName);
+                EditText albumDescArea = (EditText) getView().findViewById(R.id.albumDesc);
+
+                if (albumNameArea.length() > 1) {
+                    albumName = albumNameArea.getText().toString();
+                } else {
+                    //set errror or use error anim
+                }
+                if (albumDescArea.length() > 1) {
+                    albumDesc = albumDescArea.getText().toString();
+                } else {
+                    //set error or error anim
+                }
+
+                if (albumDesc != null && albumName != null && imageFile != null) {
+                    Log.i("allFull", "AllFull");
+                    /*
+                        * once both requests are finished, (onResponse from the second request) close this fragment and reload the lesson dashboard
+                        * Build a multipart-form and send to php script that generates a random name for the image and saves the default photo in directory
+                        * Image name on directory will be returned on onResponse(Response).
+                        * Use returned name to save all photo album info in photo_albums table in DB
+                     */
+
+                    MediaType MEDIA_TYPE_JPG = MediaType.parse("image/jpeg");
+
+                    RequestBody body = new MultipartBuilder()
+                            .type(MultipartBuilder.FORM)
+                            .addPart(RequestBody.create(MEDIA_TYPE_JPG, imageFile))
+                            .build();
+
+                    Request.Builder rBuilder = new Request.Builder();
+                    rBuilder.url();
+                    rBuilder.post(body);
+
+                    Call newCall = httpClient.newCall(rBuilder.build());
+                    newCall.enqueue(new Callback() {
+                        @Override
+                        public void onFailure(Request request, IOException e) {
+
+                        }
+
+                        @Override
+                        public void onResponse(Response response) throws IOException {
+                            //grab image location on server from return content
+                            //call method to insert photo album entry in db, pass image location
+                        }
+                    });
+
+                }
             }
         });
     }
@@ -147,11 +218,6 @@ public class NewAlbum extends Fragment {
             defaultImage.setImageBitmap(BitmapFactory.decodeFile(imageFile.getPath()));
         }
 
-
-
-
-        //testing matrix
-
     }
 
 
@@ -159,6 +225,18 @@ public class NewAlbum extends Fragment {
     public void onDetach() {
         Log.i("detach","Detached");
         super.onDetach();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        Window currentWindow = getActivity().getWindow();
+        WindowManager.LayoutParams windowParams = (WindowManager.LayoutParams) currentWindow.getAttributes();
+        windowParams.softInputMode = WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN;
+        currentWindow.setAttributes(windowParams);
+
+
     }
 
 }

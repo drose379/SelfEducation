@@ -51,12 +51,10 @@ public class CameraAccess extends ActionBarActivity {
 
 
 
-            LinearLayout origControls = (LinearLayout) findViewById(R.id.origionalControls);
+            LinearLayout origControls = (LinearLayout) findViewById(R.id.origControls);
             LinearLayout afterControl = (LinearLayout) findViewById(R.id.afterPhotoControls);
-            LinearLayout camSettings = (LinearLayout) findViewById(R.id.cameraSettings);
 
             origControls.setVisibility(View.GONE);
-            camSettings.setVisibility(View.GONE);
             afterControl.setVisibility(View.VISIBLE);
 
             Button save = (Button) afterControl.findViewById(R.id.save);
@@ -110,22 +108,25 @@ public class CameraAccess extends ActionBarActivity {
         previewWindow.removeAllViews();
         previewWindow.addView(mainPreview);
 
-        LinearLayout origControls = (LinearLayout) findViewById(R.id.origionalControls);
-        LinearLayout camSettings = (LinearLayout) findViewById(R.id.cameraSettings);
+        LinearLayout origControls = (LinearLayout) findViewById(R.id.origControls);
         if (origControls.getVisibility() != View.VISIBLE) {
             LinearLayout afterControls = (LinearLayout) findViewById(R.id.afterPhotoControls);
             afterControls.setVisibility(View.GONE);
             origControls.setVisibility(View.VISIBLE);
-            camSettings.setVisibility(View.VISIBLE);
         }
 
         Button capture = (Button) findViewById(R.id.capture);
         Button cancel = (Button) findViewById(R.id.cancel);
 
+        Button save = (Button) findViewById(R.id.save);
+        Button discard = (Button) findViewById(R.id.discard);
+
         Typeface sansPro = Typeface.createFromAsset(getAssets(),"sourceSans_reg.ttf");
 
         capture.setTypeface(sansPro);
         cancel.setTypeface(sansPro);
+        save.setTypeface(sansPro);
+        discard.setTypeface(sansPro);
 
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override

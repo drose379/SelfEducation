@@ -14,49 +14,18 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="4.25"
+            android:layout_weight="4.45"
             android:id="@+id/previewContainer">
 
         </FrameLayout>
-
-
-        <LinearLayout
-            android:layout_height="0dp"
-            android:layout_width="match_parent"
-            android:layout_weight="0.30"
-            android:id="@+id/cameraSettings"
-            android:background="@color/ColorBlack"
-            >
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:id="@+id/flashMode"
-                android:background="@color/ColorPrimary"
-                android:layout_margin="0.5dp"
-                android:text="Flash: On"/>
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:id="@+id/focusMode"
-                android:background="@color/ColorPrimary"
-                android:layout_margin="0.5dp"
-                android:text="AutoFocus: On"/>
-
-
-        </LinearLayout>
-
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:orientation="horizontal"
             android:background="@color/ColorBlack"
-            android:id="@+id/origionalControls"
-            android:layout_weight="0.45">
+            android:id="@+id/origControls"
+            android:layout_weight="0.55">
 
             <Button
                 android:layout_width="0dp"
@@ -65,7 +34,6 @@
                 android:text="Cancel"
                 android:textSize="18sp"
                 android:background="#ef5350"
-                android:layout_margin="0.5dp"
                 android:id="@+id/cancel"
                 />
 
@@ -76,7 +44,6 @@
                 android:text="Capture"
                 android:textSize="18sp"
                 android:background="#69f0ae"
-                android:layout_margin="0.5dp"
                 android:id="@+id/capture"
                 />
 
@@ -89,7 +56,7 @@
             android:id="@+id/afterPhotoControls"
             android:visibility="gone"
             android:background="@color/ColorBlack"
-            android:layout_weight="0.75">
+            android:layout_weight="0.55">
 
             <Button
                 android:layout_width="0dp"
