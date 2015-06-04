@@ -82,6 +82,7 @@ public class SubjectDashboard extends ActionBarActivity implements LessonManager
         Intent intent = getIntent();
         Bundle subInfo = intent.getBundleExtra("selectedInfo");
         subject = (String) subInfo.get("subName");
+        ownerID = (String) subInfo.get("ownerID");
         type = (int) subInfo.get("subType");
         //0 == local | 1 == public | 2 == bookmark (if 2, need to get more data about the bookmark
 

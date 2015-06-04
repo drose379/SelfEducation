@@ -4,6 +4,7 @@ package dylanrose60.selfeducation;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -33,6 +34,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.melnykov.fab.FloatingActionButton;
 import com.squareup.okhttp.Call;
 import com.squareup.okhttp.Callback;
+import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -52,6 +55,8 @@ public class NewAlbum extends Fragment {
     private ViewGroup parentLayout;
     private Context context;
 
+    private String ownerID;
+
     private String albumName;
     private String albumDesc;
     private File imageFile;
@@ -68,6 +73,11 @@ public class NewAlbum extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater,ViewGroup container,Bundle savedInstance) {
         super.onCreateView(inflater, container, savedInstance);
+
+        Bundle ownerInfo = getArguments();
+        ownerID = ownerInfo.getString("ownerID");
+
+
         View view = inflater.inflate(R.layout.new_album,container,false);
 
         setDefaultImageListener(view);
@@ -108,7 +118,9 @@ public class NewAlbum extends Fragment {
                     //set error or error anim
                 }
 
-                if (albumDesc != null && albumName != null && imageFile != null) {
+                //check for title and desc also
+
+                if (albumName != null &&albumDesc != null && imageFile != null) {
                     Log.i("allFull", "AllFull");
                     /*
                         * once both requests are finished, (onResponse from the second request) close this fragment and reload the lesson dashboard
@@ -121,11 +133,11 @@ public class NewAlbum extends Fragment {
 
                     RequestBody body = new MultipartBuilder()
                             .type(MultipartBuilder.FORM)
-                            .addPart(RequestBody.create(MEDIA_TYPE_JPG, imageFile))
+                            .addFormDataPart("photo",imageFile.getName(),RequestBody.create(MEDIA_TYPE_JPG,imageFile))
                             .build();
 
                     Request.Builder rBuilder = new Request.Builder();
-                    rBuilder.url();
+                    rBuilder.url("http://104.236.15.47/selfEducate/index.php/albumDefInsert");
                     rBuilder.post(body);
 
                     Call newCall = httpClient.newCall(rBuilder.build());
@@ -139,6 +151,7 @@ public class NewAlbum extends Fragment {
                         public void onResponse(Response response) throws IOException {
                             //grab image location on server from return content
                             //call method to insert photo album entry in db, pass image location
+                            //.finish() this fragment and create a snackbar, make sure dashboard is refreshed in case this is first of type (photo album)
                         }
                     });
 
@@ -171,7 +184,8 @@ public class NewAlbum extends Fragment {
                                 break;
 
                             case "Storage":
-                                //intent to grab from storage
+                                Intent startGallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                startActivityForResult(startGallery, 2);
                                 break;
                         }
                     }
@@ -186,25 +200,40 @@ public class NewAlbum extends Fragment {
     //grab default image path from camera activity
     @Override
     public void onActivityResult(int requestCode,int resultCode,Intent data) {
-        switch (resultCode) {
+        switch (requestCode) {
             case 1:
                 String imagePath = data.getStringExtra("imagePath");
-
                 imageFile = new File(imagePath);
 
                 try {
                     ExifInterface jpegInterface = new ExifInterface(imagePath);
                     jpegInterface.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(ExifInterface.ORIENTATION_ROTATE_90));
                     jpegInterface.saveAttributes();
-                    setImagePreview();
+                    setImagePreview(true);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
+                }
+                break;
+            case 2:
+                Uri imageUri = data.getData();
+
+                String[] external = {MediaStore.Images.Media.DATA};
+                Cursor cursor = getActivity().getContentResolver().query(imageUri,external,null,null,null);
+                cursor.moveToFirst();
+                int column_index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                String realPath = cursor.getString(column_index);
+
+                imageFile =  new File(realPath);
+                try {
+                    setImagePreview(false);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
                 break;
         }
     }
 
-    public void setImagePreview() throws IOException {
+    public void setImagePreview(boolean custom) throws IOException {
         ImageView defaultImage = (ImageView) getView().findViewById(R.id.defaultImage);
         ExifInterface imageParams = new ExifInterface(imageFile.getPath());
 
@@ -212,11 +241,15 @@ public class NewAlbum extends Fragment {
         params.width = 350;
         params.height= 350;
         defaultImage.setLayoutParams(params);
-
-        if (imageParams.getAttribute(ExifInterface.TAG_ORIENTATION).equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_90))) {
-            defaultImage.setRotation(90f);
+        if (custom) {
+            if (imageParams.getAttribute(ExifInterface.TAG_ORIENTATION).equals(String.valueOf(ExifInterface.ORIENTATION_ROTATE_90))) {
+                defaultImage.setRotation(90f);
+                defaultImage.setImageBitmap(BitmapFactory.decodeFile(imageFile.getPath()));
+            }
+        } else {
             defaultImage.setImageBitmap(BitmapFactory.decodeFile(imageFile.getPath()));
         }
+
 
     }
 

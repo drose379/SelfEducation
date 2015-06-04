@@ -99,6 +99,7 @@ public class MySubjectsFragment extends Fragment {
         Cursor cursor = db.rawQuery(query,null);
         if (cursor.moveToFirst()) {
             ownerID = cursor.getString(cursor.getColumnIndex("ID"));
+            Log.i("ownerID",ownerID);
             getSubjects();
         }
          else {
@@ -217,7 +218,10 @@ public class MySubjectsFragment extends Fragment {
                             Bundle selectedSubInfo = new Bundle();
                             selectedSubInfo.putString("subName", child);
                             selectedSubInfo.putInt("subType", 0);
+                            selectedSubInfo.putString("ownerID",ownerID);
                             //need to add values to tell which tab was selected
+
+                            //need to pass ownerID
 
                             newAct.putExtra("selectedInfo", selectedSubInfo);
                             startActivity(newAct);

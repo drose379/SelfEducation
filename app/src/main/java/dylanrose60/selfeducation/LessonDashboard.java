@@ -36,7 +36,7 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
         * Add guide icon to dashboard by default, if no other items, show no items added to lesson yet dialot
         * Add guide functionality
      */
-
+    private String ownerID;
     private String subjectName;
     private String lessonName;
 
@@ -75,6 +75,8 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
         guideCaret.setAnimation(set);
 
         Bundle lessonInfo = getIntent().getBundleExtra("lessonInfo");
+        //ownerID is null
+        ownerID = lessonInfo.getString("ownerID");
         lessonName = lessonInfo.getString("lesson");
         subjectName = lessonInfo.getString("subject");
 
@@ -171,6 +173,11 @@ public class LessonDashboard extends ActionBarActivity implements SlidingUpPanel
                 FragmentTransaction fragTrans = fragManager.beginTransaction();
 
                 NewAlbum newAlbum = new NewAlbum();
+                Bundle ownerInfo = new Bundle();
+                //ownerID is null
+                ownerInfo.putString("ownerID",ownerID);
+
+                newAlbum.setArguments(ownerInfo);
                 fragTrans.add(R.id.fragmentContainer, newAlbum, "newAlbum");
                 fragTrans.addToBackStack("newAlbum");
 

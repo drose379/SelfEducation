@@ -291,6 +291,7 @@ public class LessonList extends ActionBarActivity {
                     Bundle lessonInfo = new Bundle();
                     lessonInfo.putString("subject",subject);
                     lessonInfo.putString("lesson",lessonPacks.get(position).getName());
+                    lessonInfo.putString("ownerID",ownerID);
                     intent.putExtra("lessonInfo",lessonInfo);
                     startActivity(intent);
 
